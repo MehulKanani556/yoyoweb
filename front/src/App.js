@@ -10,10 +10,15 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import { PersistGate } from "redux-persist/integration/react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import './App.css';
+import Home from './pages/Home';
+import Footer from './footer/Footer';
+import Header from './header/Header';
 // import UploadProgressBar from "./component/Common/UploadProgressBar";
 
 const { store, persistor } = configureStore();
 window.persistor = persistor;
+
 
 function App() {
   // const navigate = useNavigate();
@@ -36,7 +41,7 @@ function App() {
   //   }
   // }, []);
 
- 
+
 
   return (
     <Provider store={store}>
@@ -50,18 +55,18 @@ function App() {
           autoHideDuration={4000}
         >
           {/* <SocketProvider> */}
-            <Routes>
-              <Route path="/*" element={<UserRouts />} />
-              <Route
-                path="/admin/*"
-                element={
-                  <ProtectedRoute requiredRole="admin">
-                    {" "}
-                    <AdminRoutes />{" "}
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
+          <Routes>
+            <Route path="/*" element={<UserRouts />} />
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  {" "}
+                  <AdminRoutes />{" "}
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
           {/* </SocketProvider> */}
         </SnackbarProvider>
       </PersistGate>
