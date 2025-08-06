@@ -9,6 +9,7 @@ import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
 import { updateUser } from "../Redux/Slice/user.slice";
 import { IMAGE_URL } from "../Utils/baseUrl";
+import { decryptData, encryptData } from "../Utils/encryption";
 
 const AdminProfile = () => {
   const userId = sessionStorage.getItem("userId");
@@ -31,10 +32,19 @@ const AdminProfile = () => {
     },
     // validationSchema: validationSchema,
     onSubmit: (values) => {
+      const encryptedValues = {
+        firstName: values.firstName ? encryptData(values.firstName) : '',
+        lastName: values.lastName ? encryptData(values.lastName) : '',
+        email: values.email ? encryptData(values.email) : '',
+        photo: values.photo ? values.photo : '',
+        phoneNo: values.phoneNo ? encryptData(values.phoneNo) : '',
+        gender: values.gender ? encryptData(values.gender) : '',
+        dob: values.dob ? encryptData(values.dob) : ''
+      };
       dispatch(
         updateUser({
           id: userId,
-          values: values,
+          values: encryptedValues,
           file: selectedFile,
         })
       ).then((response) => {
@@ -69,16 +79,16 @@ const AdminProfile = () => {
   useEffect(() => {
     if (currentUser) {
       const initVals = {
-        firstName: currentUser.firstName || "",
-        lastName: currentUser.lastName || "",
-        email: currentUser.email || "",
+        firstName: decryptData(currentUser.firstName) || "",
+        lastName: decryptData(currentUser.lastName) || "",
+        email: decryptData(currentUser.email) || "",
         photo: currentUser.photo || "",
-        phoneNo: currentUser.phoneNo || "",
-        gender: currentUser.gender || "",
+        phoneNo: decryptData(currentUser.phoneNo) || "",
+        gender: decryptData(currentUser.gender) || "",
       };
       setValues(initVals);
       setInitialValues(initVals);
-      setGender(currentUser.gender);
+      setGender(decryptData(currentUser.gender));
     }
   }, [currentUser, setValues]);
 
@@ -96,22 +106,6 @@ const AdminProfile = () => {
     setIsChanged(changed);
   }, [values, selectedFile, imageRemoved, initialValues]);
 
-  const validationSchema = Yup.object({
-    firstName: Yup.string().required("First Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Email is required"),
-    phoneNo: Yup.string()
-      .matches(/^[0-9]{10}$/g, "Phone number must be 10 digits")
-      .required("Phone number is required"),
-    gender: Yup.string()
-      .oneOf(
-        ["male", "female", "other"],
-        "Gender must be male, female, or other"
-      )
-      .required("Gender is required"),
-  });
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -197,8 +191,8 @@ const AdminProfile = () => {
                 ) : (
                   <div className="text-black text-lg font-bold flex w-24 h-24 justify-center items-center">
                     <span className="text-black font-bold text-3xl uppercase">
-                      {currentUser?.firstName?.[0]}
-                      {currentUser?.lastName?.[0]}
+                    {decryptData(currentUser?.firstName)?.[0] || ""}
+                    {decryptData(currentUser?.lastName)?.[0] || ""}
                     </span>
                   </div>
                 )}

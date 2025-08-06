@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllUsers } from '../Redux/Slice/user.slice';
 import { IMAGE_URL } from '../Utils/baseUrl';
-
+import { decryptData } from "../Utils/encryption";
 export default function User() {
     const [searchValue, setSearchValue] = useState('');
     const dispatch = useDispatch();
@@ -77,13 +77,14 @@ export default function User() {
                                 <td className="py-2 px-5 flex items-center">
                                     <img
                                         src={user.photo}
-                                        alt={user.firstName}
+                                        alt={decryptData(user.firstName)}
                                         className="w-10 h-10 rounded-full mr-2 object-cover"
                                     // onError={(e) => {
                                     //     e.target.src = "https://via.placeholder.com/40x40?text=No+Image";
                                     // }}
                                     />
-                                    {user.firstName}
+
+                                    {decryptData(user.firstName)}
                                 </td>
                                 {/* <td className="py-2 px-5">
                                     <span className="truncate block max-w-xs">
@@ -92,17 +93,17 @@ export default function User() {
                                 </td> */}
                                 <td className="py-2 px-5">
                                     <span className="truncate block max-w-xs">
-                                        {user.lastName}
+                                        {decryptData(user.lastName)}
                                     </span>
                                 </td>
                                 <td className="py-2 px-5">
                                     <span className="truncate block max-w-xs">
-                                        {user.email}
+                                        {decryptData(user.email)}
                                     </span>
                                 </td>
                                 <td className="py-2 px-5">
                                     <span className="truncate block max-w-xs">
-                                        {user.phoneNo || 'N/A'}
+                                        {decryptData(user.phoneNo) || 'N/A'}
                                     </span>
                                 </td>
                                 <td className="py-2 px-5">

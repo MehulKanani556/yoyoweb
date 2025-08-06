@@ -41,6 +41,8 @@ import { HiOutlineShieldCheck } from 'react-icons/hi2';
 import { IMAGE_URL } from '../Utils/baseUrl';
 import { resetPassword } from "../Redux/Slice/user.slice";
 import { logoutUser } from '../Redux/Slice/auth.slice';
+import { getDeviceId } from '../Utils/getDeviceId';
+import { decryptData } from '../Utils/encryption';
 // import { logout } from '../reduxe/slice/auth.slice';
 // import { setSearchValue } from '../reduxe/slice/search.slice';
 
@@ -63,6 +65,8 @@ function Layout({ children }) {
   const dropdownRef = useRef(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const userdata =  useSelector(state => state.auth.user)
+ 
+
   // console.log(userdata);
 
   // Memoize the user data
@@ -110,8 +114,10 @@ function Layout({ children }) {
   const handleLogout = async () => {
     try { 
       if (userId) {
+        const deviceId = await getDeviceId()
         const data = {
           userId:userId,
+          deviceId:deviceId
         }     
         await dispatch(logoutUser(data));
       }
@@ -399,7 +405,7 @@ function Layout({ children }) {
                             "linear-gradient(90deg, #00C6FF 0%, #0072FF 100%)",
                         }}
                       >
-                        {user?.firstName?.[0]}
+                        {decryptData(user?.firstName)?.[0] || ""}
                       </span>
                     )}
                   </div>
@@ -407,14 +413,16 @@ function Layout({ children }) {
                     <div
                       style={{ fontSize: "16px", fontWeight: 500 }}
                       className="capitalize"
-                    >
-                      {memoizedUser?.name}
+                    >                      
+                      {decryptData(memoizedUser?.name)}
                     </div>
                     <div
                       style={{ fontSize: "14px" }}
                       className="capitalize flex items-center gap-1 text-brown-50"
                     >
-                      <span>{user?.firstName} {user?.lastName}</span>
+                      <span>
+                      {decryptData(user?.firstName)} {decryptData(user?.lastName)}
+                        </span>
                       <span>
                         {dropdownOpen ? <FaAngleUp /> : <FaAngleDown />}
                       </span>
