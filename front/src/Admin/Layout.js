@@ -378,7 +378,7 @@ function Layout({ children }) {
               className="gap-4 me-4"
             >
               <div color="inherit" sx={{ ml: 2 }} className="relative">
-                <div
+                {/* <div
                   className="flex gap-2 items-center"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   style={{ cursor: "pointer" }}
@@ -425,7 +425,7 @@ function Layout({ children }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </div> */}
                 {dropdownOpen && (
                   <div
                     ref={dropdownRef}

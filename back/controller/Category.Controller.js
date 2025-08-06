@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const { ThrowError } = require('../utils/ErrorUtils.js');
 const fs = require("fs");
-const MovieCategory = require('../models/movieCategory.model.js');
+const Category = require('../models/Category.model.js');
+
 const {fileupload, deleteFile,} = require('../helper/cloudinary.js');
 
 // Create a new category
@@ -12,11 +13,11 @@ exports.createCategory = function(req, res) {
             const category_description = req.body.category_description;
             const category_image = req.file ? req.file.path : undefined;
 
-            const filedata = await fileupload(req.file.path, "MovieCategoryImage")
+            const filedata = await fileupload(req.file.path, "CategoryImage")
             console.log(filedata)
             
             if(!filedata.message){
-                const category = new MovieCategory({
+                const category = new Category({
                     categoryName: categoryName,
                     category_image:{
                         url:filedata.Location,
@@ -49,7 +50,7 @@ exports.getCategoryById = function(req, res) {
             if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
                 return ThrowError(res, 400, 'Invalid category ID');
             }
-            const category = await MovieCategory.findById(req.params.id);
+            const category = await Category.findById(req.params.id);
             if (!category) return ThrowError(res, 404, 'Category not found');
             res.json(category);
         } catch (error) {
@@ -62,7 +63,7 @@ exports.getCategoryById = function(req, res) {
 exports.getAllCategories = function(req, res) {
     (async function() {
         try {
-            const categories = await MovieCategory.find();
+            const categories = await Category.find();
             if (!categories || categories.length === 0) return ThrowError(res, 404, 'No categories found');
             res.json(categories);
         } catch (error) {
@@ -82,7 +83,7 @@ exports.updateCategory = function(req, res) {
                 return ThrowError(res, 400, 'Invalid category ID');
             }
             
-            const category = await MovieCategory.findById(req.params.id);
+            const category = await Category.findById(req.params.id);
             if (!category) {
                 if (req.file?.path && fs.existsSync(req.file.path)) {
                     fs.unlinkSync(req.file.path);
@@ -94,7 +95,7 @@ exports.updateCategory = function(req, res) {
             if (req.file?.path) {
               await  deleteFile(category.category_image.public_id)
 
-              const filedata = await fileupload(req.file.path, "MovieCategoryImage")
+              const filedata = await fileupload(req.file.path, "CategoryImage")
                 // if (category.category_image && fs.existsSync(category.category_image)) {
                 //     fs.unlinkSync(category.category_image);
                 // }
@@ -136,13 +137,13 @@ exports.deleteCategory = function(req, res) {
             if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
                 return ThrowError(res, 400, 'Invalid category ID');
             }
-            const category = await MovieCategory.findById(req.params.id);
+            const category = await Category.findById(req.params.id);
 
             if(category){
                 await  deleteFile(category.category_image.public_id)
             }
 
-            const deletedCategory = await MovieCategory.findByIdAndDelete(req.params.id);
+            const deletedCategory = await Category.findByIdAndDelete(req.params.id);
             if (!deletedCategory) return ThrowError(res, 404, 'Category not found');
             res.json({ message: 'Category deleted' });
         } catch (error) {

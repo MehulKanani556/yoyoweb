@@ -1,7 +1,7 @@
 // import mongoose from "mongoose";
 const mongoose = require('mongoose')
 
-const movieCategory = new mongoose.Schema({
+const category = new mongoose.Schema({
     categoryName: {
         type: String,
         unique: true
@@ -17,4 +17,4 @@ const movieCategory = new mongoose.Schema({
     timestamps: true
 })
 
-module.exports = mongoose.model('MovieCategory', movieCategory)
+module.exports = mongoose.model('category', category)

@@ -127,7 +127,7 @@ const getContentType = (filePath) => {
   return contentTypeMap[ext] || 'application/octet-stream';
 };
 
-const fileupload = async (filePath, folderName, onProgress) => {
+const fileupload = async (filePath, folderName) => {
   try {
     // Read the file as a buffer instead of using a stream
     const fileBuffer = fs.readFileSync(filePath);
