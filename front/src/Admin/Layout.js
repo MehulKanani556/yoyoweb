@@ -33,7 +33,6 @@ import { Modal } from '@mui/material';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
-import { RxCross2 } from 'react-icons/rx';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { getUserById } from '../Redux/Slice/user.slice';
@@ -41,7 +40,6 @@ import { HiOutlineShieldCheck } from 'react-icons/hi2';
 import { IMAGE_URL } from '../Utils/baseUrl';
 import { resetPassword } from "../Redux/Slice/user.slice";
 import { logoutUser } from '../Redux/Slice/auth.slice';
-import { getDeviceId } from '../Utils/getDeviceId';
 import { decryptData } from '../Utils/encryption';
 // import { logout } from '../reduxe/slice/auth.slice';
 // import { setSearchValue } from '../reduxe/slice/search.slice';
@@ -114,10 +112,9 @@ function Layout({ children }) {
   const handleLogout = async () => {
     try { 
       if (userId) {
-        const deviceId = await getDeviceId()
         const data = {
           userId:userId,
-          deviceId:deviceId
+          
         }     
         await dispatch(logoutUser(data));
       }
