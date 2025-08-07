@@ -1,17 +1,78 @@
 const express = require("express");
 const indexRoutes = express.Router();
-const { removeUser, getUserById, getAllUsers, createNewUser, resetPassword, verifyOtp, sendDeleteOtp, verifyDeleteOtp, getDevices, logoutDevice, enableTwoStep, verifyTwoStep, updateScreenTimeUsage, getScreenTimeRemaining, updateUser, } = require("../controller/user.controller");
-const { userLogin, googleLogin, forgotPassword, changePassword, userLogout, sendOtpToMobile, facebookLogin, generateNewToken, verifyTwoStepOTP, } = require("../auth/auth");
+const {
+  removeUser,
+  getUserById,
+  getAllUsers,
+  createNewUser,
+  resetPassword,
+  verifyOtp,
+  sendDeleteOtp,
+  verifyDeleteOtp,
+  getDevices,
+  logoutDevice,
+  enableTwoStep,
+  verifyTwoStep,
+  updateScreenTimeUsage,
+  getScreenTimeRemaining,
+  updateUser,
+} = require("../controller/user.controller");
+const {
+  userLogin,
+  googleLogin,
+  forgotPassword,
+  changePassword,
+  userLogout,
+  sendOtpToMobile,
+  facebookLogin,
+  generateNewToken,
+  verifyTwoStepOTP,
+} = require("../auth/auth");
 const { auth, movieAuth } = require("../middleware/auth");
-const { createCategory, updateCategory, getCategoryById, getAllCategories, deleteCategory, } = require("../controller/Category.Controller");
+const {
+  createCategory,
+  updateCategory,
+  getCategoryById,
+  getAllCategories,
+  deleteCategory,
+} = require("../controller/Category.Controller");
 const { upload, convertJfifToJpeg } = require("../helper/uplodes");
-const { createContactUs, getContactUsById, getAllContactUs, updateContactUs, deleteContactUs, } = require("../controller/contactUs.Controller");
-const { createTermsCondition, getTermsConditionById, getAllTermsCondition, updateTermsCondition, deleteTermsCondition, } = require("../controller/TermConditions.controller");
-const { createprivacyPolicy, getprivacyPolicyById, getAllprivacyPolicy, updateprivacyPolicy, deleteprivacyPolicy, } = require("../controller/PrivacyPolicy.controller");
-const { createSubscribe, getSubscribeById, getAllSubscribe, updateSubscribe, deleteSubscribe, } = require("../controller/subscribe.controller");
+const {
+  createContactUs,
+  getContactUsById,
+  getAllContactUs,
+  updateContactUs,
+  deleteContactUs,
+} = require("../controller/contactUs.Controller");
+const {
+  createTermsCondition,
+  getTermsConditionById,
+  getAllTermsCondition,
+  updateTermsCondition,
+  deleteTermsCondition,
+} = require("../controller/TermConditions.controller");
+const {
+  createprivacyPolicy,
+  getprivacyPolicyById,
+  getAllprivacyPolicy,
+  updateprivacyPolicy,
+  deleteprivacyPolicy,
+} = require("../controller/PrivacyPolicy.controller");
+const {
+  createSubscribe,
+  getSubscribeById,
+  getAllSubscribe,
+  updateSubscribe,
+  deleteSubscribe,
+} = require("../controller/subscribe.controller");
 
-const { createPayment, getallPayment, getPaymentUser, } = require("../controller/payment.controller");
+const {
+  createPayment,
+  getallPayment,
+  getPaymentUser,
+} = require("../controller/payment.controller");
 const csrf = require("csurf");
+const { getAllGames, createGame, updateGame, deleteGame } = require("../controller/game.controller");
 
 const csrfProtection = csrf({
   cookie: {
@@ -41,9 +102,9 @@ indexRoutes.use((req, res, next) => {
     req.path.startsWith("/createUser") ||
     req.path.startsWith("/verifyOtp") ||
     req.path.startsWith("/forgotPassword") ||
-    req.path.startsWith("/generateNewTokens")||
+    req.path.startsWith("/generateNewTokens") ||
     req.path.startsWith("/createMovie") ||
-    req.path.startsWith("/addview") 
+    req.path.startsWith("/addview")
   ) {
     return next();
   }
@@ -81,23 +142,74 @@ indexRoutes.post("/createUser", createNewUser);
 indexRoutes.get("/allUsers", getAllUsers);
 indexRoutes.post("/verifyOtp", verifyOtp);
 indexRoutes.get("/getUserById/:id", getUserById);
-indexRoutes.put("/userUpdate/:id", upload.single("photo"), csrfProtection, updateUser);
+indexRoutes.put(
+  "/userUpdate/:id",
+  upload.single("photo"),
+  csrfProtection,
+  updateUser
+);
 indexRoutes.delete("/deleteUser/:id", csrfProtection, removeUser);
 indexRoutes.put("/resetPassword", csrfProtection, resetPassword);
 indexRoutes.post("/sendDeleteOtp", csrfProtection, sendDeleteOtp);
 indexRoutes.post("/verifyDeleteOtp", csrfProtection, verifyDeleteOtp);
 indexRoutes.post("/enableTwoStep", csrfProtection, enableTwoStep);
 indexRoutes.post("/verifyTwoStep", csrfProtection, verifyTwoStep);
-indexRoutes.post("/screenTimeUsage/:id", csrfProtection, movieAuth, updateScreenTimeUsage);
+indexRoutes.post(
+  "/screenTimeUsage/:id",
+  csrfProtection,
+  movieAuth,
+  updateScreenTimeUsage
+);
 indexRoutes.get("/screenTimeRemaining/:id", movieAuth, getScreenTimeRemaining);
 
 //movies Category Routes
 
-indexRoutes.post("/createCategory", csrfProtection, upload.single("category_image"), convertJfifToJpeg, createCategory);
+indexRoutes.post(
+  "/createCategory",
+  csrfProtection,
+  upload.single("category_image"),
+  convertJfifToJpeg,
+  createCategory
+);
 indexRoutes.get("/getCategoryById/:id", getCategoryById);
 indexRoutes.get("/getAllCategories", getAllCategories);
-indexRoutes.put("/updateCategory/:id", csrfProtection, upload.single("category_image"), convertJfifToJpeg, updateCategory);
+indexRoutes.put(
+  "/updateCategory/:id",
+  csrfProtection,
+  upload.single("category_image"),
+  convertJfifToJpeg,
+  updateCategory
+);
 indexRoutes.delete("/deleteCategory/:id", csrfProtection, deleteCategory);
+
+//Game 
+indexRoutes.get("/getAllGames", getAllGames);
+indexRoutes.post(
+  "/createGame",
+  upload.fields([
+    { name: "cover_image", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+    { name: "windows_file", maxCount: 1 },
+    { name: "ios_file", maxCount: 1 },
+    { name: "android_file", maxCount: 1 },
+    { name: "images", maxCount: 10 },
+  ]),
+  createGame
+);
+indexRoutes.put(
+  "/updateGame/:id",
+  upload.fields([
+    { name: "cover_image", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+    { name: "windows_file", maxCount: 1 },
+    { name: "ios_file", maxCount: 1 },
+    { name: "android_file", maxCount: 1 },
+    { name: "images", maxCount: 10 },
+  ]),
+ updateGame
+);
+indexRoutes.delete("/deleteGame/:id", deleteGame);
+
 
 // contactUs
 
@@ -112,16 +224,32 @@ indexRoutes.delete("/deleteContactUs/:id", csrfProtection, deleteContactUs);
 indexRoutes.post("/createTermsCondition", csrfProtection, createTermsCondition);
 indexRoutes.get("/getTermsConditionById/:id", getTermsConditionById);
 indexRoutes.get("/getAllTermsCondition", getAllTermsCondition);
-indexRoutes.put("/updateTermsCondition/:id", csrfProtection, updateTermsCondition);
-indexRoutes.delete("/deleteTermsCondition/:id", csrfProtection, deleteTermsCondition);
+indexRoutes.put(
+  "/updateTermsCondition/:id",
+  csrfProtection,
+  updateTermsCondition
+);
+indexRoutes.delete(
+  "/deleteTermsCondition/:id",
+  csrfProtection,
+  deleteTermsCondition
+);
 
 // privacyPolicy
 
 indexRoutes.post("/createprivacyPolicy", csrfProtection, createprivacyPolicy);
 indexRoutes.get("/getprivacyPolicyById/:id", getprivacyPolicyById);
 indexRoutes.get("/getAllprivacyPolicy", getAllprivacyPolicy);
-indexRoutes.put("/updateprivacyPolicy/:id", csrfProtection, updateprivacyPolicy);
-indexRoutes.delete("/deleteprivacyPolicy/:id", csrfProtection, deleteprivacyPolicy);
+indexRoutes.put(
+  "/updateprivacyPolicy/:id",
+  csrfProtection,
+  updateprivacyPolicy
+);
+indexRoutes.delete(
+  "/deleteprivacyPolicy/:id",
+  csrfProtection,
+  deleteprivacyPolicy
+);
 
 // subscribe
 indexRoutes.post("/createsubscribe", csrfProtection, createSubscribe);

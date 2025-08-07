@@ -68,6 +68,8 @@ export const deleteCategory = createAsyncThunk(
     async (data, { dispatch, rejectWithValue }) => {
         try {
             const response = await axiosInstance.delete(`/deleteCategory/${data._id}`);
+            console.log(response.data);
+            
             if (response.data.success) {
                 return data._id;
             }

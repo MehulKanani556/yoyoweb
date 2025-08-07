@@ -319,7 +319,7 @@ export default function Category() {
               <div className="flex justify-between items-center border border-brown rounded w-full p-2 mt-1">
                 {formik.values.category_image ? (
                   <>
-                    <div className="flex items-center bg-[#72727226] px-2 py-1">
+                    <div className="flex max-w-[75%] items-center bg-[#72727226] px-2">
                       <img
                         src={
                           typeof formik.values.category_image === "string"
@@ -327,9 +327,9 @@ export default function Category() {
                             : URL.createObjectURL(formik.values.category_image)
                         }
                         alt="Preview"
-                        className="w-8 h-8 rounded-full mr-2 object-cover"
+                        className="w-7 h-7 rounded-full mr-2 object-cover"
                       />
-                      <span className="flex-1 w-8 md:w-auto truncate">
+                      <span className="w-full truncate">
                         {typeof formik.values.category_image === "string"
                           ? formik.values.category_image.split("/").pop()
                           : formik.values.category_image.name}

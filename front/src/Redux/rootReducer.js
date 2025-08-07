@@ -7,6 +7,7 @@ import TermsSlice from "./Slice/TermsCondition.slice";
 import policySlice from "./Slice/PrivacyPolicy.slice";
 import dashboardSlice from "./Slice/dashboard.slice";
 import paymentSlice from './Slice/Payment.slice';
+import gameReducer from './Slice/game.slice';
 
 
 export const rootReducer = combineReducers({
@@ -18,4 +19,5 @@ export const rootReducer = combineReducers({
   policy: policySlice,
   dashboard: dashboardSlice,
   payment: paymentSlice,
+  game: gameReducer,
 });

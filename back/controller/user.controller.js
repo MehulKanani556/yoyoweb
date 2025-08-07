@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const { fileupload } = require('../helper/cloudinary');
 const fs = require("fs");
 const mongoose = require('mongoose');
+const { encryptData } = require('../utils/encryption');
 
 // Initialize Twilio client
 let twilioClient;
@@ -22,6 +23,8 @@ try {
 exports.createNewUser = async (req, res) => {
     try {
         let { firstName, lastName, email, password, phoneNo, gender, deviceId, deviceType, deviceName, parentalControl, dob } = req.body;
+
+        firstName = encryptData(firstName)
 
         let checkExistUser = await user.findOne({ $or: [{ email }, { phoneNo }] });
 
