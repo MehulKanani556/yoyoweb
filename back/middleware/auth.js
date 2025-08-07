@@ -3,18 +3,21 @@ const jwt = require('jsonwebtoken')
 
 exports.auth = async (req, res, next) => {
     try {
-        let authorization = req.cookies.accessToken || req.headers['authorization'] 
+        let authorization = req.cookies.accessToken || req.headers['authorization']
 
         if (authorization) {
 
-            console.log(authorization,"authorization");
-            
+            console.log(authorization, "authorization");
+
             // Remove 'Bearer ' if present, otherwise use the value as is
             let token = authorization.startsWith('Bearer ') ? authorization.slice(7) : authorization;
 
             if (!token) {
                 return res.status(404).json({ status: 404, message: "Token Is Required" })
             }
+
+            // Decrypt the token before verifying
+            token = decryptData(token); // Decrypt the token
 
             let checkToken;
             try {
@@ -77,17 +80,20 @@ exports.auth = async (req, res, next) => {
 // }
 exports.movieAuth = async (req, res, next) => {
     try {
-        let authorization = req.cookies.accessToken || req.headers['authorization'] 
+        let authorization = req.cookies.accessToken || req.headers['authorization']
 
         if (authorization) {
-            console.log(authorization,"authorization");
-            
+            console.log(authorization, "authorization");
+
             // Remove 'Bearer ' if present, otherwise use the value as is
             let token = authorization.startsWith('Bearer ') ? authorization.slice(7) : authorization;
 
             // if (!token) {
             //     return res.status(404).json({ status: 404, message: "Token Is Required" })
             // }
+
+            // Decrypt the token before verifying
+            token = decryptData(token); // Decrypt the token
 
             let checkToken;
             try {
@@ -110,7 +116,7 @@ exports.movieAuth = async (req, res, next) => {
 
         }
         else {
-             next()
+            next()
         }
         // next()
     } catch (error) {

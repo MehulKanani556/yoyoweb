@@ -1,32 +1,36 @@
-// back/utils/encryption.js
-const CryptoJS = require("crypto-js");
+import CryptoJS from 'crypto-js';
 
-// Must be 16 bytes (128 bits)
-const FIXED_IV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000'); 
-const SECRET_KEY = CryptoJS.enc.Utf8.parse(process.env.SECRET_KEY); // exactly 16 chars
+const FIXED_IV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
+const SECRET_KEY = CryptoJS.enc.Utf8.parse("hyujilkopskj%%&&&202020029999hdsyusfryhu");
 
 
-// Function to encrypt data
-function encryptData(data) {
-    // For phone numbers, hash using HMAC SHA256 with SECRET_KEY
-    const encrypted = CryptoJS.AES.encrypt(data, SECRET_KEY, {
-        iv: FIXED_IV,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      });
-    
-      return encrypted.toString(); // base64
+export function encryptData(data) {
+  const encrypted = CryptoJS.AES.encrypt(data, SECRET_KEY, {
+    iv: FIXED_IV,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  });
+
+  return encrypted.toString(); // base64
+
 }
 
-// Function to decrypt data
-function decryptData(ciphertext) {
+export function decryptData(ciphertext) {
+
+  if (!ciphertext) return "";
+  try {
+    // If ciphertext is already a string, try to decode from base64
     const decrypted = CryptoJS.AES.decrypt(ciphertext, SECRET_KEY, {
-        iv: FIXED_IV,
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-      });
-    
-      return decrypted.toString(CryptoJS.enc.Utf8);
-}
+      iv: FIXED_IV,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
 
-module.exports = { encryptData, decryptData };
+    const plaintext = decrypted.toString(CryptoJS.enc.Utf8);
+    // If decryption fails, plaintext will be empty string
+    return plaintext || "";
+  } catch (e) {
+    // If decryption throws, return empty string or original ciphertext for debugging
+    return "";
+  }
+}

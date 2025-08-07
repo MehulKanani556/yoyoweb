@@ -41,9 +41,9 @@ indexRoutes.use((req, res, next) => {
     req.path.startsWith("/createUser") ||
     req.path.startsWith("/verifyOtp") ||
     req.path.startsWith("/forgotPassword") ||
-    req.path.startsWith("/generateNewTokens")||
+    req.path.startsWith("/generateNewTokens") ||
     req.path.startsWith("/createMovie") ||
-    req.path.startsWith("/addview") 
+    req.path.startsWith("/addview")
   ) {
     return next();
   }
@@ -67,29 +67,14 @@ indexRoutes.use((err, req, res, next) => {
 // auth Routes
 
 indexRoutes.post("/userLogin", userLogin);
-indexRoutes.post("/logout/:id", userLogout);
-indexRoutes.post("/google-login", googleLogin);
-indexRoutes.post("/facebook-login", facebookLogin);
-indexRoutes.post("/forgotPassword", forgotPassword);
-indexRoutes.post("/changePassword", changePassword);
-indexRoutes.post("/otp", sendOtpToMobile);
-indexRoutes.post("/verify-two-step", verifyTwoStepOTP);
 indexRoutes.post("/generateNewTokens", generateNewToken);
-// user Routes
 
+// user Routes
 indexRoutes.post("/createUser", createNewUser);
 indexRoutes.get("/allUsers", getAllUsers);
-indexRoutes.post("/verifyOtp", verifyOtp);
 indexRoutes.get("/getUserById/:id", getUserById);
 indexRoutes.put("/userUpdate/:id", upload.single("photo"), csrfProtection, updateUser);
 indexRoutes.delete("/deleteUser/:id", csrfProtection, removeUser);
-indexRoutes.put("/resetPassword", csrfProtection, resetPassword);
-indexRoutes.post("/sendDeleteOtp", csrfProtection, sendDeleteOtp);
-indexRoutes.post("/verifyDeleteOtp", csrfProtection, verifyDeleteOtp);
-indexRoutes.post("/enableTwoStep", csrfProtection, enableTwoStep);
-indexRoutes.post("/verifyTwoStep", csrfProtection, verifyTwoStep);
-indexRoutes.post("/screenTimeUsage/:id", csrfProtection, movieAuth, updateScreenTimeUsage);
-indexRoutes.get("/screenTimeRemaining/:id", movieAuth, getScreenTimeRemaining);
 
 //movies Category Routes
 
@@ -134,9 +119,5 @@ indexRoutes.delete("/deletesubscribe/:id", csrfProtection, deleteSubscribe);
 indexRoutes.post("/create-payment", csrfProtection, auth, createPayment);
 indexRoutes.get("/getpayment", getallPayment);
 indexRoutes.get("/getPaymentUser", auth, getPaymentUser);
-
-// Device management routes
-indexRoutes.get("/devices", auth, getDevices);
-indexRoutes.post("/logout-device", csrfProtection, auth, logoutDevice);
 
 module.exports = indexRoutes;

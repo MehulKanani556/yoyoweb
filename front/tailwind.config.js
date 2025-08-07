@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Chakra Petch"', 'sans-serif'], // this makes Chakra Petch the default "font-sans"
+      },
       animation: {
         'spin-slow': 'spin 4s linear infinite',
       },

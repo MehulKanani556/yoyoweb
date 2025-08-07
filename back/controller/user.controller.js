@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const { fileupload } = require('../helper/cloudinary');
 const fs = require("fs");
 const mongoose = require('mongoose');
+const { encryptData } = require('../utils/encryption');
 
 // Initialize Twilio client
 let twilioClient;
@@ -19,177 +20,170 @@ try {
     console.error('Failed to initialize Twilio client:', error);
 }
 
+const generateTokens = async (id) => {
+    try {
+        const userData = await user.findOne({ _id: id });
+        if (!userData) {
+            throw new Error("User not found");
+        }
+
+        const accessToken = await jwt.sign(
+            {
+                _id: userData._id,
+            },
+            process.env.SECRET_KEY,
+            { expiresIn: "60m" }
+        );
+
+        const refreshToken = await jwt.sign(
+            {
+                _id: userData._id,
+            },
+            process.env.REFRESH_SECRET_KEY,
+            { expiresIn: "15d" }
+        );
+
+        userData.refreshToken = encryptData(refreshToken);
+        await userData.save({ validateBeforeSave: false });
+
+        return {
+            accessToken: encryptData(accessToken), // Encrypt accessToken
+            refreshToken: userData.refreshToken, // Already encrypted
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
 exports.createNewUser = async (req, res) => {
     try {
-        let { firstName, lastName, email, password, phoneNo, gender, deviceId, deviceType, deviceName, parentalControl, dob } = req.body;
+        let { userName, email, password, role, photo } = req.body;
 
-        let checkExistUser = await user.findOne({ $or: [{ email }, { phoneNo }] });
+        // Encrypt the sensitive fields
+        userName = encryptData(userName);
+        email = encryptData(email);
 
-        if (checkExistUser) {
-            if (checkExistUser.email !== email && checkExistUser.phoneNo === phoneNo) {
-                return res
-                    .status(409)
-                    .json({ status: 409, message: "Phone no is registered with a different email ID" });
-            } else if (checkExistUser.email === email && checkExistUser.phoneNo !== phoneNo) {
-                return res
-                    .status(409)
-                    .json({ status: 409, message: "Email ID is registered with a different Phone no" });
-            }
+        let chekUser = await user.findOne({ email: req.body.email });
+
+        if (chekUser) {
+            return res.json({ status: 400, message: "User Already Exists" });
         }
 
         let salt = await bcrypt.genSalt(10);
-        let hashPassword = await bcrypt.hash(password, salt);
-        // let otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-        const otp = 1234;
-        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-        // Check if Twilio is configured
-        // if (!twilioClient) {
-        //   return res.status(503).json({
-        //     status: 503,
-        //     message: "SMS service is not configured. Please contact the administrator."
-        //   });
-        // }
+        let hashPassword = await bcrypt.hash(req.body.password, salt);
 
-        // Send OTP via SMS
-        // await twilioClient.messages.create({
-        //   body: `Your OTP is: ${otp}`,
-        //   from: process.env.TWILIO_PHONE_NUMBER,
-        //   to: mobileNumber
-        // });
-
-        // checkExistUser = await user.create({
-        //     firstName,
-        //     lastName,
-        //     email,
-        //     phoneNo,
-        //     password: hashPassword,
-        //     otp,
-        //     otpExpiry,
-        //     isVerified: false
-        // });
-        if (!checkExistUser) {
-            checkExistUser = await user.create({
-                firstName,
-                lastName,
-                email,
-                phoneNo,
-                dob,
-                password: hashPassword,
-                otp,
-                otpExpiry,
-                gender,
-                parentalControl,
-                role: 'user', // Explicitly set role
-                devices: [{
-                    deviceId,
-                    deviceType,
-                    deviceName,
-                    lastLogin: new Date(),
-                }]
-            });
-        } else {
-            checkExistUser.otp = otp
-            checkExistUser.otpExpiry = otpExpiry
-            await checkExistUser.save()
-        }
-
-        // await sendOtpEmail(email, otp);
-
-        return res.status(201).json({
-            status: 201,
-            message: "User Created SuccessFully...",
-            user: checkExistUser,
-            success: true
+        chekUser = await user.create({
+            userName,
+            email,
+            password: hashPassword,
+            role: 'user',
+            photo
         });
 
+        const { accessToken, refreshToken } = await generateTokens(chekUser._id);
+
+        return res.status(200).cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 2 * 60 * 60 * 1000, sameSite: "Strict" })
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 15 * 24 * 60 * 60 * 1000,
+                sameSite: "Strict",
+            })
+            .json({
+                success: true,
+                status: 200,
+                message: 'User Register Successfully...',
+                user: chekUser,
+                token: accessToken,
+            });
     } catch (error) {
+        res.json({ status: 500, message: error.message });
         console.log(error);
-        return res.status(500).json({ status: 500, message: error.message });
     }
 };
 
 //sendOtpEmail
-exports.sendOtpEmail = async (toEmail, otp) => {
-    try {
-        let transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 3000,
-            auth: {
-                user: process.env.MY_GMAIL,
-                pass: process.env.MY_PASSWORD
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
+// exports.sendOtpEmail = async (toEmail, otp) => {
+//     try {
+//         let transporter = nodemailer.createTransport({
+//             service: 'gmail',
+//             port: 3000,
+//             auth: {
+//                 user: process.env.MY_GMAIL,
+//                 pass: process.env.MY_PASSWORD
+//             },
+//             tls: {
+//                 rejectUnauthorized: false
+//             }
+//         });
 
-        await transporter.verify();
-        let mailOptions = {
-            from: process.env.MY_GMAIL,
-            to: toEmail,
-            subject: 'Your Otp Code',
-            text: `Your OTP code is ${otp}`,
-        }
+//         await transporter.verify();
+//         let mailOptions = {
+//             from: process.env.MY_GMAIL,
+//             to: toEmail,
+//             subject: 'Your Otp Code',
+//             text: `Your OTP code is ${otp}`,
+//         }
 
-        await transporter.sendMail(mailOptions);
+//         await transporter.sendMail(mailOptions);
 
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ status: 500, message: error.message });
-    }
-}
+//     } catch (error) {
+//         console.log(error);
+//         return res.status(500).json({ status: 500, message: error.message });
+//     }
+// }
 
-//verifyOtp
-exports.verifyOtp = async (req, res) => {
-    try {
-        const { phoneNo, otp, forgotPass } = req.body;
+// //verifyOtp
+// exports.verifyOtp = async (req, res) => {
+//     try {
+//         const { phoneNo, otp, forgotPass } = req.body;
 
-        const userData = await user.findOne({ phoneNo });
+//         const userData = await user.findOne({ phoneNo });
 
-        if (!userData) {
-            return res.status(404).json({ message: 'User not found' });
-        }
+//         if (!userData) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
 
-        // First check if OTP expired
-        if (userData.otpExpiry < Date.now()) {
-            return res.status(400).json({ message: 'OTP has expired' });
-        }
+//         // First check if OTP expired
+//         if (userData.otpExpiry < Date.now()) {
+//             return res.status(400).json({ message: 'OTP has expired' });
+//         }
 
-        // Then check if OTP is correct
-        if (userData.otp != otp) {
-            return res.status(400).json({ message: 'Invalid OTP' });
-        }
+//         // Then check if OTP is correct
+//         if (userData.otp != otp) {
+//             return res.status(400).json({ message: 'Invalid OTP' });
+//         }
 
-        if (forgotPass) {
-            userData.otp = null;
-            userData.otpExpiry = null;
-            await userData.save();
-            return res.status(200).json({
-                status: 200,
-                message: "Otp Verify SuccessFully...",
-                success: true,
-            });
-        } else {
-            // Update user verification status
-            userData.isVerified = true;
-            userData.otp = null;
-            userData.otpExpiry = null;
-            await userData.save();
+//         if (forgotPass) {
+//             userData.otp = null;
+//             userData.otpExpiry = null;
+//             await userData.save();
+//             return res.status(200).json({
+//                 status: 200,
+//                 message: "Otp Verify SuccessFully...",
+//                 success: true,
+//             });
+//         } else {
+//             // Update user verification status
+//             userData.isVerified = true;
+//             userData.otp = null;
+//             userData.otpExpiry = null;
+//             await userData.save();
 
-            // Generate JWT token for immediate login
-            const token = jwt.sign({ _id: userData._id }, process.env.SECRET_KEY, { expiresIn: "1d" });
+//             // Generate JWT token for immediate login
+//             const token = jwt.sign({ _id: userData._id }, process.env.SECRET_KEY, { expiresIn: "1d" });
 
-            return res.status(200).json({
-                message: 'Registration completed successfully',
-                token: token,
-                user: userData,
-                success: true
-            });
-        }
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-}
+//             return res.status(200).json({
+//                 message: 'Registration completed successfully',
+//                 token: token,
+//                 user: userData,
+//                 success: true
+//             });
+//         }
+//     } catch (error) {
+//         return res.status(500).json({ message: error.message });
+//     }
+// }
 
 exports.getAllUsers = async (req, res) => {
     try {
@@ -432,380 +426,3 @@ exports.removeUser = async (req, res) => {
         console.log(error);
     }
 }
-
-exports.resetPassword = async (req, res) => {
-    try {
-        const { email, oldPassword, newPassword } = req.body;
-
-        const users = await user.findOne({ email });
-        if (!users) {
-            return res.status(400).json({ message: "User Not Found" });
-        }
-
-        const isMatch = await bcrypt.compare(oldPassword, users.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Old password is incorrect" });
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        users.password = await bcrypt.hash(newPassword, salt);
-        await users.save();
-
-        return res.status(200).json({ status: 200, success: true, message: "Password updated successfully" });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-        console.log(error);
-    }
-};
-
-exports.sendDeleteOtp = async (req, res) => {
-    try {
-        const { email, phoneNo } = req.body;
-
-        if (email) {
-            let checkEmail = await user.findOne({ email });
-
-            if (!checkEmail) {
-                return res.status(404).json({ status: 404, message: "Email Not Found" });
-            }
-
-            const transport = nodemailer.createTransport({
-                service: "Gmail",
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS,
-                },
-            });
-
-            let otp = Math.floor(1000 + Math.random() * 9000);
-
-            const mailOptions = {
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: "Reset Password",
-                text: `Your code is: ${otp} `,
-            };
-
-            checkEmail.otp = otp;
-
-            await checkEmail.save();
-
-            transport.sendMail(mailOptions, (error) => {
-                if (error) {
-                    console.log(error);
-                    return res
-                        .status(500)
-                        .json({ status: 500, success: false, message: error.message });
-                }
-                return res.status(200).json({
-                    status: 200,
-                    success: true,
-                    message: "Otp Sent SuccessFully on Email...",
-                });
-            });
-        } else if (phoneNo) {
-            let checkphoneNo = await user.findOne({ phoneNo });
-
-            if (!checkphoneNo) {
-                return res.status(404).json({ status: 404, message: "Phone No Not Found" });
-            }
-
-            const otp = 8888;
-            // const otp = Math.floor(100000 + Math.random() * 900000);
-            // Check if Twilio is configured
-            // if (!twilioClient) {
-            //   return res.status(503).json({
-            //     status: 503,
-            //     message: "SMS service is not configured. Please contact the administrator."
-            //   });
-            // }
-
-            // Send OTP via SMS
-            // await twilioClient.messages.create({
-            //   body: `Your OTP is: ${otp}`,
-            //   from: process.env.TWILIO_PHONE_NUMBER,
-            //   to: phoneNo
-            // });
-            checkphoneNo.otp = otp;
-
-            await checkphoneNo.save();
-
-            return res.status(200).json({
-                status: 200,
-                success: true,
-                message: "Otp Sent SuccessFully on Phone No...",
-                otp: otp
-            });
-        } else {
-            return res.status(400).json({ status: 400, message: "Please provide either email or phone number" });
-        }
-
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ status: 500, message: error.message });
-    }
-}
-
-exports.verifyDeleteOtp = async (req, res) => {
-    try {
-        let { email, phoneNo, otp } = req.body;
-
-        let checkEmail = await user.findOne({ email });
-        let checkPhoneNo = await user.findOne({ phoneNo });
-
-        if (email && !checkEmail) {
-            return res.status(404).json({ status: 404, message: "Email Not Found" });
-        }
-
-        if (phoneNo && !checkPhoneNo) {
-            return res.status(404).json({ status: 404, message: "Phone No Not Found" });
-        }
-
-        if (email && checkEmail.otp != otp) {
-            return res.status(404).json({ status: 404, message: "Invalid Otp for Email" });
-        }
-
-        if (phoneNo && checkPhoneNo.otp != otp) {
-            return res.status(404).json({ status: 404, message: "Invalid Otp for Phone No" });
-        }
-
-        if (email) {
-            checkEmail.otp = null;
-            await checkEmail.save();
-        }
-
-        if (phoneNo) {
-            checkPhoneNo.otp = null;
-            await checkPhoneNo.save();
-        }
-
-        return res.status(200).json({
-            status: 200,
-            success: true,
-            message: "Otp Verify SuccessFully...",
-            user: email ? checkEmail : checkPhoneNo,
-        });
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ status: 500, message: error.message });
-    }
-};
-
-exports.getDevices = async (req, res) => {
-    try {
-        const userId = req.user._id;
-
-        const userData = await user.findById(userId);
-
-        if (!userData) {
-            return res.status(404).json({ status: 404, message: "User not found" });
-        }
-
-        return res.status(200).json({
-            status: 200,
-            devices: userData.devices || []
-        });
-    } catch (error) {
-        console.error('Error getting devices:', error);
-        return res.status(500).json({ status: 500, message: error.message });
-    }
-};
-
-exports.logoutDevice = async (req, res) => {
-    try {
-        const { deviceId } = req.body;
-        const userId = req.user._id;
-        // Find the user
-        const userr = await user.findById(userId);
-        if (!userr) {
-            return res.status(404).json({
-                status: 404,
-                message: 'User not found'
-            });
-        }
-
-        // Find the device in the user's devices array
-        const deviceIndex = userr.devices.findIndex(d => d.deviceId === deviceId);
-        if (deviceIndex === -1) {
-            return res.status(404).json({
-                status: 404,
-                message: 'Device not found'
-            });
-        }
-
-        // Remove the device from the array
-        userr.devices.splice(deviceIndex, 1);
-        await userr.save();
-
-        // If this is the current device, also invalidate the token
-        if (deviceId === req.user.deviceId) {
-            // You might want to add the token to a blacklist here
-            // or implement some other token invalidation mechanism
-        }
-
-        // Emit socket event to notify the device to logou
-
-        return res.status(200).json({
-            status: 200,
-            message: 'Device logged out successfully'
-        });
-    } catch (error) {
-        console.error('Error in logoutDevice:', error);
-        return res.status(500).json({
-            status: 500,
-            message: 'Internal server error'
-        });
-    }
-};
-
-exports.enableTwoStep = async (req, res) => {
-    try {
-        const { email } = req.body;
-        const userData = await user.findOne({ email });
-        if (!userData) return res.status(404).json({ message: "User not found" });
-
-        const otp = Math.floor(10 + Math.random() * 90);
-        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-        userData.twoStepOtp = otp;
-        userData.twoStepOtpExpiry = otpExpiry;
-        await userData.save();
-
-        // Send OTP via email (reuse your sendNumberEmail)
-        await exports.sendNumberEmail(email, otp);
-
-        return res.status(200).json({ success: true, otp, message: "OTP sent to email" });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-exports.sendNumberEmail = async (toEmail, otp) => {
-    try {
-        let transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 3000,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            }
-        });
-
-        await transporter.verify();
-        let mailOptions = {
-            from: process.env.EMAIL_USER,
-            to: toEmail,
-            subject: 'Your Number',
-            text: `Your Number is ${otp}`,
-        }
-
-        await transporter.sendMail(mailOptions);
-
-    } catch (error) {
-        console.log(error);
-        return res.status(500).json({ status: 500, message: error.message });
-    }
-}
-
-// Verify 2FA OTP
-exports.verifyTwoStep = async (req, res) => {
-    try {
-        const { email, otp, enable } = req.body;
-        const userData = await user.findOne({ email });
-        if (!userData) return res.status(404).json({ message: "User not found" });
-
-        if (userData.twoStepOtpExpiry < Date.now())
-            return res.status(400).json({ message: "OTP expired" });
-
-        if (userData.twoStepOtp != otp)
-            return res.status(400).json({ message: "Invalid OTP" });
-
-        userData.twoStepEnabled = !!enable; // true for enable, false for disable
-        userData.twoStepOtp = null;
-        userData.twoStepOtpExpiry = null;
-        await userData.save();
-
-        // Return updated user
-        return res.status(200).json({
-            success: true,
-            message: `Two-step verification ${enable ? "enabled" : "disabled"}`,
-            user: userData
-        });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-// Add to exports
-exports.getScreenTimeRemaining = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const userData = await user.findById(userId);
-        if (!userData) return res.status(404).json({ message: "User not found" });
-
-        // Reset usage if it's a new day
-        const today = new Date().toISOString().slice(0, 10);
-        let usage = userData.screenTimeUsage || 0;
-        if (userData.screenTimeUsageDate !== today) {
-            usage = 0;
-        }
-
-        // Calculate limit in ms
-        const limitMs = userData.screenTimeLimit && userData.timelimit
-            ? parseInt(userData.timelimit) * 60 * 60 * 1000
-            : 0;
-        const remaining = Math.max(0, limitMs - usage);
-
-        return res.status(200).json({
-            remaining,
-            usage,
-            limit: limitMs,
-            today,
-        });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};
-
-exports.updateScreenTimeUsage = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        const { addMs } = req.body; // ms to add
-        console.log("addMs", addMs);
-
-        const userData = await user.findById(userId);
-        if (!userData) return res.status(404).json({ message: "User not found" });
-
-        const today = new Date().toISOString().slice(0, 10);
-        let usage = userData.screenTimeUsage || 0;
-
-        // Reset if new day
-        if (userData.screenTimeUsageDate !== today) {
-            usage = 0;
-        }
-
-        usage += addMs;
-
-        userData.screenTimeUsage = usage;
-        userData.screenTimeUsageDate = today;
-        await userData.save();
-
-        // Calculate limit in ms
-        const limitMs = userData.screenTimeLimit && userData.timelimit
-            ? parseInt(userData.timelimit) * 60 * 60 * 1000
-            : 0;
-        const remaining = Math.max(0, limitMs - usage);
-
-        return res.status(200).json({
-            remaining,
-            usage,
-            limit: limitMs,
-            today,
-        });
-    } catch (error) {
-        return res.status(500).json({ message: error.message });
-    }
-};

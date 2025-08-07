@@ -23,35 +23,21 @@ const initialState = {
   isLoggedOut: false,
   message: null,
   hasRedirected: false,
-  loginLoadin:false,
+  loginLoadin: false,
 };
 
 export const login = createAsyncThunk(
   "auth/login",
-  async ({ credentials, socket }, { dispatch, rejectWithValue }) => {
+  async (data, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.post(`${BASE_URL}/userLogin`, credentials, {
+      const response = await axios.post(`${BASE_URL}/userLogin`, data, {
         withCredentials: true,
       });
-
-      // Check if 2-step verification is required
-      if (response.data.requiresTwoStep) {
-        localStorage.setItem("ottuserId", response.data.userId);
-        return response.data
-      }
-
-      sessionStorage.setItem("token", response.data.token);
-      sessionStorage.setItem("userId", response.data.user._id);
-      localStorage.setItem("ottToken", response.data.token);
-      localStorage.setItem("ottuserId", response.data.user._id);
+      localStorage.setItem("yoyoToken", response.data.token);
+      localStorage.setItem("yoyouserId", response.data.user._id);
       localStorage.setItem("refreshToken", response.data.refreshToken);
       localStorage.setItem("role", response.data.user?.role || "user");
-      // dispatch(setAlert({ text: response.data.message, color: 'success' }));
-      enqueueSnackbar(response.data.message || "Login successful", {
-        variant: "success",
-      });
-      // socket?.emit("user-login", { userId: response.data.user._id, deviceId: getDeviceId(), deviceType: getDeviceType(), deviceName: getDeviceName() });
-      // console.log("socket", socket);
+      enqueueSnackbar(response.data.message || "Login successful", { variant: "success" });
       return response.data;
     } catch (error) {
       enqueueSnackbar(error.response?.data?.message || "Login failed", {
@@ -62,34 +48,6 @@ export const login = createAsyncThunk(
   }
 );
 
-export const verifyTwoStepOTP = createAsyncThunk(
-    'auth/verifyTwoStepOTP',
-    async ({ userId, otp,deviceId,deviceType,deviceName }, { dispatch, rejectWithValue }) => {
-        try {
-            const response = await axios.post(`${BASE_URL}/verify-two-step`, {
-                userId,
-                otp,
-                deviceId,
-                deviceType,
-                deviceName
-            }, { withCredentials: true });
-
-            sessionStorage.setItem('token', response.data.token);
-            sessionStorage.setItem('userId', response.data.user._id);
-            localStorage.setItem('ottToken', response.data.token)
-            localStorage.setItem('ottuserId', response.data.user._id);
-            localStorage.setItem('refreshToken', response.data.refreshToken)
-            localStorage.setItem('role', response.data.user?.role || 'user');
-            
-            enqueueSnackbar(response.data.message || "2-step verification successful", { variant: "success" });
-            return response.data;
-        } catch (error) {
-            enqueueSnackbar(error.response?.data?.message || "OTP verification failed", { variant: "error" });
-            return handleErrors(error, dispatch, rejectWithValue);
-        }
-    }
-);
-
 export const register = createAsyncThunk(
   "auth/register",
   async (userData, { rejectWithValue }) => {
@@ -97,13 +55,11 @@ export const register = createAsyncThunk(
       const response = await axios.post(`${BASE_URL}/createUser`, userData, {
         withCredentials: true,
       });
-      // sessionStorage.setItem('token', response.data.token);
-      // sessionStorage.setItem('userId', response.data.user._id);
-      // dispatch(setAlert({ text: response.data.message, color: 'success' }));
-      enqueueSnackbar(response.data.message || "Register successful", {
-        variant: "success",
-      });
-
+      localStorage.setItem('yoyoToken', response.data.token)
+      localStorage.setItem('yoyouserId', response.data.user._id);
+      localStorage.setItem('refreshToken', response.data.refreshToken)
+      localStorage.setItem('role', response.data.user?.role || 'user');
+      enqueueSnackbar(response.data.message || "Register successful", { variant: "success" });
       return response.data;
     } catch (error) {
       enqueueSnackbar(error.response?.data?.message || "Registration failed", {
@@ -342,36 +298,14 @@ const authSlice = createSlice({
       })
 
       .addCase(login.pending, (state) => {
-          state.loginLoadin = true;
-          state.error = null;
+        state.loginLoadin = true;
+        state.error = null;
       })
-      .addCase(login.rejected, (state,action) => {
-          state.loginLoadin = false;
-          state.error = action.payload.message;
-          state.message = action.payload?.message
-      })
-
-      .addCase(verifyTwoStepOTP.fulfilled, (state, action) => {
-        if (action.payload && action.payload.user) {
-          // Ensure user has a role property
-          if (!action.payload.user.role) {
-            action.payload.user.role = "user";
-          }
-          state.user = action.payload.user;
-          state.isAuthenticated = true;
-          state.loading = false;
-          state.error = null;
-          state.message = action.payload?.message || "Login successfully";
-        }
-      })
-
-      .addCase(verifyTwoStepOTP.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(login.rejected, (state, action) => {
+        state.loginLoadin = false;
         state.error = action.payload.message;
-        state.message = action.payload?.message || "Login Failed";
+        state.message = action.payload?.message
       })
-
-
       .addCase(register.fulfilled, (state, action) => {
         if (action.payload && action.payload.user) {
           // Ensure user has a role property
@@ -385,7 +319,7 @@ const authSlice = createSlice({
           state.message = action.payload?.message || "Register successfully";
         }
       })
-     
+
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload.message;

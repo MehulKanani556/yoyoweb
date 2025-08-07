@@ -40,22 +40,6 @@ export const getAllUsers = createAsyncThunk(
   }
 );
 
-export const createUser = createAsyncThunk(
-  "users/add",
-  async (data, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await axios.post(BASE_URL + "/createUser", data);
-      sessionStorage.setItem("token", response.data.token);
-      sessionStorage.setItem("userId", response.data.user._id);
-      // dispatch(setAlert({ text: response.data.message, color: 'success' }));
-      dispatch(getAllUsers());
-      return response.data.user;
-    } catch (error) {
-      return handleErrors(error, dispatch, rejectWithValue);
-    }
-  }
-);
-
 export const deleteUser = createAsyncThunk(
   "users/delete",
   async (id, { dispatch, rejectWithValue }) => {
@@ -348,21 +332,6 @@ const usersSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.message = action.payload?.message || "Failed to fetch users";
-      })
-      .addCase(createUser.pending, (state) => {
-        state.loading = true;
-        state.message = "Adding user...";
-      })
-      .addCase(createUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.success = true;
-        state.allusers.push(action.payload);
-        state.message = action.payload?.message || "User added successfully";
-      })
-      .addCase(createUser.rejected, (state, action) => {
-        state.loading = false;
-        state.success = false;
-        state.message = action.payload?.message || "Failed to add user";
       })
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
