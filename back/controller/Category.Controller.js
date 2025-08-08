@@ -145,7 +145,7 @@ exports.deleteCategory = function(req, res) {
 
             const deletedCategory = await Category.findByIdAndDelete(req.params.id);
             if (!deletedCategory) return ThrowError(res, 404, 'Category not found');
-            res.json({ message: 'Category deleted' });
+            res.status(200).json({success: true, message: 'Category deleted' });
         } catch (error) {
             return ThrowError(res, 500, error.message)
         }

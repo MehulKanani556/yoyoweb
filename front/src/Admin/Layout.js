@@ -41,6 +41,7 @@ import { IMAGE_URL } from '../Utils/baseUrl';
 import { resetPassword } from "../Redux/Slice/user.slice";
 import { logoutUser } from '../Redux/Slice/auth.slice';
 import { decryptData } from '../Utils/encryption';
+import { IoGameControllerOutline } from "react-icons/io5";
 // import { logout } from '../reduxe/slice/auth.slice';
 // import { setSearchValue } from '../reduxe/slice/search.slice';
 
@@ -128,19 +129,14 @@ function Layout({ children }) {
 
   const pages = [
     { title: 'Dashboard', icon: <AiFillHome />, path: '/admin' },
-
     { title: 'Category', icon: <BiSolidCategory />, path: '/admin/category' },
-    { title: 'Movies', icon: <BiCameraMovie />, path: '/admin/movies' },
+    { title: 'Games', icon: <IoGameControllerOutline />, path: '/admin/games' },
     { title: 'User', icon: <FaUser />, path: '/admin/user' },
-    { title: 'Actors', icon: <MdRecentActors />, path: '/admin/actors' },
-    { title: 'Episodes', icon: <BiSolidVideo />, path: '/admin/episodes' },
     { title: 'Terms and Conditions', icon: <RiFileTextLine />, path: '/admin/Terms-Conditions' },
     { title: 'Privacy Policy', icon: <HiOutlineShieldCheck />, path: '/admin/Privacy-Policy' },
-    { title: 'Cookie Policy', icon: <LuCookie />, path: '/admin/Cookie-Policy' },
     { title: 'Premium', icon: <TbPremiumRights />, path: '/admin/premium' },
     { title: 'Faq', icon: <FaQuestion />, path: '/admin/faq' },
     { title: 'Transaction', icon: <FaExchangeAlt />, path: '/admin/transaction' },
-    { title: 'Ads', icon: <FaAd />, path: '/admin/ads' },
   ]
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
@@ -155,7 +151,7 @@ function Layout({ children }) {
     <div className='relative' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Toolbar>
         <div className='w-full'>
-          <h1 className='text-center text-white/50 font-semibold text-3xl'>LOGO</h1>
+          <h1 className='text-center text-white/50 font-semibold text-3xl'>YOYO</h1>
         </div>
       </Toolbar>
       <Divider />
@@ -173,7 +169,7 @@ function Layout({ children }) {
                     navigate(v.path);
                     if (window && window.innerWidth < 900) {
                       setMobileOpen(false);
-                    }
+                    } 
                   }
                 }}
                 sx={{

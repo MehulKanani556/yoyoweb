@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import AdminDashboard from "../Admin/AdminDashboard";
 import Layout from "../Admin/Layout";
 import Category from "../Admin/Category";
+import Game from "../Admin/Game";
 
 
 const AdminRoutes = () => {
@@ -22,7 +23,7 @@ const AdminRoutes = () => {
       <Routes>
         {/* <Route path="/" element={<AdminDashboard />} /> */}
         <Route path="/category" element={<Category />} />
-        {/* <Route path="/movies" element={<Movies />} /> */}
+        <Route path="/games" element={<Game />} />
         {/* <Route path="/episodes" element={<Episodes />} /> */}
         {/* <Route path="/user" element={<User />} /> */}
         {/* <Route path="/actors" element={<Actor />} /> */}

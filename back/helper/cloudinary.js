@@ -3,7 +3,7 @@ const fs = require("fs");
 const fsExtra = require("fs-extra");
 const path = require("path");
 // const AWS = require('aws-sdk');
-const { S3 } = require("@aws-sdk/client-s3");
+const { S3,DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { Upload } = require("@aws-sdk/lib-storage");
 
 // cloudinary.config({
@@ -107,15 +107,17 @@ const contentTypeMap = {
   ".vtt": "text/vtt",
 };
 
-// Helper function to determine content type
+// Helper function to determine content type, now supporting Windows, iOS, Android application files, as well as .zip and .rar
 const getContentType = (filePath) => {
   const ext = path.extname(filePath).toLowerCase();
   const contentTypeMap = {
+    // Images
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.png': 'image/png',
     '.gif': 'image/gif',
     '.webp': 'image/webp',
+    // Videos
     '.mp4': 'video/mp4',
     '.avi': 'video/x-msvideo',
     '.mov': 'video/quicktime',
@@ -123,6 +125,17 @@ const getContentType = (filePath) => {
     '.m3u8': 'application/vnd.apple.mpegurl',
     '.ts': 'video/mp2t',
     '.vtt': 'text/vtt',
+    // Windows application
+    '.exe': 'application/vnd.microsoft.portable-executable',
+    '.msi': 'application/x-msdownload',
+    // iOS application
+    '.ipa': 'application/octet-stream', // No official MIME, this is common
+    // Android application
+    '.apk': 'application/vnd.android.package-archive',
+    // Archives
+    '.zip': 'application/zip',
+    '.rar': 'application/vnd.rar',
+    '.7z': 'application/x-7z-compressed',
   };
   return contentTypeMap[ext] || 'application/octet-stream';
 };
@@ -131,7 +144,7 @@ const fileupload = async (filePath, folderName) => {
   try {
     // Read the file as a buffer instead of using a stream
     const fileBuffer = fs.readFileSync(filePath);
-    
+
     const uploadParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
       Key: `${folderName}/${path.basename(filePath)}`,
@@ -140,7 +153,9 @@ const fileupload = async (filePath, folderName) => {
     };
 
     const data = await s3.putObject(uploadParams);
-    
+
+    console.log(data, "datatatataa");
+
     // Return the expected format that your controllers expect
     return {
       Location: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`,
@@ -249,12 +264,31 @@ const uploadHLSFolder = async (folderPath, s3Folder) => {
 //   }
 // };
 // Delete file from S3
-const deleteFile = async (fileKey) => {
-  const deleteParams = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Key: fileKey,
-  };
-  return s3.deleteObject(deleteParams).promise();
+// fileKey should be the ETag value (with quotes removed) from the upload response, which is used as the public_id in your code.
+// To delete the file from S3, you need the S3 object key (the path used in upload, e.g., "CategoryImage/1754539790040-AdvancedPhotoshop-ActionGamingPoster.jpg").
+// So, when deleting, pass the same key you used for upload (res.Key or filedata.Key).
+
+const deleteFile = async (public_id) => {
+  try {
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: public_id, // public_id should be the S3 object key (e.g., "CategoryImage/1754539790040-AdvancedPhotoshop-ActionGamingPoster.jpg")
+    };
+    if (typeof s3.send === "function") {
+     
+      const result = await s3.send(new DeleteObjectCommand(deleteParams));
+      return result;
+    } else if (typeof s3.deleteObject === "function") {
+      // AWS SDK v2
+      const result = await s3.deleteObject(deleteParams).promise();
+      return result;
+    } else {
+      throw new Error("Unsupported S3 client: cannot delete object");
+    }
+  } catch (error) {
+    console.error("Error deleting file from S3:", error);
+    throw error;
+  }
 };
 
 module.exports = {
