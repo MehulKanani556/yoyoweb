@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { decryptData } from '../Utils/encryption';
@@ -16,6 +16,7 @@ const Header = () => {
     const token = localStorage.getItem('yoyoToken');
     const currentUser = useSelector((state) => state.auth.user);
     const dropdownRef = useRef(null);
+
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -31,9 +32,23 @@ const Header = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [profileDropdownOpen]);
+
+    const handleProfileNavigation = () => {
+        setProfileDropdownOpen(false);
+        // Small delay to allow exit animation to complete
+        setTimeout(() => {
+            navigate("/profile");
+        }, 200);
+    };
+
+    const handleLogout = () => {
+        setProfileDropdownOpen(false);
+        // Add your logout logic here
+    };
+
     return (
         <header className="bg-[#232124] text-white shadow-lg fixed w-full z-50">
-            <div className="container  mx-auto flex justify-between items-center py-4 px-4 md:px-6">
+            <div className="container mx-auto flex justify-between items-center py-4 px-4 md:px-6">
                 {/* Logo */}
                 <motion.div
                     onClick={() => { navigate('/') }}
@@ -68,7 +83,6 @@ const Header = () => {
                         transition={{ duration: 0.3 }}
                         onClick={() => setProfileDropdownOpen((prev) => !prev)}
                         ref={dropdownRef}
-
                     >
                         <span
                             className="text-base w-8 h-8 font-bold uppercase group-hover:border-[#8A775A] border-2 rounded-full flex justify-center items-center"
@@ -83,65 +97,35 @@ const Header = () => {
                             </span>
                         )}
                         <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-[#8A775A] transition-all duration-300 group-hover:w-full" />
-                        {/* profile dropdown */}
-                        {/* {profileDropdownOpen && (
-                            <motion.div
-                                className="absolute top-[43px] right-0 mt-2 w-40 bg-[#232323] rounded shadow-lg z-50 border border-gray-700"
-                                initial={{ opacity: 0, x: 40 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: 40 }} // Exit animation
-                                transition={{ duration: 0.3 }}
-                            >
-                                <button
-                                    className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white hover:text-[#0072ff]"
-                                    onClick={() => {
-                                        setProfileDropdownOpen(false); // Trigger exit animation
-                                        setTimeout(() => {
-                                            navigate("/profile"); // Navigate after animation
-                                        }, 300); // Match this duration with your exit animation duration
+                        
+                        {/* Profile dropdown with AnimatePresence for exit animations */}
+                        <AnimatePresence>
+                            {profileDropdownOpen && (
+                                <motion.div
+                                    className="absolute top-[43px] right-0 mt-2 w-40 bg-[#232323] rounded shadow-lg z-50 border border-gray-700"
+                                    initial={{ opacity: 0, x: 40, scale: 0.9 }}
+                                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                                    exit={{ opacity: 0, x: 40, scale: 0.9 }}
+                                    transition={{ 
+                                        duration: 0.2,
+                                        ease: "easeInOut"
                                     }}
                                 >
-                                    Profile
-                                </button>
-                                <button
-                                    className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500"
-                                    onClick={() => {
-                                        setProfileDropdownOpen(false); // Trigger exit animation
-                                    }}
-                                >
-                                    Logout
-                                </button>
-                            </motion.div>
-                        )} */}
-                         {profileDropdownOpen && (
-    <motion.div
-      className="absolute top-[43px] right-0 mt-2 w-40 bg-[#232323] rounded shadow-lg z-50 border border-gray-700"
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 40 }} // Exit animation
-      transition={{ duration: 0.3 }}
-    >
-      <button
-        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white hover:text-[#0072ff]"
-        onClick={() => {
-          setProfileDropdownOpen(false); // Animate close
-          setTimeout(() => {
-            navigate("/profile");
-          }, 300); // Wait for animation to finish
-        }}
-      >
-        Profile
-      </button>
-      <button
-        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500"
-        onClick={() => {
-          setProfileDropdownOpen(false); // Animate close
-        }}
-      >
-        Logout
-      </button>
-    </motion.div>
-  )}
+                                    <button
+                                        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white hover:text-[#0072ff] transition-colors"
+                                        onClick={handleProfileNavigation}
+                                    >
+                                        Profile
+                                    </button>
+                                    <button
+                                        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500 transition-colors"
+                                        onClick={handleLogout}
+                                    >
+                                        Logout
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </motion.div>
                 ) : (
                     <motion.div
@@ -162,7 +146,6 @@ const Header = () => {
                         <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-[#8A775A] transition-all duration-300 group-hover:w-full" />
                     </motion.div>
                 )}
-
 
                 {/* Mobile Hamburger Icon */}
                 <div className="md:hidden">
