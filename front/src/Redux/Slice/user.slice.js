@@ -4,10 +4,12 @@ import { BASE_URL } from "../../Utils/baseUrl";
 import axiosInstance from "../../Utils/axiosInstance";
 import { enqueueSnackbar } from "notistack";
 import { getCSRFToken } from "../../Utils/csrfUtils";
+import { decryptData } from "../../Utils/encryption";
 // import { setAlert } from "./alert.slice";
 
 const initialStateUsers = {
   allusers: [],
+  allNames: [],
   currUser: null,
   twoStepEnabled: false,
   success: false,
@@ -34,6 +36,21 @@ export const getAllUsers = createAsyncThunk(
     try {
       const response = await axiosInstance.get("/allUsers");
       return response.data.user;
+    } catch (error) {
+      return handleErrors(error, dispatch, rejectWithValue);
+    }
+  }
+);
+
+export const getAllUserNames = createAsyncThunk(
+  "user/getAllUserNames",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/getAllUserNames");
+      const userNamedata = response.data.map((v) => {
+        return decryptData(v);
+      })
+      return userNamedata;
     } catch (error) {
       return handleErrors(error, dispatch, rejectWithValue);
     }
@@ -332,6 +349,21 @@ const usersSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.message = action.payload?.message || "Failed to fetch users";
+      })
+      .addCase(getAllUserNames.pending, (state) => {
+        state.loading = true;
+        state.message = "Fetching user Name...";
+      })
+      .addCase(getAllUserNames.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.message = "User Name fetched successfully";
+        state.allNames = Array.isArray(action.payload) ? action.payload : [];
+      })
+      .addCase(getAllUserNames.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.message = action.payload?.message || "Failed to fetch user Name";
       })
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;

@@ -92,35 +92,18 @@ export const forgotPassword = createAsyncThunk(
 
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
-  async ({ phoneNo, otp, forgotPass }, { dispatch, rejectWithValue }) => {
+  async ({ email, otp }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.post(`${BASE_URL}/verifyOtp`, {
-        phoneNo,
-        otp,
-        forgotPass,
+        email,
+        otp
       });
-      if (forgotPass) {
-        if (response.data.success) {
-          enqueueSnackbar(
-            response.data.message || "OTP verified successfully",
-            { variant: "success" }
-          );
-          return response.data;
-        }
-      } else {
-        if (response.data.success && response.data.token) {
-          sessionStorage.setItem("token", response.data.token);
-          sessionStorage.setItem("userId", response.data.user._id);
-          localStorage.setItem("ottToken", response.data.token);
-          localStorage.setItem("ottuserId", response.data.user._id);
-          localStorage.setItem("refreshToken", response.data.refreshToken);
-          localStorage.setItem("role", response.data.user?.role || "user");
-          enqueueSnackbar(
-            response.data.message || "OTP verified successfully",
-            { variant: "success" }
-          );
-          return response.data;
-        }
+      if (response.data.success) {
+        enqueueSnackbar(
+          response.data.message || "OTP verified successfully",
+          { variant: "success" }
+        );
+        return response.data;
       }
     } catch (error) {
       return handleErrors(error, dispatch, rejectWithValue);
@@ -130,14 +113,10 @@ export const verifyOtp = createAsyncThunk(
 
 export const resetPassword = createAsyncThunk(
   "auth/resetPassword",
-  async (
-    { email, verifyPhone, newPassword },
-    { dispatch, rejectWithValue }
-  ) => {
+  async ({ email, newPassword }, { dispatch, rejectWithValue }) => {
     try {
       const response = await axios.post(`${BASE_URL}/changePassword`, {
         email,
-        verifyPhone,
         newPassword,
       });
       if (response.status === 200) {
@@ -153,105 +132,20 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-export const googleLogin = createAsyncThunk(
-  "auth/google-login",
-  async (
-    {
-      uid,
-      firstName,
-      lastName,
-      email,
-      photo,
-      gender,
-      phoneNo,
-      deviceId,
-      deviceType,
-      deviceName,
-    },
-    { dispatch, rejectWithValue }
-  ) => {
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/google-login`,
-        {
-          uid,
-          firstName,
-          lastName,
-          email,
-          photo,
-          gender,
-          phoneNo,
-          deviceId,
-          deviceType,
-          deviceName,
-        },
-        { withCredentials: true }
-      );
-      sessionStorage.setItem("token", response.data.token);
-      sessionStorage.setItem("userId", response.data.user._id);
-
-      localStorage.setItem("ottToken", response.data.token);
-      localStorage.setItem("ottuserId", response.data.user._id);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-      localStorage.setItem("role", response.data.user?.role || "user");
-      // enqueueSnackbar(response.data.message || "Google Login successful", { variant: "success" });
-      return response.data;
-    } catch (error) {
-      // Optionally handle errors here
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
-
-export const facebookLogin = createAsyncThunk(
-  "auth/facebook-login",
-  async ({ accessTokenf, userID }, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/facebook-login`,
-        { accessTokenf, userID },
-        { withCredentials: true }
-      );
-      sessionStorage.setItem("token", response.data.token);
-      sessionStorage.setItem("userId", response.data.user._id);
-
-      localStorage.setItem("ottToken", response.data.token);
-      localStorage.setItem("ottuserId", response.data.user._id);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-      localStorage.setItem("role", response.data.user?.role || "user");
-      enqueueSnackbar(response.data.message || "Facebook Login successful", {
-        variant: "success",
-      });
-      return response.data;
-    } catch (error) {
-      // return handleErrors(error, dispatch, rejectWithValue);
-    }
-  }
-);
-
 export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
-  async (data, { dispatch, rejectWithValue }) => {
+  async (id, { dispatch, rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${BASE_URL}/logout/${data.userId}`,
-        data
-      );
-      if (response.status === 200) {
-        sessionStorage.removeItem("userId");
-        sessionStorage.removeItem("token");
-        localStorage.removeItem("ottToken");
-        localStorage.removeItem("ottuserId");
+      const response = await axios.post(`${BASE_URL}/logout/${id}`);
+      if (response.data.success) {
+        localStorage.removeItem("yoyouserId");
+        localStorage.removeItem("yoyoToken");
         localStorage.removeItem("role");
-        localStorage.removeItem("hasRedirected");
-
         if (window.persistor) {
           window.persistor.purge();
         }
         // dispatch(setAlert({ text: response.data.message, color: 'success' }));
-        enqueueSnackbar(response.data.message || "Logged out successfully", {
-          variant: "success",
-        });
+        enqueueSnackbar(response.data.message || "Logged out successfully", { variant: "success" });
         return response.data;
       }
     } catch (error) {
@@ -363,44 +257,6 @@ const authSlice = createSlice({
         state.error = action.payload.message;
         state.message = action.payload?.message || "Reset Password Failed";
       })
-      .addCase(googleLogin.fulfilled, (state, action) => {
-        if (action.payload && action.payload.user) {
-          // Ensure user has a role property
-          if (!action.payload.user.role) {
-            action.payload.user.role = "user";
-          }
-          state.user = action.payload.user;
-          state.isAuthenticated = true;
-          state.loading = false;
-          state.error = null;
-          state.message = action.payload?.message || "Google Login successful";
-        }
-      })
-      .addCase(googleLogin.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload.message;
-        state.message = action.payload?.message || "Google Login Failed";
-      })
-      .addCase(facebookLogin.fulfilled, (state, action) => {
-        if (action.payload && action.payload.user) {
-          // Ensure user has a role property
-          if (!action.payload.user.role) {
-            action.payload.user.role = "user";
-          }
-          state.user = action.payload.user;
-          state.isAuthenticated = true;
-          state.loading = false;
-          state.error = null;
-          state.message =
-            action.payload?.message || "Facebook Login successful";
-        }
-      })
-      .addCase(facebookLogin.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload.message;
-        state.message = action.payload?.message || "Facebook Login Failed";
-      })
-
       .addCase(logoutUser.fulfilled, (state, action) => {
         state.user = null;
         state.isAuthenticated = false;

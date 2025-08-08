@@ -6,7 +6,6 @@ const {
   getAllUsers,
   createNewUser,
   resetPassword,
-  verifyOtp,
   sendDeleteOtp,
   verifyDeleteOtp,
   getDevices,
@@ -16,6 +15,7 @@ const {
   updateScreenTimeUsage,
   getScreenTimeRemaining,
   updateUser,
+  getAllUserNames,
 } = require("../controller/user.controller");
 const {
   userLogin,
@@ -27,6 +27,7 @@ const {
   facebookLogin,
   generateNewToken,
   verifyTwoStepOTP,
+  verifyOtp,
 } = require("../auth/auth");
 const { auth, movieAuth } = require("../middleware/auth");
 const {
@@ -104,6 +105,7 @@ indexRoutes.use((req, res, next) => {
     req.path.startsWith("/forgotPassword") ||
     req.path.startsWith("/generateNewTokens") ||
     req.path.startsWith("/createMovie") ||
+    req.path.startsWith("/changePassword") ||
     req.path.startsWith("/addview")
   ) {
     return next();
@@ -128,7 +130,11 @@ indexRoutes.use((err, req, res, next) => {
 // auth Routes
 
 indexRoutes.post("/userLogin", userLogin);
+indexRoutes.post("/logout/:id", userLogout);
 indexRoutes.post("/generateNewTokens", generateNewToken);
+indexRoutes.post("/forgotPassword", forgotPassword);
+indexRoutes.post("/verifyOtp", verifyOtp);
+indexRoutes.post("/changePassword", changePassword);
 
 // user Routes
 indexRoutes.post("/createUser", createNewUser);
@@ -141,6 +147,7 @@ indexRoutes.put(
   updateUser
 );
 indexRoutes.delete("/deleteUser/:id", csrfProtection, removeUser);
+indexRoutes.get("/getAllUserNames", getAllUserNames);
 
 //movies Category Routes
 
@@ -186,7 +193,7 @@ indexRoutes.put(
     { name: "android_file", maxCount: 1 },
     { name: "images", maxCount: 10 },
   ]),
- updateGame
+  updateGame
 );
 indexRoutes.delete("/deleteGame/:id", deleteGame);
 

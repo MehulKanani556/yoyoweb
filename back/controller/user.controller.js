@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const { fileupload } = require('../helper/cloudinary');
 const fs = require("fs");
 const mongoose = require('mongoose');
-const { encryptData } = require('../utils/encryption');
+const { encryptData, decryptData } = require('../utils/encryption');
 
 // Initialize Twilio client
 let twilioClient;
@@ -57,11 +57,12 @@ const generateTokens = async (id) => {
 
 exports.createNewUser = async (req, res) => {
     try {
-        let { userName, email, password, role, photo } = req.body;
+        let { userName, email, password, role, photo, fullName } = req.body;
 
         // Encrypt the sensitive fields
         userName = encryptData(userName);
         email = encryptData(email);
+        fullName = encryptData(fullName);
 
         let chekUser = await user.findOne({ email: req.body.email });
 
@@ -77,7 +78,8 @@ exports.createNewUser = async (req, res) => {
             email,
             password: hashPassword,
             role: 'user',
-            photo
+            photo,
+            fullName
         });
 
         const { accessToken, refreshToken } = await generateTokens(chekUser._id);
@@ -426,3 +428,19 @@ exports.removeUser = async (req, res) => {
         console.log(error);
     }
 }
+
+exports.getAllUserNames = async (req, res) => {
+    try {
+        const users = await user.find({}, { userName: 1, _id: 0 }).lean();
+        const userNames = users
+            .map(u => {
+                const raw = typeof u.userName === 'string' ? u.userName : '';
+                // const dec = decryptData(raw);
+                return raw;
+            })
+            .filter(Boolean);
+        return res.status(200).json(userNames);
+    } catch (error) {
+        return res.status(500).json({ status: 500, message: error.message });
+    }
+};

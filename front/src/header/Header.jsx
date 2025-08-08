@@ -5,12 +5,16 @@ import { useNavigate } from 'react-router-dom';
 import { decryptData } from '../Utils/encryption';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserById } from '../Redux/Slice/user.slice';
+import { Modal } from '@mui/material';
+import { logoutUser } from '../Redux/Slice/auth.slice';
+import { AiOutlineClose } from 'react-icons/ai';
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const navItems = ['Home', 'Games', 'Store', 'Contact'];
     const userId = localStorage.getItem('yoyouserId');
     const token = localStorage.getItem('yoyoToken');
@@ -41,10 +45,15 @@ const Header = () => {
         }, 200);
     };
 
-    const handleLogout = () => {
-        setProfileDropdownOpen(false);
-        // Add your logout logic here
-    };
+    const handleLogout = async () => {
+        if (userId) {
+            await dispatch(logoutUser(userId));
+        }
+        localStorage.removeItem("yoyouserId");
+        localStorage.removeItem("yoyoToken");
+        localStorage.removeItem("role");
+        navigate("/")
+    }
 
     return (
         <header className="bg-[#232124] text-white shadow-lg fixed w-full z-50">
@@ -87,7 +96,7 @@ const Header = () => {
                         <span
                             className="text-base w-8 h-8 font-bold uppercase group-hover:border-[#8A775A] border-2 rounded-full flex justify-center items-center"
                         >
-                            {decryptData(currentUser?.userName)?.split(" ").map(name => name[0].toUpperCase()).join("") || ""}
+                            {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
                         </span>
                         {currentUser && (
                             <span
@@ -97,7 +106,7 @@ const Header = () => {
                             </span>
                         )}
                         <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-[#8A775A] transition-all duration-300 group-hover:w-full" />
-                        
+
                         {/* Profile dropdown with AnimatePresence for exit animations */}
                         <AnimatePresence>
                             {profileDropdownOpen && (
@@ -106,7 +115,7 @@ const Header = () => {
                                     initial={{ opacity: 0, x: 40, scale: 0.9 }}
                                     animate={{ opacity: 1, x: 0, scale: 1 }}
                                     exit={{ opacity: 0, x: 40, scale: 0.9 }}
-                                    transition={{ 
+                                    transition={{
                                         duration: 0.2,
                                         ease: "easeInOut"
                                     }}
@@ -119,13 +128,54 @@ const Header = () => {
                                     </button>
                                     <button
                                         className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500 transition-colors"
-                                        onClick={handleLogout}
+                                        // onClick={handleLogout}
+                                        onClick={() => {
+                                            setProfileDropdownOpen(false);
+                                            setShowLogoutModal(true);
+                                        }}
                                     >
                                         Logout
                                     </button>
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
+                        <Modal
+                            open={showLogoutModal}
+                            onClose={() => { setShowLogoutModal(false) }}
+                            aria-labelledby="modal-modal-title"
+                            aria-describedby="modal-modal-description"
+                            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                        >
+                            <div className="bg-[#1e1e1e] rounded-[2px] p-[16px] sm:p-[24px] w-[90%] max-w-[400px] text-white shadow-lg">
+                                <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                                    <h2 id="modal-modal-title" className="text-lg font-semibold">Log out</h2>
+                                    <button
+                                        onClick={() => setShowLogoutModal(false)}
+                                        className="text-white hover:text-red-500 transition duration-200"
+                                    >
+                                        <AiOutlineClose className="text-xl" />
+                                    </button>
+                                </div>
+
+                                <p id="modal-modal-description" className="text-sm text-white/70 text-center my-6">
+                                    Are you sure you want to logout?
+                                </p>
+
+                                <div className="flex justify-between gap-4 mt-4">
+                                    <button
+                                        onClick={() => setShowLogoutModal(false)}
+                                        className="w-full bg-white/10 hover:bg-white/20 text-white py-2 ease-in-out rounded-[4px] transition-all duration-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button type="submit" onClick={() => { setShowLogoutModal(false); handleLogout(); }} className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 bg-white/30 hover:bg-white/40 border-none cursor-pointer transition-all duration-400 ease-in-out"
+                                    >
+                                        Yes, Logout
+                                    </button>
+                                </div>
+                            </div>
+                        </Modal>
                     </motion.div>
                 ) : (
                     <motion.div
