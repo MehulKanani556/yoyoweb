@@ -8,7 +8,7 @@ const Header = () => {
 
     return (
         <header className="bg-[#232124] text-white shadow-lg fixed w-full z-50">
-            <div className="container mx-auto flex justify-between items-center py-4 px-4 md:px-6">
+            <div className="container mx-auto flex justify-between items-center py-4 px-4 md:px-20">
                 {/* Logo */}
                 <motion.div
                     initial={{ opacity: 0, y: -30 }}

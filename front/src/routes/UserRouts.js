@@ -3,6 +3,9 @@ import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 // import { Elements } from "@stripe/react-stripe-js";
 // import { loadStripe } from "@stripe/stripe-js";
 import Home from "../pages/Home";
+import Header from "../header/Header";
+import Footer from "../footer/Footer";
+import GameDetail from "../component/gameDetail/GameDetail";
 
 // const stripePromise = loadStripe("pk_test_51RlOu04MsbsH6KuURrRtTgj0lZCjFnmdn5A64CpHOHaPl8UwFGlX6jsYe9K9x4XUUSOIeUSisEM3aV5lriLPEw0300n0menKM3");
 
@@ -19,12 +22,13 @@ const UserRouts = () => {
 
   return (
     <>
-     {/* <Header /> */}
+      <Header />
       <Routes>
         {/* <Route path='/home' element={<Home />}> </Route> */}
         <Route path='/' element={<Home />}> </Route>
+        <Route path='/game-detail' element={<GameDetail />}> </Route>
       </Routes>
-     {/* <Footer /> */}
+      <Footer />
     </>
   );
 };

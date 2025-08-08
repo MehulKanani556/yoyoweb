@@ -11,7 +11,7 @@ const Footer = () => {
             transition={{ duration: 0.8 }}
             className="bg-[#232124] text-gray-300 pt-10 pb-5"
         >
-            <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 py-4 px-4 md:px-20">
                 {/* Logo and Tagline */}
                 <div>
                     <h2 className="text-3xl font-bold text-white mb-2">🎮 YOYO</h2>
@@ -22,9 +22,9 @@ const Footer = () => {
                 <div>
                     <h3 className="text-white text-lg font-semibold mb-3">Quick Links</h3>
                     <ul className="space-y-2 text-sm">
-                        <li><Link to={""} className="hover:text-white">Home</Link></li>
-                        <li><Link to={""} className="hover:text-white">Games</Link></li>
-                        <li><Link to={""} className="hover:text-white">Contact</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Home</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Games</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Contact</Link></li>
                     </ul>
                 </div>
 
@@ -32,10 +32,11 @@ const Footer = () => {
                 <div>
                     <h3 className="text-white text-lg font-semibold mb-3">Support</h3>
                     <ul className="space-y-2 text-sm">
-                        <li><Link to={""} className="hover:text-white">FAQs</Link></li>
-                        <li><Link to={""} className="hover:text-white">Help Center</Link></li>
-                        <li><Link to={""} className="hover:text-white">Privacy Policy</Link></li>
-                        <li><Link to={""} className="hover:text-white">Terms of Service</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">FAQs</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Help Center</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Privacy Policy</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Terms of Service</Link></li>
+                        <li><Link to={"/"} className="hover:text-white">Contact Us</Link></li>
                     </ul>
                 </div>
 
@@ -43,10 +44,10 @@ const Footer = () => {
                 <div>
                     <h3 className="text-white text-lg font-semibold mb-3">Join Us</h3>
                     <div className="flex space-x-4 mt-2">
-                        <Link to={""} className="text-gray-400 hover:text-white transition"><FaDiscord size={24} /></Link>
-                        <Link to={""} className="text-gray-400 hover:text-white transition"><FaTwitter size={24} /></Link>
-                        <Link to={""} className="text-gray-400 hover:text-white transition"><FaYoutube size={24} /></Link>
-                        <Link to={""} className="text-gray-400 hover:text-white transition"><FaTwitch size={24} /></Link>
+                        <Link to={"/"} className="text-gray-400 hover:text-white transition"><FaDiscord size={24} /></Link>
+                        <Link to={"/"} className="text-gray-400 hover:text-white transition"><FaTwitter size={24} /></Link>
+                        <Link to={"/"} className="text-gray-400 hover:text-white transition"><FaYoutube size={24} /></Link>
+                        <Link to={"/"} className="text-gray-400 hover:text-white transition"><FaTwitch size={24} /></Link>
                     </div>
                 </div>
             </div>
