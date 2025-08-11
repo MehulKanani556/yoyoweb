@@ -34,8 +34,8 @@ const Footer = () => {
                     <ul className="space-y-2 text-sm">
                         <li><Link to={""} className="hover:text-white">FAQs</Link></li>
                         <li><Link to={""} className="hover:text-white">Help Center</Link></li>
-                        <li><Link to={""} className="hover:text-white">Privacy Policy</Link></li>
-                        <li><Link to={""} className="hover:text-white">Terms of Service</Link></li>
+                        <li><Link to={"/privacyPolicy"} className="hover:text-white">Privacy Policy</Link></li>
+                        <li><Link to={"/termsCondition"} className="hover:text-white">Terms of Service</Link></li>
                     </ul>
                 </div>
 

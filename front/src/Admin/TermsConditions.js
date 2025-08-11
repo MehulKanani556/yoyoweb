@@ -1,23 +1,30 @@
 import { Box, Modal, Pagination, useMediaQuery } from '@mui/material';
 import { useFormik } from 'formik';
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import { RiDeleteBin6Fill, RiEdit2Fill } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { createPrivacy, deletePrivacy, getAllPrivacy, updatePrivacy } from '../Redux/Slice/PrivacyPolicy.slice';
+import { createTerms, deleteTerms, getAllTerms, updateTerms } from '../Redux/Slice/TermsCondition.slice';
 
-export default function PrivacyPolicy() {
+const initialValue = [
+    {
+        type: 'paragraph',
+        children: [{ text: 'Type your terms and conditions here...' }],
+    },
+];
+
+export default function TermsConditions() {
     const [searchValue, setSearchValue] = useState('');
     const dispatch = useDispatch();
-    const TermCondition = useSelector(state => state.policy.Privacy);
+    const TermCondition = useSelector(state => state.term.Terms);
     const loading = useSelector(state => state.category.loading);
     const isSmallScreen = useMediaQuery("(max-width:425px)");
     const [createopen, setCreateopen] = useState(false);
     const [delOpen, setDelOpen] = useState(false);
     const [delAllOpen, setDelAllOpen] = useState(false);
-    const [privacyData, setprivacyData] = useState("");
+    const [TermsData, setTermsData] = useState("");
+
+    // Remove Slate-related state and helpers
 
     const validationSchema = Yup.object({
         title: Yup.string().required("Title is required"),
@@ -31,18 +38,19 @@ export default function PrivacyPolicy() {
         },
         validationSchema,
         onSubmit: async (values) => {
-            if (privacyData) {
-                // Update privacy
-                dispatch(updatePrivacy({ _id: privacyData._id, values }));
+            const submitValues = {
+                ...values
+            };
+            if (TermsData) {
+                dispatch(updateTerms({ _id: TermsData._id, values: submitValues }));
             } else {
-                // Create privacy
-                dispatch(createPrivacy(values));
+                dispatch(createTerms(submitValues));
             }
             handleCreateClose();
         },
     });
 
-    // React Quill configuration
+    // React Quill configuration (keeping for reference if needed)
     const modules = {
         toolbar: [
             [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -69,7 +77,7 @@ export default function PrivacyPolicy() {
     ];
 
     useEffect(() => {
-        dispatch(getAllPrivacy())
+        dispatch(getAllTerms())
     }, [dispatch])
 
     // Search functionality - updated to handle HTML content
@@ -100,18 +108,23 @@ export default function PrivacyPolicy() {
 
     const handleOpen = (data) => {
         setCreateopen(true);
-        setprivacyData(data);
+        setTermsData(data);
         if (data) {
             formik.setValues({
                 title: data.title,
                 description: data.description
+            });
+        } else {
+            formik.setValues({
+                title: '',
+                description: ''
             });
         }
     };
 
     const handleDeleteOpen = (data) => {
         setDelOpen(true);
-        setprivacyData(data);
+        setTermsData(data);
     };
 
     const handleDeleteClose = () => {
@@ -119,7 +132,7 @@ export default function PrivacyPolicy() {
     };
 
     const handleDeleteCategory = () => {
-        dispatch(deletePrivacy({ _id: privacyData._id }));
+        dispatch(deleteTerms({ _id: TermsData._id }));
         setDelOpen(false);
     };
 
@@ -129,35 +142,24 @@ export default function PrivacyPolicy() {
 
     const handleCreateClose = () => {
         setCreateopen(false);
-        setprivacyData("");
+        setTermsData("");
         formik.resetForm();
+        // Remove Slate value reset
     };
 
     return (
         <div className="container p-5 md:p-10 bg-[#141414]">
             <div className="flex flex-col md600:flex-row gap-3 justify-between items-center">
                 <div className="text-center lg:text-left">
-                    <h1 className="text-2xl font-bold text-brown">Privacy Policy</h1>
-                    {/* <p className="text-brown-50">
-                        <Link to="/dashboard">Dashboard</Link> / <span className="text-brown font-medium">Category</span>
-                    </p> */}
+                    <h1 className="text-2xl font-bold text-brown">Term and Condition</h1>
                 </div>
                 <div>
                     <div className="flex gap-4 mb-4">
-                        {/* <button
-                            className="bg-primary-light/15 px-4 py-2 rounded flex justify-center items-center gap-2"
-                            onClick={() => setDelAllOpen(true)}
-                        >
-                            <span>
-                                <RiDeleteBin6Fill />
-                            </span>
-                            <span>Delete All</span>
-                        </button> */}
                         <button
                             className="bg-primary-light/15 text-white px-4 py-2 rounded "
-                            onClick={() => setCreateopen(true)}
+                            onClick={() => handleOpen(null)}
                         >
-                            + Add Privacy
+                            + Add Term
                         </button>
                     </div>
                 </div>
@@ -167,7 +169,7 @@ export default function PrivacyPolicy() {
             <div className="mb-4">
                 <input
                     type="text"
-                    placeholder="Search Privacy ..."
+                    placeholder="Search Term ..."
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                     className="rounded w-full md:w-64 p-2 bg-white/10"
@@ -178,7 +180,6 @@ export default function PrivacyPolicy() {
                 <table className="w-full bg-white/5">
                     <thead>
                         <tr className="text-brown font-bold">
-                            {/* <td className="py-2 px-5 w-1/6">ID</td> */}
                             <td className="py-2 px-5 w-1/6">Title</td>
                             <td className="py-2 px-5 w-1/2">Description</td>
                             <td className="py-2 px-5 w-1/6">Action</td>
@@ -192,10 +193,7 @@ export default function PrivacyPolicy() {
                                         {term.title}
                                     </span>
                                 </td>
-                                <td className="py-2 px-5 w-1/2">
-                                    {/* <span className="block">
-                                        {truncateHTML(term.description)}
-                                    </span> */}
+                                <td className="py-2 px-5 ">
                                     <div dangerouslySetInnerHTML={{ __html: term.description }} className='w-[700px]' />
                                 </td>
                                 <td className="w-1/1 flex justify-start items-center gap-2 mt-2">
@@ -253,7 +251,7 @@ export default function PrivacyPolicy() {
                     <form onSubmit={formik.handleSubmit} className="p-5">
                         <div className="text-center">
                             <p className="text-brown font-bold text-xl">
-                                {privacyData ? "Edit" : "Add"} Privacy Policy
+                                {TermsData ? "Edit" : "Add"} Terms and Conditions
                             </p>
                         </div>
 
@@ -278,18 +276,12 @@ export default function PrivacyPolicy() {
                             <div className="mt-1">
                                 <textarea
                                     name="description"
+                                    placeholder="Enter description..."
                                     value={formik.values.description}
                                     onChange={formik.handleChange}
                                     onBlur={formik.handleBlur}
-                                    placeholder="Enter description..."
-                                    className="rounded w-full p-2 bg-white/5 j_input_field"
-                                    style={{
-                                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                        color: 'white',
-                                        borderRadius: '6px',
-                                        minHeight: '200px',
-                                        resize: 'vertical'
-                                    }}
+                                    className="rounded w-full p-2 mt-1 bg-white/5 j_input_field"
+                                    style={{ minHeight: 150, color: 'white', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 4 }}
                                 />
                             </div>
                             {formik.touched.description && formik.errors.description && (
@@ -310,7 +302,7 @@ export default function PrivacyPolicy() {
                                 disabled={loading}
                                 className="bg-brown text-white w-36 border-brown border px-5 py-2 rounded hover:bg-brown-50 disabled:opacity-50"
                             >
-                                {loading ? "Processing..." : (privacyData ? "Update" : "Add")}
+                                {loading ? "Processing..." : (TermsData ? "Update" : "Add")}
                             </button>
                         </div>
                     </form>
@@ -322,9 +314,9 @@ export default function PrivacyPolicy() {
                 <Box className="bg-primary-dark text-white absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-4 rounded max-w-[500px] w-[100%] max-h-[90vh] overflow-y-auto">
                     <div className="p-5">
                         <div className="text-center">
-                            <p className="text-brown font-bold text-xl">Delete Category</p>
+                            <p className="text-brown font-bold text-xl">Delete Terms</p>
                             <p className="text-brown-50 mt-2">
-                                Are you sure you want to delete "{privacyData?.title}"?
+                                Are you sure you want to delete "{TermsData?.title}"?
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-3 mt-6 justify-center">
@@ -352,10 +344,10 @@ export default function PrivacyPolicy() {
                     <div className="p-5">
                         <div className="text-center">
                             <p className="text-brown font-bold text-xl">
-                                Delete All Categories
+                                Delete All Terms
                             </p>
                             <p className="text-brown-50 mt-2">
-                                Are you sure you want to delete all categories? This action cannot be undone.
+                                Are you sure you want to delete all terms? This action cannot be undone.
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-3 mt-6 justify-center">
@@ -375,39 +367,6 @@ export default function PrivacyPolicy() {
                     </div>
                 </Box>
             </Modal>
-
-            {/* Custom styles for React Quill */}
-            <style jsx global>{`
-                .ql-editor {
-                    color: white !important;
-                    background-color: rgba(255, 255, 255, 0.05) !important;
-                }
-                .ql-toolbar {
-                    background-color: rgba(255, 255, 255, 0.1) !important;
-                    border-color: rgba(255, 255, 255, 0.2) !important;
-                }
-                .ql-toolbar .ql-stroke {
-                    stroke: white !important;
-                }
-                .ql-toolbar .ql-fill {
-                    fill: white !important;
-                }
-                .ql-toolbar .ql-picker-label {
-                    color: white !important;
-                }
-                .ql-toolbar .ql-picker-options {
-                    background-color: rgba(0, 0, 0, 0.8) !important;
-                }
-                .ql-toolbar .ql-picker-item {
-                    color: white !important;
-                }
-                .ql-container {
-                    border-color: rgba(255, 255, 255, 0.2) !important;
-                }
-                .ql-editor::before {
-                    color: rgba(255, 255, 255, 0.6) !important;
-                }
-            `}</style>
         </div>
     )
 }
