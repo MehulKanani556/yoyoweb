@@ -1,16 +1,10 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-*/node_modules
 /node_modules
-front/node_modules
-back/node_modules
-back/hls_output
-back/uploads/video
 /.pnp
 .pnp.js
-back/.env
-*/.env
+
 # testing
 /coverage
 
@@ -23,19 +17,7 @@ back/.env
 .env.development.local
 .env.test.local
 .env.production.local
-front/.env.local
-front/.env.development.local
-front/.env.test.local
-front/.env.production.local
-back/.env.local
-back/.env.development.local
-back/.env.test.local
-back/.env.production.local
-
-
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-back/.env

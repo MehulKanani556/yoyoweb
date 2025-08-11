@@ -21,6 +21,7 @@ import {
 } from "../Redux/Slice/game.slice";
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { getAllCategories } from "../Redux/Slice/category.slice";
 
 export default function Game() {
   const dispatch = useDispatch();
@@ -38,14 +39,9 @@ export default function Game() {
   const games = useSelector((state) => state.game.games);
   const loading = useSelector((state) => state.game.loading);
 
-  // Dummy categories for dropdown (replace with Redux)
-  //   const [categories, setCategories] = useState([
-  //     { _id: "1", categoryName: "Action" },
-  //     { _id: "2", categoryName: "Puzzle" },
-  //   ]);
-
   useEffect(() => {
     dispatch(getAllGames());
+    dispatch(getAllCategories())
   }, []);
 
   // Validation schema
@@ -69,6 +65,7 @@ export default function Game() {
         return ["image/jpeg", "image/png", "image/gif"].includes(value.type);
       }),
     video: Yup.mixed()
+      .notRequired()
       .test(
         "fileSize",
         "File size is too large, must be 20MB or less",
@@ -152,7 +149,7 @@ export default function Game() {
           size: "",
           system_requirements: {
             ios_version: "",
-            device_compatibility: "",
+            // device_compatibility: "",
           },
         },
         android: {
@@ -161,7 +158,7 @@ export default function Game() {
           size: "",
           system_requirements: {
             android_version: "",
-            device_compatibility: "",
+            // device_compatibility: "",
           },
         },
       },
@@ -216,10 +213,22 @@ export default function Game() {
 
   // Search and pagination
   const filteredData = Array.isArray(games)
-    ? games.filter((data) =>
-        data?.title?.toLowerCase().includes(searchValue.toLowerCase())
-      )
-    : [];
+  ? games.filter((data) => {
+      const search = searchValue.toLowerCase();
+      // Title match
+      const titleMatch = data?.title?.toLowerCase().includes(search);
+      // Category match (if category is an object with categoryName)
+      const categoryMatch =
+        typeof data?.category === "object"
+          ? data?.category?.categoryName?.toLowerCase().includes(search)
+          : false;
+      // Tags match (if tags is an array)
+      const tagsMatch = Array.isArray(data?.tags)
+        ? data.tags.some((tag) => tag?.toLowerCase().includes(search))
+        : false;
+      return titleMatch || categoryMatch || tagsMatch;
+    })
+  : [];
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -269,9 +278,9 @@ export default function Game() {
             system_requirements: {
               ios_version:
                 data.platforms?.ios?.system_requirements?.ios_version || "",
-              device_compatibility:
-                data.platforms?.ios?.system_requirements
-                  ?.device_compatibility || "",
+              // device_compatibility:
+              //   data.platforms?.ios?.system_requirements
+              //     ?.device_compatibility || "",
             },
           },
           android: {
@@ -282,9 +291,9 @@ export default function Game() {
               android_version:
                 data.platforms?.android?.system_requirements?.android_version ||
                 "",
-              device_compatibility:
-                data.platforms?.android?.system_requirements
-                  ?.device_compatibility || "",
+              // device_compatibility:
+              //   data.platforms?.android?.system_requirements
+              //     ?.device_compatibility || "",
             },
           },
         },
@@ -306,7 +315,7 @@ export default function Game() {
   };
   const handleDeleteClose = () => setDelOpen(false);
   const handleDeleteGame = () => {
-    // dispatch(deleteGame({ _id: gameData._id }));
+    dispatch(deleteGame({ _id: gameData._id }));
     setDelOpen(false);
   };
 
@@ -839,7 +848,7 @@ export default function Game() {
                         />
                         <input
                           type="text"
-                          placeholder="OS"
+                          placeholder="OS Version"
                           value={
                             formik.values.platforms.windows.system_requirements
                               .os
@@ -1036,7 +1045,7 @@ export default function Game() {
                           }
                           className="w-full p-2 rounded bg-white/5"
                         />
-                        <input
+                        {/* <input
                           type="text"
                           placeholder="Device Compatibility"
                           value={
@@ -1057,7 +1066,7 @@ export default function Game() {
                             })
                           }
                           className="w-full p-2 rounded bg-white/5"
-                        />
+                        /> */}
                         <input
                           type="file"
                           accept=".ipa"
@@ -1147,7 +1156,7 @@ export default function Game() {
                           }
                           className="w-full p-2 rounded bg-white/5"
                         />
-                        <input
+                        {/* <input
                           type="text"
                           placeholder="Device Compatibility"
                           value={
@@ -1168,7 +1177,7 @@ export default function Game() {
                             })
                           }
                           className="w-full p-2 rounded bg-white/5"
-                        />
+                        /> */}
                         <input
                           type="file"
                           accept=".apk"

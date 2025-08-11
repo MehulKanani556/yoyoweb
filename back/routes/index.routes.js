@@ -137,6 +137,7 @@ indexRoutes.post("/verifyOtp", verifyOtp);
 indexRoutes.post("/changePassword", changePassword);
 
 // user Routes
+
 indexRoutes.post("/createUser", createNewUser);
 indexRoutes.get("/allUsers", getAllUsers);
 indexRoutes.get("/getUserById/:id", getUserById);
@@ -170,6 +171,7 @@ indexRoutes.put(
 indexRoutes.delete("/deleteCategory/:id", csrfProtection, deleteCategory);
 
 //Game 
+
 indexRoutes.get("/getAllGames", getAllGames);
 indexRoutes.post(
   "/createGame",
@@ -196,7 +198,6 @@ indexRoutes.put(
   updateGame
 );
 indexRoutes.delete("/deleteGame/:id", deleteGame);
-
 
 // contactUs
 
@@ -239,6 +240,7 @@ indexRoutes.delete(
 );
 
 // subscribe
+
 indexRoutes.post("/createsubscribe", csrfProtection, createSubscribe);
 indexRoutes.get("/getsubscribeById/:id", getSubscribeById);
 indexRoutes.get("/getAllsubscribe", getAllSubscribe);
@@ -246,6 +248,7 @@ indexRoutes.put("/updatesubscribe", csrfProtection, updateSubscribe);
 indexRoutes.delete("/deletesubscribe/:id", csrfProtection, deleteSubscribe);
 
 // payment
+
 indexRoutes.post("/create-payment", csrfProtection, auth, createPayment);
 indexRoutes.get("/getpayment", getallPayment);
 indexRoutes.get("/getPaymentUser", auth, getPaymentUser);

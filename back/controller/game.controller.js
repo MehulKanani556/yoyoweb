@@ -8,6 +8,11 @@ const { fileupload, deleteFile } = require("../helper/cloudinary.js");
 // Create a new game
 exports.createGame = function (req, res) {
   (async function () {
+    // Track all uploaded cloud files' public_ids for cleanup
+    const uploadedCloudFiles = [];
+    // Track all local file paths for cleanup
+    const uploadedLocalFiles = [];
+
     try {
       const {
         title,
@@ -19,25 +24,31 @@ exports.createGame = function (req, res) {
         platforms, // platforms now contains price per platform
       } = req.body;
 
-    //   console.log(req.body,req.files,"------------------------------");
-      
-
       // Handle cover image upload
       let coverImageData = null;
       if (req.files && req.files.cover_image) {
+        const coverFilePath = req.files.cover_image[0].path;
         const coverFiledata = await fileupload(
-          req.files.cover_image[0].path,
+          coverFilePath,
           "GameCoverImage"
         );
         if (!coverFiledata.message) {
           coverImageData = {
             url: coverFiledata.Location,
-            public_id: coverFiledata.ETag.replace(/"/g, ""),
+            public_id: coverFiledata.public_id,
           };
-          if (fs.existsSync(req.files.cover_image[0].path)) {
-            fs.unlinkSync(req.files.cover_image[0].path);
+          uploadedCloudFiles.push(coverImageData.public_id);
+          if (fs.existsSync(coverFilePath)) {
+            fs.unlinkSync(coverFilePath);
           }
         } else {
+          // Remove all uploaded cloud files and local files before error out
+          for (const public_id of uploadedCloudFiles) {
+            try { await deleteFile(public_id); } catch {}
+          }
+          if (fs.existsSync(coverFilePath)) {
+            fs.unlinkSync(coverFilePath);
+          }
           return ThrowError(res, 400, "Cover image upload failed");
         }
       }
@@ -45,19 +56,29 @@ exports.createGame = function (req, res) {
       // Handle video upload
       let videoData = null;
       if (req.files && req.files.video) {
+        const videoFilePath = req.files.video[0].path;
         const videoFiledata = await fileupload(
-          req.files.video[0].path,
+          videoFilePath,
           "GameVideo"
         );
+       
+        
         if (!videoFiledata.message) {
           videoData = {
             url: videoFiledata.Location,
-            public_id: videoFiledata.ETag.replace(/"/g, ""),
+            public_id: videoFiledata.public_id,
           };
-          if (fs.existsSync(req.files.video[0].path)) {
-            fs.unlinkSync(req.files.video[0].path);
+          uploadedCloudFiles.push(videoData.public_id);
+          if (fs.existsSync(videoFilePath)) {
+            fs.unlinkSync(videoFilePath);
           }
         } else {
+          for (const public_id of uploadedCloudFiles) {
+            try { await deleteFile(public_id); } catch {}
+          }
+          if (fs.existsSync(videoFilePath)) {
+            fs.unlinkSync(videoFilePath);
+          }
           return ThrowError(res, 400, "Video upload failed");
         }
       }
@@ -76,42 +97,78 @@ exports.createGame = function (req, res) {
           req.files &&
           req.files[`${platform}_file`] // e.g. req.files.windows_file
         ) {
-          // Upload the file to cloud and get a one-time download link
+          const platformFileObj = req.files[`${platform}_file`][0];
+          const platformFilePath = platformFileObj.path;
           const fileData = await fileupload(
-            req.files[`${platform}_file`][0].path,
+            platformFilePath,
             `Game${platform.charAt(0).toUpperCase() + platform.slice(1)}File`
           );
           if (!fileData.message) {
             if (!platformsData[platform]) platformsData[platform] = {};
-            platformsData[platform].download_link = fileData.Location;
-            platformsData[platform].public_id = fileData.ETag.replace(/"/g, "");
-            if (fs.existsSync(req.files[`${platform}_file`][0].path)) {
-              fs.unlinkSync(req.files[`${platform}_file`][0].path);
+            platformsData[platform].download_link = fileData.url;
+            platformsData[platform].public_id = fileData.public_id;
+            // Set the size in MB (rounded to 2 decimals)
+            if (typeof platformFileObj.size === "number") {
+              // If file size is >= 1 GB, show in GB with 2 decimals, else in MB with 2 decimals
+              if (platformFileObj.size >= 1024 * 1024 * 1024) {
+                platformsData[platform].size = (platformFileObj.size / (1024 * 1024 * 1024)).toFixed(2) + " GB";
+              } else {
+                platformsData[platform].size = (platformFileObj.size / (1024 * 1024)).toFixed(2) + " MB";
+              }
+            } else {
+              // fallback: try to get file size from fs if not present
+              try {
+                const stats = fs.statSync(platformFilePath);
+                platformsData[platform].size = (stats.size / (1024 * 1024)).toFixed(2) + " MB";
+              } catch (e) {
+                platformsData[platform].size = "";
+              }
+            }
+            uploadedCloudFiles.push(platformsData[platform].public_id);
+            if (fs.existsSync(platformFilePath)) {
+              fs.unlinkSync(platformFilePath);
             }
           } else {
+            for (const public_id of uploadedCloudFiles) {
+              try { await deleteFile(public_id); } catch {}
+            }
+            if (fs.existsSync(platformFilePath)) {
+              fs.unlinkSync(platformFilePath);
+            }
             return ThrowError(res, 400, `${platform} file upload failed`);
           }
         }
       }
 
       let imagesData = [];
-if (req.files && req.files.images) {
-  for (const img of req.files.images) {
-    const imgData = await fileupload(img.path, "GameImages");
-    if (!imgData.message) {
-      imagesData.push({
-        url: imgData.Location,
-        public_id: imgData.ETag.replace(/"/g, ""),
-      });
-      if (fs.existsSync(img.path)) {
-        fs.unlinkSync(img.path);
+      if (req.files && req.files.images) {
+        for (const img of req.files.images) {
+          const imgPath = img.path;
+          const imgData = await fileupload(imgPath, "GameImages");
+          if (!imgData.message) {
+            const imgObj = {
+              url: imgData.Location,
+              public_id: imgData.public_id,
+            };
+            imagesData.push(imgObj);
+            uploadedCloudFiles.push(imgObj.public_id);
+            if (fs.existsSync(imgPath)) {
+              fs.unlinkSync(imgPath);
+            }
+          } else {
+            for (const public_id of uploadedCloudFiles) {
+              try { await deleteFile(public_id); } catch {}
+            }
+            if (fs.existsSync(imgPath)) {
+              fs.unlinkSync(imgPath);
+            }
+            return ThrowError(res, 400, "One of the images upload failed");
+          }
+        }
       }
-    } else {
-      return ThrowError(res, 400, "One of the images upload failed");
-    }
-  }
-}
 
+     
+      
 
       const game = new Game({
         title,
@@ -126,19 +183,39 @@ if (req.files && req.files.images) {
         tags: tags ? JSON.parse(tags) : [],
       });
 
+      console.log(game,platformsData);
+
       const savedGame = await game.save();
-      if (!savedGame) return ThrowError(res, 404, "Game not created");
+      if (!savedGame) {
+        for (const public_id of uploadedCloudFiles) {
+          try { await deleteFile(public_id); } catch {}
+        }
+        return ThrowError(res, 404, "Game not created");
+      }
 
       const populatedGame = await Game.findById(savedGame._id).populate(
         "category"
       );
       res.status(201).json(populatedGame);
     } catch (error) {
-      // Clean up uploaded files if error occurs
+      // Clean up all uploaded cloud files if error occurs
+      if (typeof uploadedCloudFiles !== "undefined") {
+        for (const public_id of uploadedCloudFiles) {
+          try { await deleteFile(public_id); } catch {}
+        }
+      }
+      // Clean up all local files if error occurs
       if (req.files) {
-        Object.values(req.files).forEach((file) => {
-          if (file.path && fs.existsSync(file.path)) {
-            fs.unlinkSync(file.path);
+        Object.values(req.files).forEach((fileArr) => {
+          // fileArr can be an array (multer)
+          if (Array.isArray(fileArr)) {
+            fileArr.forEach((file) => {
+              if (file.path && fs.existsSync(file.path)) {
+                try { fs.unlinkSync(file.path); } catch {}
+              }
+            });
+          } else if (fileArr && fileArr.path && fs.existsSync(fileArr.path)) {
+            try { fs.unlinkSync(fileArr.path); } catch {}
           }
         });
       }
@@ -150,36 +227,52 @@ if (req.files && req.files.images) {
 // Update a game by ID
 exports.updateGame = function (req, res) {
   (async function () {
+    // Helper to clean up all local files in req.files
+    const cleanupLocalFiles = () => {
+      if (req.files) {
+        Object.values(req.files).forEach((fileArr) => {
+          // fileArr can be an array (multer) or a single file object
+          if (Array.isArray(fileArr)) {
+            fileArr.forEach((file) => {
+              if (file.path && fs.existsSync(file.path)) {
+                try { fs.unlinkSync(file.path); } catch {}
+              }
+            });
+          } else if (fileArr && fileArr.path && fs.existsSync(fileArr.path)) {
+            try { fs.unlinkSync(fileArr.path); } catch {}
+          }
+        });
+      }
+    };
+
+    // Helper to clean up uploaded cloud files (public_ids)
+    const cleanupCloudFiles = async (publicIds) => {
+      if (Array.isArray(publicIds)) {
+        for (const public_id of publicIds) {
+          try { await deleteFile(public_id); } catch {}
+        }
+      }
+    };
+
+    // Track uploaded cloud files for cleanup on error
+    let uploadedCloudFiles = [];
+
     try {
       if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        // Clean up uploaded files if invalid ID
-        if (req.files) {
-          Object.values(req.files).forEach((file) => {
-            if (file.path && fs.existsSync(file.path)) {
-              fs.unlinkSync(file.path);
-            }
-          });
-        }
+        cleanupLocalFiles();
         return ThrowError(res, 400, "Invalid game ID");
       }
 
       const game = await Game.findById(req.params.id);
       if (!game) {
-        // Clean up uploaded files if game not found
-        if (req.files) {
-          Object.values(req.files).forEach((file) => {
-            if (file.path && fs.existsSync(file.path)) {
-              fs.unlinkSync(file.path);
-            }
-          });
-        }
+        cleanupLocalFiles();
         return ThrowError(res, 404, "Game not found");
       }
 
       // Handle cover image update
       if (req.files && req.files.cover_image) {
         if (game.cover_image && game.cover_image.public_id) {
-          await deleteFile(game.cover_image.public_id);
+          try { await deleteFile(game.cover_image.public_id); } catch {}
         }
 
         const coverFiledata = await fileupload(
@@ -191,16 +284,21 @@ exports.updateGame = function (req, res) {
             url: coverFiledata.Location,
             public_id: coverFiledata.ETag.replace(/"/g, ""),
           };
+          uploadedCloudFiles.push(game.cover_image.public_id);
           if (fs.existsSync(req.files.cover_image[0].path)) {
             fs.unlinkSync(req.files.cover_image[0].path);
           }
+        } else {
+          cleanupLocalFiles();
+          await cleanupCloudFiles(uploadedCloudFiles);
+          return ThrowError(res, 400, "Cover image upload failed");
         }
       }
 
       // Handle video update
       if (req.files && req.files.video) {
         if (game.video && game.video.public_id) {
-          await deleteFile(game.video.public_id);
+          try { await deleteFile(game.video.public_id); } catch {}
         }
 
         const videoFiledata = await fileupload(
@@ -212,9 +310,14 @@ exports.updateGame = function (req, res) {
             url: videoFiledata.Location,
             public_id: videoFiledata.ETag.replace(/"/g, ""),
           };
+          uploadedCloudFiles.push(game.video.public_id);
           if (fs.existsSync(req.files.video[0].path)) {
             fs.unlinkSync(req.files.video[0].path);
           }
+        } else {
+          cleanupLocalFiles();
+          await cleanupCloudFiles(uploadedCloudFiles);
+          return ThrowError(res, 400, "Video upload failed");
         }
       }
 
@@ -237,18 +340,23 @@ exports.updateGame = function (req, res) {
         game.platforms = { ...game.platforms, ...platformsData };
       }
 
+      // Handle images upload
       if (req.files && req.files.images) {
         for (const img of req.files.images) {
           const imgData = await fileupload(img.path, "GameImages");
           if (!imgData.message) {
-            game.images.push({
+            const imgObj = {
               url: imgData.Location,
               public_id: imgData.ETag.replace(/"/g, ""),
-            });
+            };
+            game.images.push(imgObj);
+            uploadedCloudFiles.push(imgObj.public_id);
             if (fs.existsSync(img.path)) {
               fs.unlinkSync(img.path);
             }
           } else {
+            cleanupLocalFiles();
+            await cleanupCloudFiles(uploadedCloudFiles);
             return ThrowError(res, 400, "One of the images upload failed");
           }
         }
@@ -264,22 +372,30 @@ exports.updateGame = function (req, res) {
           );
           if (!fileData.message) {
             if (!game.platforms[platform]) game.platforms[platform] = {};
-            game.platforms[platform].download_link = fileData.Location;
-            game.platforms[platform].public_id = fileData.ETag.replace(
-              /"/g,
-              ""
-            );
+            game.platforms[platform].download_link = fileData.url;
+            game.platforms[platform].public_id = fileData.public_id
+            uploadedCloudFiles.push(game.platforms[platform].public_id);
             if (fs.existsSync(req.files[`${platform}_file`][0].path)) {
               fs.unlinkSync(req.files[`${platform}_file`][0].path);
             }
           } else {
+            cleanupLocalFiles();
+            await cleanupCloudFiles(uploadedCloudFiles);
             return ThrowError(res, 400, `${platform} file upload failed`);
           }
         }
       }
+      console.log(game);
+      
 
       if (req.body.tags) {
-        game.tags = JSON.parse(req.body.tags);
+        try {
+          game.tags = JSON.parse(req.body.tags);
+        } catch {
+          cleanupLocalFiles();
+          await cleanupCloudFiles(uploadedCloudFiles);
+          return ThrowError(res, 400, "Tags must be valid JSON");
+        }
       }
 
       await game.save();
@@ -290,14 +406,15 @@ exports.updateGame = function (req, res) {
         data: updatedGame,
       });
     } catch (error) {
-      // Clean up uploaded files if error occurs
-      if (req.files) {
-        Object.values(req.files).forEach((file) => {
-          if (file.path && fs.existsSync(file.path)) {
-            fs.unlinkSync(file.path);
-          }
-        });
-      }
+      // Clean up all local files and uploaded cloud files if error occurs
+      await (async () => {
+        try {
+          await cleanupCloudFiles(
+            typeof uploadedCloudFiles !== "undefined" ? uploadedCloudFiles : []
+          );
+        } catch {}
+        cleanupLocalFiles();
+      })();
       return ThrowError(res, 500, error.message);
     }
   })();
@@ -362,7 +479,7 @@ exports.getGamesByPlatform = function (req, res) {
   })();
 };
 
-// Delete a game by ID
+// Delete a game by ID and remove all files from the cloud
 exports.deleteGame = function (req, res) {
   (async function () {
     try {
@@ -373,14 +490,38 @@ exports.deleteGame = function (req, res) {
       const game = await Game.findById(req.params.id);
       if (!game) return ThrowError(res, 404, "Game not found");
 
-      // Delete cover image from cloudinary
+      // Helper to delete a file from cloudinary if public_id exists
+      const deleteCloudFile = async (file) => {
+        if (file && file.public_id) {
+          await deleteFile(file.public_id);
+        }
+      };
+
+      // Delete cover image
       if (game.cover_image && game.cover_image.public_id) {
-        await deleteFile(game.cover_image.public_id);
+        await deleteCloudFile(game.cover_image);
       }
 
-      // Delete video from cloudinary
+      // Delete video
       if (game.video && game.video.public_id) {
-        await deleteFile(game.video.public_id);
+        await deleteCloudFile(game.video);
+      }
+
+      // Delete all images (screenshots)
+      if (Array.isArray(game.images)) {
+        for (const image of game.images) {
+          await deleteCloudFile(image);
+        }
+      }
+
+      // Delete all platform files (windows, ios, android)
+      if (game.platforms && typeof game.platforms === "object") {
+        for (const platformKey of ["windows", "ios", "android"]) {
+          const platform = game.platforms[platformKey];
+          if (platform && platform.public_id) {
+            await deleteCloudFile(platform);
+          }
+        }
       }
 
       const deletedGame = await Game.findByIdAndDelete(req.params.id);
@@ -388,7 +529,7 @@ exports.deleteGame = function (req, res) {
 
       res.status(200).json({
         success: true,
-        message: "Game deleted successfully",
+        message: "Game and all associated files deleted successfully",
       });
     } catch (error) {
       return ThrowError(res, 500, error.message);
