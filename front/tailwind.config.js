@@ -1,23 +1,21 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+  content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Chakra Petch"', 'sans-serif'], // this makes Chakra Petch the default "font-sans"
+        sans: ['"Chakra Petch"', "sans-serif"], // this makes Chakra Petch the default "font-sans"
       },
       animation: {
-        'spin-slow': 'spin 4s linear infinite',
+        "spin-slow": "spin 4s linear infinite",
       },
       screens: {
-        'xs': "320px",
-        'sm': "425px",
-        'md600': "601px",
-        'md': "768px",
-        'lg': "1024px",
-        'xl': "1280px",
+        xs: "320px",
+        sm: "425px",
+        md600: "601px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
         "2xl": "1440px",
         "3xl": "1920px",
         "4xl": "2560px",
@@ -34,6 +32,13 @@ module.exports = {
           dark: "#0f0f0f",
         },
       },
+      backgroundImage: {
+        // "gradient-primary": "linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)",
+        "gradient-primary": "linear-gradient(to right, #ff7e5f, #feb47b, #ff7e5f)",
+        "gradient-secondary": "linear-gradient(to right, #ff7e5f, #feb47b)",
+        "gradient-success": "linear-gradient(to right, #06b6d4, #10b981)",
+        "gradient-dark": "linear-gradient(to right, #0f0f0f, #3f3f46)",
+      }
     },
   },
   plugins: [
@@ -55,4 +60,4 @@ module.exports = {
       });
     },
   ],
-}
+};

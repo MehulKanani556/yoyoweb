@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../Utils/axiosInstance";
+import { enqueueSnackbar } from "notistack";
 
 // GET ALL GAMES
 export const getAllGames = createAsyncThunk(
@@ -22,6 +23,7 @@ export const createGame = createAsyncThunk(
       const res = await axiosInstance.post("/createGame", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      enqueueSnackbar("Game Add successful", { variant: "success" });
       return res.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -37,6 +39,7 @@ export const updateGame = createAsyncThunk(
       const res = await axiosInstance.put(`/updateGame/${_id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      enqueueSnackbar("Game Update successful", { variant: "success" });
       return res.data.data; // controller returns { message, data }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);
@@ -50,6 +53,7 @@ export const deleteGame = createAsyncThunk(
   async ({ _id }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.delete(`/deleteGame/${_id}`);
+      enqueueSnackbar("Game Delete successful", { variant: "success" });
       return { _id };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message);

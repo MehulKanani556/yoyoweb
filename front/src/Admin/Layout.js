@@ -1,20 +1,20 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import MenuIcon from '@mui/icons-material/Menu';
-import Toolbar from '@mui/material/Toolbar';
+import * as React from "react";
+import PropTypes from "prop-types";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Divider from "@mui/material/Divider";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import MenuIcon from "@mui/icons-material/Menu";
+import Toolbar from "@mui/material/Toolbar";
 import { AiFillHome, AiOutlineClose } from "react-icons/ai";
-import { FaUser, FaQuestion, FaExchangeAlt, FaAd, } from "react-icons/fa";
+import { FaUser, FaQuestion, FaExchangeAlt, FaAd } from "react-icons/fa";
 import { BiCameraMovie, BiSolidCategory, BiSolidVideo } from "react-icons/bi";
 import { FaList } from "react-icons/fa6";
 import { BsFillBoxSeamFill } from "react-icons/bs";
@@ -27,20 +27,20 @@ import { BiSolidOffer } from "react-icons/bi";
 import { FaArrowsRotate } from "react-icons/fa6";
 import { FaReceipt } from "react-icons/fa6";
 import { MdRecentActors } from "react-icons/md";
-import { useNavigate, useLocation } from 'react-router-dom';
-import SearchIcon from '@mui/icons-material/Search';
-import { Modal } from '@mui/material';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate, useLocation } from "react-router-dom";
+import SearchIcon from "@mui/icons-material/Search";
+import { Modal } from "@mui/material";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
-import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
-import { getUserById } from '../Redux/Slice/user.slice';
-import { HiOutlineShieldCheck } from 'react-icons/hi2';
-import { IMAGE_URL } from '../Utils/baseUrl';
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import { getUserById } from "../Redux/Slice/user.slice";
+import { HiOutlineShieldCheck } from "react-icons/hi2";
+import { IMAGE_URL } from "../Utils/baseUrl";
 import { resetPassword } from "../Redux/Slice/user.slice";
-import { logoutUser } from '../Redux/Slice/auth.slice';
-import { decryptData } from '../Utils/encryption';
+import { logoutUser } from "../Redux/Slice/auth.slice";
+import { decryptData } from "../Utils/encryption";
 import { IoGameControllerOutline } from "react-icons/io5";
 // import { logout } from '../reduxe/slice/auth.slice';
 // import { setSearchValue } from '../reduxe/slice/search.slice';
@@ -53,18 +53,19 @@ function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const userId = localStorage.getItem('ottuserId');
-  const role =  useSelector(state => state.auth.user?.role) || localStorage.getItem('role') ;
+  const userId = localStorage.getItem("ottuserId");
+  const role =
+    useSelector((state) => state.auth.user?.role) ||
+    localStorage.getItem("role");
   const [openSubmenu, setOpenSubmenu] = useState(null);
-  const user = useSelector((state) => state.user.currUser)
+  const user = useSelector((state) => state.user.currUser);
   const [openProfile, setOpenProfile] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
   const [openPassword, setOpenPassword] = useState(false);
   const fileInputRef = useRef(null);
   const dropdownRef = useRef(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const userdata =  useSelector(state => state.auth.user)
- 
+  const userdata = useSelector((state) => state.auth.user);
 
   // console.log(userdata);
 
@@ -73,9 +74,9 @@ function Layout({ children }) {
 
   useEffect(() => {
     if (userId) {
-      dispatch(getUserById(userId))
+      dispatch(getUserById(userId));
     }
-  }, [userId])
+  }, [userId]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -84,9 +85,9 @@ function Layout({ children }) {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -109,57 +110,78 @@ function Layout({ children }) {
     setOpenSubmenu(openSubmenu === title ? null : title);
   };
 
-
   const handleLogout = async () => {
-    try { 
+    try {
       if (userId) {
         const data = {
-          userId:userId,
-          
-        }     
+          userId: userId,
+        };
         await dispatch(logoutUser(data));
       }
-      navigate("/")
+      navigate("/");
       sessionStorage.removeItem("userId");
       sessionStorage.removeItem("token");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const pages = [
-    { title: 'Dashboard', icon: <AiFillHome />, path: '/admin' },
-    { title: 'Category', icon: <BiSolidCategory />, path: '/admin/category' },
-    { title: 'Games', icon: <IoGameControllerOutline />, path: '/admin/games' },
-    { title: 'User', icon: <FaUser />, path: '/admin/user' },
-    { title: 'Terms and Conditions', icon: <RiFileTextLine />, path: '/admin/Terms-Conditions' },
-    { title: 'Privacy Policy', icon: <HiOutlineShieldCheck />, path: '/admin/Privacy-Policy' },
-    { title: 'Premium', icon: <TbPremiumRights />, path: '/admin/premium' },
-    { title: 'Faq', icon: <FaQuestion />, path: '/admin/faq' },
-    { title: 'Transaction', icon: <FaExchangeAlt />, path: '/admin/transaction' },
-  ]
+    { title: "Dashboard", icon: <AiFillHome />, path: "/admin" },
+    { title: "Category", icon: <BiSolidCategory />, path: "/admin/category" },
+    { title: "Games", icon: <IoGameControllerOutline />, path: "/admin/games" },
+    { title: "User", icon: <FaUser />, path: "/admin/user" },
+    {
+      title: "Terms and Conditions",
+      icon: <RiFileTextLine />,
+      path: "/admin/Terms-Conditions",
+    },
+    {
+      title: "Privacy Policy",
+      icon: <HiOutlineShieldCheck />,
+      path: "/admin/Privacy-Policy",
+    },
+    { title: "Premium", icon: <TbPremiumRights />, path: "/admin/premium" },
+    { title: "Faq", icon: <FaQuestion />, path: "/admin/faq" },
+    {
+      title: "Transaction",
+      icon: <FaExchangeAlt />,
+      path: "/admin/transaction",
+    },
+  ];
   const validationSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().email('Invalid email').required('Email is required'),
-    phone: Yup.string().required('Mobile No. is required'),
-    gender: Yup.string().required('Gender is required'),
-    dob: Yup.date().required('D.O.B is required').max(new Date().toISOString().split('T')[0], 'D.O.B cannot be in the future'),
+    name: Yup.string().required("Name is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    phone: Yup.string().required("Mobile No. is required"),
+    gender: Yup.string().required("Gender is required"),
+    dob: Yup.date()
+      .required("D.O.B is required")
+      .max(
+        new Date().toISOString().split("T")[0],
+        "D.O.B cannot be in the future"
+      ),
   });
 
   const drawer = (
     // scrollbar-hide overflow-y-auto
-    <div className='relative' style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div
+      className="relative"
+      style={{ height: "100%", display: "flex", flexDirection: "column" }}
+    >
       <Toolbar>
-        <div className='w-full'>
-          <h1 className='text-center text-white/50 font-semibold text-3xl'>YOYO</h1>
+        <div className="w-full">
+          <h1 className="text-center text-white/50 font-semibold text-3xl">
+            YOYO
+          </h1>
         </div>
       </Toolbar>
       <Divider />
-      <List className='gap-1 flex flex-col grow'>
+      <List className="gap-1 flex flex-col grow">
         {pages.map((v) => (
           <div key={v.title}>
-            <ListItem disablePadding
-            //  sx={{ paddingLeft: '20px', paddingRight: '20px' }}
+            <ListItem
+              disablePadding
+              //  sx={{ paddingLeft: '20px', paddingRight: '20px' }}
             >
               <ListItemButton
                 onClick={() => {
@@ -169,133 +191,147 @@ function Layout({ children }) {
                     navigate(v.path);
                     if (window && window.innerWidth < 900) {
                       setMobileOpen(false);
-                    } 
-                  }
-                }}
-                sx={{
-                  gap: '4px',
-                  background: location.pathname == (v.path)
-                    ? 'linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)'
-                    : 'transparent',
-                  backgroundSize: location.pathname == (v.path) ? '200% 100%' : 'auto',
-                  backgroundPosition: location.pathname == (v.path) ? 'left center' : 'auto',
-                  color: location.pathname == (v.path) ? 'white' : "gray",
-                  // borderRadius: '10px',
-                  transition: 'background-position 0.4s ease-in-out',
-                  '&:hover': {
-                    background: 'linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)',
-                    backgroundSize: '200% 100%',
-                    backgroundPosition: 'right center',
-                    color: 'white',
-                    '& .MuiSvgIcon-root': {
-                      color: 'white',
-                    },
-                    '& .icon': {
-                      color: 'white',
-                      background: '#0097ff',
-                      '& .MuiSvgIcon-root': {
-                        color: 'white',
-                      },
-                      '& .icon': {
-                        color: 'white',
-                      }
                     }
                   }
                 }}
-
+                className={`transition-[background-position] duration-400 ease-in-out ${
+                  location.pathname === v.path
+                    ? "bg-gradient-primary bg-[length:200%_100%] bg-[position:left_center] hover:bg-[position:right_center] text-white"
+                    : "hover:bg-gradient-primary hover:bg-[length:200%_100%] hover:bg-[position:right_center]"
+                }`}
+                sx={{
+                  gap: "4px",
+                  color: location.pathname === v.path ? "white" : "gray",
+                  transition: "background-position 0.4s ease-in-out",
+                  "&:hover": {
+                    color: "white",
+                    "& .MuiSvgIcon-root": { color: "white" },
+                    "& .icon": {
+                      color: "white",
+                      background: "#d1634b",
+                      "& .MuiSvgIcon-root": { color: "white" },
+                      "& .icon": { color: "white" },
+                    },
+                  },
+                }}
                 onMouseEnter={(e) => {
-                  if (location.pathname == (v.path)) {
-                    e.currentTarget.style.backgroundPosition = 'right center';
+                  if (location.pathname == v.path) {
+                    e.currentTarget.style.backgroundPosition = "right center";
                   }
                 }}
                 onMouseLeave={(e) => {
-                  if (location.pathname == (v.path)) {
-                    e.currentTarget.style.backgroundPosition = 'left center';
+                  if (location.pathname == v.path) {
+                    e.currentTarget.style.backgroundPosition = "left center";
                   }
                 }}
               >
                 <ListItemIcon
                   className="icon"
                   sx={{
-                    color: 'white',
-                    fontSize: '15px',
-                    minWidth: '25px',
-                    padding: '10px',
-                    position: 'relative',
-                    borderRadius: '4px',
-                    backgroundColor: location.pathname == (v.path) ? '#0097ff' : 'transparent',
-                    '&::before': {
+                    color: "white",
+                    fontSize: "15px",
+                    minWidth: "25px",
+                    padding: "10px",
+                    position: "relative",
+                    borderRadius: "4px",
+                    backgroundColor:
+                      location.pathname == v.path ? "#d1634b" : "transparent",
+                    "&::before": {
                       content: '""',
-                      position: 'absolute',
+                      position: "absolute",
                       top: 0,
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      borderRadius: '4px',
-                      padding: '1px',
-                      background: location.pathname !== v.title && 'linear-gradient(0deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)',
-                      WebkitMask: location.pathname !== v.title && 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                      WebkitMaskComposite: location.pathname !== v.title && 'xor',
-                      maskComposite: location.pathname !== v.title && 'exclude',
-                      opacity: location.pathname == (v.path) ? 0 : 0.3,
-                      transition: 'opacity 0.3s ease'
+                      borderRadius: "4px",
+                      padding: "1px",
+                      background:
+                        location.pathname !== v.title &&
+                        "linear-gradient(0deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0) 100%)",
+                      WebkitMask:
+                        location.pathname !== v.title &&
+                        "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                      WebkitMaskComposite:
+                        location.pathname !== v.title && "xor",
+                      maskComposite: location.pathname !== v.title && "exclude",
+                      opacity: location.pathname == v.path ? 0 : 0.3,
+                      transition: "opacity 0.3s ease",
                     },
-                  }}>
-                  {v.icon}
-                </ListItemIcon>
-                <ListItemText primary={v.title} sx={{ fontSize: '18px', fontWeight: 500, whiteSpace: 'nowrap' }} />
-                {v.dot && <span style={{ color: 'red', marginLeft: '5px' }}>•</span>}
-                {v.subItems && openSubmenu === v.title ? <FaAngleUp /> : v.dropdownIcon}
-              </ListItemButton>
-            </ListItem>
-            {v.subItems && openSubmenu === v.title && v.subItems.map(subItem => (
-              <ListItem key={subItem.title} disablePadding sx={{ paddingLeft: '40px' }}>
-                <ListItemButton
-                  sx={{
-                    backgroundColor: location.pathname == (subItem.path) ? '#FFF9F6' : 'transparent',
-                    color: location.pathname == (subItem.path) ? '#523C34' : 'white',
-                    borderRadius: '10px',
-                    fontSize: '10px',
-                    paddingTop: '5px',
-                    paddingBottom: '5px',
-                    marginTop: '7px',
-                    '&:hover': {
-                      backgroundColor: '#FFF9F6',
-                      color: '#523C34',
-                    }
-                  }}
-                  onClick={() => {
-                    navigate(subItem.path);
-                    if (window && window.innerWidth < 900) {
-                      setMobileOpen(false);
-                    }
                   }}
                 >
-                  <span style={{ margin: '5px' }}>•</span>
-                  <ListItemText primary={subItem.title} sx={{ fontSize: '14px', fontWeight: 400 }} />
-                </ListItemButton>
-              </ListItem>
-            ))}
+                  {v.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={v.title}
+                  sx={{
+                    fontSize: "18px",
+                    fontWeight: 500,
+                    whiteSpace: "nowrap",
+                  }}
+                />
+                {v.dot && (
+                  <span style={{ color: "red", marginLeft: "5px" }}>•</span>
+                )}
+                {v.subItems && openSubmenu === v.title ? (
+                  <FaAngleUp />
+                ) : (
+                  v.dropdownIcon
+                )}
+              </ListItemButton>
+            </ListItem>
+            {v.subItems &&
+              openSubmenu === v.title &&
+              v.subItems.map((subItem) => (
+                <ListItem
+                  key={subItem.title}
+                  disablePadding
+                  sx={{ paddingLeft: "40px" }}
+                >
+                  <ListItemButton
+                    sx={{
+                      backgroundColor:
+                        location.pathname == subItem.path
+                          ? "#FFF9F6"
+                          : "transparent",
+                      color:
+                        location.pathname == subItem.path ? "#523C34" : "white",
+                      borderRadius: "10px",
+                      fontSize: "10px",
+                      paddingTop: "5px",
+                      paddingBottom: "5px",
+                      marginTop: "7px",
+                      "&:hover": {
+                        backgroundColor: "#FFF9F6",
+                        color: "#523C34",
+                      },
+                    }}
+                    onClick={() => {
+                      navigate(subItem.path);
+                      if (window && window.innerWidth < 900) {
+                        setMobileOpen(false);
+                      }
+                    }}
+                  >
+                    <span style={{ margin: "5px" }}>•</span>
+                    <ListItemText
+                      primary={subItem.title}
+                      sx={{ fontSize: "14px", fontWeight: 400 }}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              ))}
           </div>
         ))}
       </List>
       <div
         // style={{ padding: '20px' }}
-        className='w-full mb-5'>
+        className="w-full mb-5"
+      >
         <button
-          onClick={() => { setShowLogoutModal(true) }}
-          className="w-full py-2 font-semibold text-white"
-          style={{
-            background: 'linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)',
-            backgroundSize: '200% 100%',
-            backgroundPosition: 'left center',
-            transition: 'background-position 0.4s ease-in-out',
-            border: 'none',
-            outline: 'none',
-            cursor: 'pointer'
+          onClick={() => {
+            setShowLogoutModal(true);
           }}
-          onMouseEnter={e => e.currentTarget.style.backgroundPosition = 'right center'}
-          onMouseLeave={e => e.currentTarget.style.backgroundPosition = 'left center'}
+          className="w-full py-2 font-semibold text-white bg-gradient-primary bg-[length:200%_100%] bg-[position:left_center] hover:bg-[position:right_center] transition-[background-position] duration-600 ease-in-out border-none outline-none cursor-pointer"
         >
           Logout
         </button>
@@ -304,7 +340,8 @@ function Layout({ children }) {
   );
 
   // Remove this const when copying and pasting into your project.
-  const container = typeof window !== 'undefined' ? () => window.document.body : undefined;
+  const container =
+    typeof window !== "undefined" ? () => window.document.body : undefined;
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -425,8 +462,9 @@ function Layout({ children }) {
                 {dropdownOpen && (
                   <div
                     ref={dropdownRef}
-                    className={`dropdown-content bg-[#2e2e2e] ${dropdownOpen ? "fade-in scale-in" : "fade-out scale-out"
-                      }`}
+                    className={`dropdown-content bg-[#2e2e2e] ${
+                      dropdownOpen ? "fade-in scale-in" : "fade-out scale-out"
+                    }`}
                     style={{
                       position: "absolute",
                       boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
@@ -436,7 +474,11 @@ function Layout({ children }) {
                     }}
                   >
                     <div
-                      style={{ padding: "10px", cursor: "pointer", transition: "background-color 0.3s ease-in-out" }}
+                      style={{
+                        padding: "10px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s ease-in-out",
+                      }}
                       className="text-nowrap hover:bg-[#3e3e3e] hover:text-[#0072ff] "
                       onClick={() => {
                         navigate("/admin/profile");
@@ -445,16 +487,26 @@ function Layout({ children }) {
                       Profile
                     </div>
                     <div
-                      style={{ padding: "10px", cursor: "pointer", transition: "background-color 0.3s ease-in-out" }}
+                      style={{
+                        padding: "10px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s ease-in-out",
+                      }}
                       className="text-nowrap hover:bg-[#3e3e3e] hover:text-[#0072ff]"
                       onClick={() => setOpenPassword(true)}
                     >
                       Change Password
                     </div>
                     <div
-                      style={{ padding: "10px", cursor: "pointer", transition: "background-color 0.3s ease-in-out" }}
+                      style={{
+                        padding: "10px",
+                        cursor: "pointer",
+                        transition: "background-color 0.3s ease-in-out",
+                      }}
                       className="text-nowrap hover:bg-[#3e3e3e] hover:text-red-500"
-                      onClick={() => { setShowLogoutModal(true) }}
+                      onClick={() => {
+                        setShowLogoutModal(true);
+                      }}
                     >
                       Logout
                     </div>
@@ -664,21 +716,7 @@ function Layout({ children }) {
                             </button>
                             <button
                               type="submit"
-                              className="text-[14px] w-48 py-2 rounded-[4px] font-medium sm:py-3 text-white border-none cursor-pointer transition-[background-position] duration-400 ease-in-out"
-                              style={{
-                                background:
-                                  "linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)",
-                                backgroundSize: "200% 100%",
-                                backgroundPosition: "left center",
-                              }}
-                              onMouseEnter={(e) =>
-                              (e.currentTarget.style.backgroundPosition =
-                                "right center")
-                              }
-                              onMouseLeave={(e) =>
-                              (e.currentTarget.style.backgroundPosition =
-                                "left center")
-                              }
+                              className="text-[14px] w-48 py-2 rounded-[4px] font-medium sm:py-3 text-white border-none cursor-pointer bg-gradient-primary bg-[length:200%_100%] bg-[position:left_center] hover:bg-[position:right_center] transition-[background-position] duration-400 ease-in-out"
                             >
                               Change Password
                             </button>
@@ -755,14 +793,18 @@ function Layout({ children }) {
       {/* Logout Confirmation Modal */}
       <Modal
         open={showLogoutModal}
-        onClose={() => { setShowLogoutModal(false) }}
+        onClose={() => {
+          setShowLogoutModal(false);
+        }}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
         className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
       >
         <div className="bg-[#1e1e1e] rounded-[2px] p-[16px] sm:p-[24px] w-[90%] max-w-[400px] text-white shadow-lg">
           <div className="flex justify-between items-center border-b border-white/10 pb-3">
-            <h2 id="modal-modal-title" className="text-lg font-semibold">Log out</h2>
+            <h2 id="modal-modal-title" className="text-lg font-semibold">
+              Log out
+            </h2>
             <button
               onClick={() => setShowLogoutModal(false)}
               className="text-white hover:text-red-500 transition duration-200"
@@ -771,7 +813,10 @@ function Layout({ children }) {
             </button>
           </div>
 
-          <p id="modal-modal-description" className="text-sm text-white/70 text-center my-6">
+          <p
+            id="modal-modal-description"
+            className="text-sm text-white/70 text-center my-6"
+          >
             Are you sure you want to logout?
           </p>
 
@@ -782,14 +827,14 @@ function Layout({ children }) {
             >
               Cancel
             </button>
-            <button type="submit" onClick={() => { setShowLogoutModal(false); handleLogout(); }} className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 border-none cursor-pointer transition-[background-position] duration-400 ease-in-out"
-              style={{
-                background: 'linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)',
-                backgroundSize: '200% 100%',
-                backgroundPosition: 'left center',
+            <button
+              type="submit"
+              onClick={() => {
+                setShowLogoutModal(false);
+                handleLogout();
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = 'right center')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = 'left center')}>
+              className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 border-none cursor-pointer bg-gradient-primary bg-[length:200%_100%] bg-[position:left_center] hover:bg-[position:right_center] transition-[background-position] duration-400 ease-in-out"
+            >
               Yes, Logout
             </button>
           </div>

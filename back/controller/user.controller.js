@@ -6,7 +6,7 @@ const nodemailer = require("nodemailer");
 const { fileupload } = require('../helper/cloudinary');
 const fs = require("fs");
 const mongoose = require('mongoose');
-const { encryptData } = require('../utils/encryption');
+const { encryptData, decryptData } = require('../utils/encryption');
 
 // Initialize Twilio client
 let twilioClient;
@@ -426,3 +426,4 @@ exports.removeUser = async (req, res) => {
         console.log(error);
     }
 }
+

@@ -154,14 +154,14 @@ const fileupload = async (filePath, folderName) => {
 
     const data = await s3.putObject(uploadParams);
 
-    console.log(data, "datatatataa");
+    console.log(uploadParams.Key, "datatatataa");
 
     // Return the expected format that your controllers expect
     return {
       Location: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`,
       ETag: data.ETag,
       url: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${uploadParams.Key}`,
-      public_id: data.ETag.replace(/"/g, ""),
+      public_id: uploadParams.Key
     };
   } catch (error) {
     throw error;
@@ -269,6 +269,8 @@ const uploadHLSFolder = async (folderPath, s3Folder) => {
 // So, when deleting, pass the same key you used for upload (res.Key or filedata.Key).
 
 const deleteFile = async (public_id) => {
+  console.log("-=================public_id",public_id);
+  
   try {
     const deleteParams = {
       Bucket: process.env.AWS_BUCKET_NAME,
@@ -277,10 +279,13 @@ const deleteFile = async (public_id) => {
     if (typeof s3.send === "function") {
      
       const result = await s3.send(new DeleteObjectCommand(deleteParams));
+      console.log("1",result);
+      
       return result;
     } else if (typeof s3.deleteObject === "function") {
       // AWS SDK v2
       const result = await s3.deleteObject(deleteParams).promise();
+      console.log("2",result);
       return result;
     } else {
       throw new Error("Unsupported S3 client: cannot delete object");
