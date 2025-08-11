@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaPlaystation, FaXbox, FaSteam, FaGamepad } from 'react-icons/fa';
+import { CardCarousel } from "../component/CardCarousel"
+import img1 from "../Asset/images/1.webp";
+import img2 from "../Asset/images/2.webp";
+import img3 from "../Asset/images/3.webp";
 
 const games = [
     { name: "Cyber Hunt", icon: <FaPlaystation size={50} /> },
@@ -70,7 +74,12 @@ export default function HomePage() {
     }, [characters.length]);
 
     const currentChar = characters[currentCharacter];
-
+    const images = [
+        { src: img1, alt: "Image 1" },
+        { src:img2, alt: "Image 2" },
+        { src: img3, alt: "Image 3" },
+        // { src: img1, alt: "Image 4" },
+      ]
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
             <div className="max-w-7xl mx-auto">
@@ -188,6 +197,12 @@ export default function HomePage() {
                         </button>
                     </div>
                 </div>
+                <CardCarousel
+        images={images}
+        autoplayDelay={2000}
+        showPagination={true}
+        showNavigation={true}
+      />
 
                 {/* Bottom Stats Bar */}
                 <div className="fixed bottom-0 left-0 right-0 bg-black bg-opacity-50 backdrop-blur-md p-4">

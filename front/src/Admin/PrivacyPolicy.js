@@ -4,8 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { RiDeleteBin6Fill, RiEdit2Fill } from 'react-icons/ri';
 import { useDispatch, useSelector } from 'react-redux';
 import * as Yup from "yup";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { createPrivacy, deletePrivacy, getAllPrivacy, updatePrivacy } from '../Redux/Slice/PrivacyPolicy.slice';
 
 export default function PrivacyPolicy() {

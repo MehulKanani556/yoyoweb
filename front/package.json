@@ -19,7 +19,6 @@
     "chart.js": "^4.5.0",
     "crypto-js": "^4.2.0",
     "formik": "^2.4.6",
-    "framer-motion": "^12.23.12",
     "jwt-decode": "^4.0.0",
     "lottie-react": "^2.4.1",
     "notistack": "^3.0.2",
@@ -35,6 +34,7 @@
     "slate": "^0.118.0",
     "slate-react": "^0.117.4",
     "styled-components": "^6.1.19",
+    "swiper": "^11.2.10",
     "web-vitals": "^2.1.4",
     "yup": "^1.7.0"
   },
@@ -63,6 +63,9 @@
     ]
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.17"
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.12",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss": "^4.1.11"
   }
 }
