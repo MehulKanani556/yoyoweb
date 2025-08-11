@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaPlaystation, FaXbox, FaSteam, FaGamepad } from 'react-icons/fa';
+import LastWinners from '../component/LastWinners/LastWinners';
+import pubg from '../Asset/images/pubgggggg-removebg-preview.png';
+import freeFire from '../Asset/images/free-fire-character-removebg-preview.png';
+import kumfoo from '../Asset/images/kum-foo-removebg-preview.png';
+import sonic from '../Asset/images/sonic-removebg-preview.png';
+import mario from '../Asset/images/mario-removebg-preview.png';
 
 const games = [
     { name: "Cyber Hunt", icon: <FaPlaystation size={50} /> },
@@ -12,40 +18,43 @@ const games = [
 export default function HomePage() {
 
     const [currentCharacter, setCurrentCharacter] = useState(0);
+    const [tick, setTick] = useState(0);
+    const [activeWinnerName, setActiveWinnerName] = useState('EPIC');
+    const [dots, setDots] = useState([]);
 
     // Array of different characters that will rotate
     const characters = [
         {
             name: "Fire Warrior",
-            emoji: "🔥",
+            image: pubg,
             color: "text-red-500",
             bgColor: "bg-red-100",
             description: "Master of flames"
         },
         {
             name: "Ice Mage",
-            emoji: "❄️",
+            image: freeFire,
             color: "text-blue-500",
             bgColor: "bg-blue-100",
             description: "Frozen spells expert"
         },
         {
             name: "Nature Guardian",
-            emoji: "🌿",
+            image: kumfoo,
             color: "text-green-500",
             bgColor: "bg-green-100",
             description: "Forest protector"
         },
         {
             name: "Lightning Knight",
-            emoji: "⚡",
+            image: sonic,
             color: "text-yellow-500",
             bgColor: "bg-yellow-100",
             description: "Storm wielder"
         },
         {
             name: "Shadow Assassin",
-            emoji: "🌙",
+            image: mario,
             color: "text-purple-500",
             bgColor: "bg-purple-100",
             description: "Darkness master"
@@ -60,39 +69,131 @@ export default function HomePage() {
         { id: 4, title: "Speed Boost", value: "200", type: "Agility" }
     ];
 
-    // Change character every 2 seconds
+    // Change character and advance synced tick every 2 seconds
     useEffect(() => {
-        const interval = setInterval(() => {
+        const id = setInterval(() => {
+            setTick((prev) => prev + 1);
             setCurrentCharacter((prev) => (prev + 1) % characters.length);
         }, 2000);
 
-        return () => clearInterval(interval);
+        return () => clearInterval(id);
     }, [characters.length]);
 
     const currentChar = characters[currentCharacter];
 
+    useEffect(() => {
+        const generateDots = () => {
+            const newDots = [];
+            const gridSize = 100;
+            const containerWidth = window.innerWidth;
+            const containerHeight = window.innerHeight;
+
+            // Get all grid line positions (vertical and horizontal)
+            const verticalLines = [];
+            const horizontalLines = [];
+
+            for (let x = gridSize; x <= containerWidth; x += gridSize) {
+                verticalLines.push(x);
+            }
+
+            for (let y = gridSize; y <= containerHeight; y += gridSize) {
+                horizontalLines.push(y);
+            }
+
+            // Create vertical dropping dots along grid lines only - ALL THIN SHORT
+            verticalLines.forEach((x, index) => {
+                if (Math.random() < 0.25) {
+                    newDots.push({
+                        id: `grid-drop-${index}`,
+                        x,
+                        startY: -20,
+                        endY: containerHeight + 20,
+                        delay: Math.random() * 4,
+                        duration: 2 + Math.random() * 2,
+                        widthClass: 'w-0.5',
+                        heightClass: 'h-5',
+                    });
+                }
+            });
+
+            // Add some horizontal dropping dots along horizontal grid lines - ALL THIN SHORT
+            horizontalLines.forEach((y, index) => {
+                if (Math.random() < 0.15) {
+                    const randomX = verticalLines[Math.floor(Math.random() * verticalLines.length)];
+                    newDots.push({
+                        id: `horizontal-drop-${index}`,
+                        x: randomX,
+                        startY: -20,
+                        endY: containerHeight + 20,
+                        delay: Math.random() * 6,
+                        duration: 1.5 + Math.random() * 2.5,
+                        widthClass: 'w-0.5',
+                        heightClass: 'h-4',
+                    });
+                }
+            });
+
+            setDots(newDots);
+        };
+
+        generateDots();
+
+        const handleResize = () => {
+            generateDots();
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
-            <div className="max-w-7xl mx-auto">
-                {/* Main Container */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-screen items-center">
+        <div className="relative min-h-screen">
+            {/* Animated Background Layer */}
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
+                {/* Grid Pattern */}
+                <div
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px)',
+                        backgroundSize: '100px 100px',
+                    }}
+                />
 
-                    {/* Left Side - Game Name */}
-                    <div className="flex flex-col items-center lg:items-start justify-center space-y-6">
-                        <div className="text-center lg:text-left">
-                            <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 bg-clip-text text-transparent mb-4">
-                                EPIC
-                            </h1>
-                            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-2">
-                                HEROES
-                            </h2>
-                            <p className="text-xl text-gray-300 font-medium">
-                                Battle Arena
-                            </p>
-                        </div>
+                {/* Dropping Animated Dots */}
+                {dots.map((dot) => (
+                    <div
+                        key={dot.id}
+                        className={`absolute  ${dot.heightClass || 'h-8'} bg-yellow-500 rounded-full shadow-lg`}
+                        style={{
+                            left: `${dot.x}px`,
+                            top: `${dot.startY}px`,
+                            width: '2px',
+                            transform: 'translateX(-50%)',
+                            // boxShadow:
+                            //     '0 0 8px #fbbf24, 0 0 16px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3)',
+                            animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
+                        }}
+                    />
+                ))}
+            </div>
 
-                        {/* Game Stats */}
-                        <div className="bg-black bg-opacity-30 backdrop-blur-md rounded-xl p-6 border border-gray-700">
+            {/* Foreground Content */}
+            <div className="relative z-10">
+                <div className="max-w-7xl mx-auto">
+                    {/* Main Container */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-screen items-center">
+
+                        {/* Left Side - Game Name */}
+                        <div className="flex flex-col items-center lg:items-start justify-center space-y-6">
+                            <div className="text-center lg:text-left">
+                                <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 bg-clip-text text-transparent mb-4">
+                                    {activeWinnerName}
+                                </h1>
+                            </div>
+
+                            {/* Game Stats */}
+                            {/* <div className="bg-black bg-opacity-30 backdrop-blur-md rounded-xl p-6 border border-gray-700">
                             <h3 className="text-white text-lg font-semibold mb-3">Game Stats</h3>
                             <div className="space-y-2">
                                 <div className="flex justify-between text-gray-300">
@@ -108,111 +209,49 @@ export default function HomePage() {
                                     <span className="text-blue-400 font-bold">#142</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Center - Character Display */}
-                    <div className="flex justify-center items-center">
-                        <div className="rounded-full w-80 h-80 flex flex-col items-center justify-center shadow-2xl transform transition-all duration-500 hover:scale-105 border-4 border-white border-opacity-20">
-                            <div className="text-9xl mb-4 animate-pulse">
-                                {currentChar.emoji}
-                            </div>
-                            <h3 className={`text-2xl font-bold ${currentChar.color} mb-2`}>
-                                {currentChar.name}
-                            </h3>
-                            <p className="text-gray-700 text-center px-4">
-                                {currentChar.description}
-                            </p>
-
-                            {/* Character Progress Bar */}
-                            {/* <div className="w-3/4 bg-gray-300 rounded-full h-2 mt-4">
-                                <div
-                                    className={`h-2 rounded-full transition-all duration-2000 ${currentChar.color.replace('text-', 'bg-')}`}
-                                    style={{ width: `${20 + (currentCharacter * 15)}%` }}
-                                ></div>
-                            </div> */}
-                        </div>
-
-                        {/* Character Selection Dots */}
-                        {/* <div className="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-20 flex space-x-2">
-                            {characters.map((_, index) => (
-                                <div
-                                    key={index}
-                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentCharacter ? 'bg-white' : 'bg-gray-500'
-                                        }`}
-                                />
-                            ))}
                         </div> */}
-                    </div>
-
-                    {/* Right Side - Game Cards */}
-                    <div className="flex flex-col justify-center space-y-4">
-                        <h3 className="text-3xl font-bold text-white mb-6 text-center lg:text-left">
-                            Your Cards
-                        </h3>
-
-                        {gameCards.map((card, index) => (
-                            <div
-                                key={card.id}
-                                className="bg-gradient-to-r from-gray-800 to-gray-700 rounded-xl p-6 border border-gray-600 hover:border-gray-400 transform hover:-translate-y-1 transition-all duration-300 shadow-lg"
-                                style={{ animationDelay: `${index * 0.1}s` }}
-                            >
-                                <div className="flex justify-between items-center mb-2">
-                                    <h4 className="text-white font-semibold text-lg">{card.title}</h4>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${card.type === 'Attack' ? 'bg-red-600 text-white' :
-                                        card.type === 'Defense' ? 'bg-blue-600 text-white' :
-                                            card.type === 'Health' ? 'bg-green-600 text-white' :
-                                                'bg-purple-600 text-white'
-                                        }`}>
-                                        {card.type}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-300">Power Level:</span>
-                                    <span className="text-2xl font-bold text-yellow-400">{card.value}</span>
-                                </div>
-
-                                {/* Card progress bar */}
-                                <div className="w-full bg-gray-600 rounded-full h-1 mt-3">
-                                    <div
-                                        className="bg-yellow-400 h-1 rounded-full transition-all duration-1000"
-                                        style={{ width: `${(parseInt(card.value) / 200) * 100}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        ))}
-
-                        {/* Action Button */}
-                        <button className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg mt-4">
-                            Start Battle
-                        </button>
-                    </div>
-                </div>
-
-                {/* Bottom Stats Bar */}
-                <div className="fixed bottom-0 left-0 right-0 bg-black bg-opacity-50 backdrop-blur-md p-4">
-                    <div className="max-w-7xl mx-auto flex justify-between items-center text-white">
-                        <div className="flex space-x-6">
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-yellow-400">2,450</div>
-                                <div className="text-xs text-gray-400">Gold</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-400">85</div>
-                                <div className="text-xs text-gray-400">Gems</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-green-400">12</div>
-                                <div className="text-xs text-gray-400">Level</div>
-                            </div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-lg font-semibold">Next Character: {characters[(currentCharacter + 1) % characters.length].name}</div>
-                            <div className="text-sm text-gray-400">Changes in 2 seconds</div>
+
+                        {/* Center - Character Display */}
+                        <div className="flex justify-center items-center lg:self-end">
+                            {currentChar.image ? (
+                                <img
+                                    src={currentChar.image}
+                                    alt={currentChar.name}
+                                    className="h-[500px] w-[500px] object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.35)]"
+                                />
+                            ) : (
+                                <FaGamepad size={120} className={`animate-pulse ${currentChar.color}`} />
+                            )}
+                        </div>
+
+                        {/* Right Side - Game Cards and Last Winners */}
+                        <div className="flex flex-col justify-center space-y-6">
+                            <LastWinners tick={tick} onActiveChange={setActiveWinnerName} />
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Keyframes for background animation */}
+            <style>{`
+                @keyframes dropDown {
+                    0% {
+                        transform: translateY(0) translateX(-50%);
+                        opacity: 0;
+                    }
+                    10% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(100vh) translateX(-50%);
+                        opacity: 0;
+                    }
+                }
+            `}</style>
         </div>
     );
 }
