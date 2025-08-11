@@ -77,19 +77,18 @@ export const updateUser = createAsyncThunk(
     const token = await sessionStorage.getItem("token");
     const formData = new FormData();
 
-    // Object.keys(values).forEach((key) => {
-    //     if (values[key] !== null) {
-    //         formData.append(key, values[key]);
-    //     }
-    // });
-
-    // Append all form values to FormData
     Object.keys(values).forEach((key) => {
+      // If the key is "photo" and file exists, skip appending this field
+      if (key === "photo" && file) {
+        // Do not append the "photo" field from values if file exists
+        return;
+      }
       if (values[key] !== null && values[key] !== undefined) {
         formData.append(key, values[key]);
       }
     });
 
+    // Only append the file if it exists
     if (file) {
       formData.append("photo", file);
     }

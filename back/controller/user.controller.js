@@ -286,8 +286,9 @@ exports.updateUser = async (req, res) => {
             try {
                 // Upload file to Cloudinary
                 const uploadResult = await fileupload(req.file.path, 'user-photos');
+                console.log("first",uploadResult)
 
-                if (uploadResult && uploadResult.secure_url) {
+                if (uploadResult && uploadResult.Location) {
                     photoUrl = uploadResult.Location;
 
                     // Delete the local file after successful upload

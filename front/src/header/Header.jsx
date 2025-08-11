@@ -20,6 +20,7 @@ const Header = () => {
     const token = localStorage.getItem('yoyoToken');
     const currentUser = useSelector((state) => state.auth.user);
     const dropdownRef = useRef(null);
+    
 
     useEffect(() => {
         function handleClickOutside(event) {
