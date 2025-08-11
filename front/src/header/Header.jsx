@@ -8,7 +8,7 @@ import { getUserById } from '../Redux/Slice/user.slice';
 import { Modal } from '@mui/material';
 import { logoutUser } from '../Redux/Slice/auth.slice';
 import { AiOutlineClose } from 'react-icons/ai';
-import { MdLogout } from "react-icons/md";
+
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
@@ -94,11 +94,21 @@ const Header = () => {
                         onClick={() => setProfileDropdownOpen((prev) => !prev)}
                         ref={dropdownRef}
                     >
-                        <span
-                            className="text-base w-8 h-8 font-bold uppercase group-hover:border-[#8A775A] border-2 rounded-full flex justify-center items-center"
-                        >
-                            {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
-                        </span>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center">
+                            {currentUser?.photo && currentUser?.photo !== "null" ? (
+                                <img
+                                    src={currentUser.photo}
+                                    alt="Profile"
+                                    className="w-full h-full rounded-full object-cover"
+                                />
+                            ) : (
+                                <span
+                                    className="text-base w-8 h-8 font-bold uppercase group-hover:border-[#8A775A] border-2 rounded-full flex justify-center items-center"
+                                >
+                                    {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
+                                </span>
+                            )}
+                        </div>
                         {currentUser && (
                             <span
                                 className="hidden md600:block font-medium capitalize transition-colors cursor-pointer"
@@ -122,31 +132,20 @@ const Header = () => {
                                     }}
                                 >
                                     <button
-                                        className="w-full text-left px-4 py-2 flex gap-2 items-center hover:bg-[#181818] text-white hover:text-[#0072ff] transition-colors"
+                                        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white hover:text-[#0072ff] transition-colors"
                                         onClick={handleProfileNavigation}
                                     >
-                                        <div>
-                                            <FaUser />
-                                        </div>
-                                        <div>
-                                            Profile
-                                        </div>
+                                        Profile
                                     </button>
                                     <button
-                                        className="w-full text-left px-4 py-2 flex gap-1 items-center hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500 transition-colors"
+                                        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500 transition-colors"
                                         // onClick={handleLogout}
                                         onClick={() => {
                                             setProfileDropdownOpen(false);
                                             setShowLogoutModal(true);
-                                            handleLogout()
                                         }}
                                     >
-                                        <div className='text-xl'>
-                                            <MdLogout />
-                                        </div>
-                                        <div>
-                                            Logout
-                                        </div>
+                                        Logout
                                     </button>
                                 </motion.div>
                             )}

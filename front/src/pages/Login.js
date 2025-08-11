@@ -8,6 +8,7 @@ import { LuEye, LuEyeClosed } from 'react-icons/lu';
 import { useNavigate } from 'react-router-dom';
 import { getAllUserNames } from '../Redux/Slice/user.slice';
 import google_login from '../Asset/images/google_login.svg';
+import { useGoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -203,6 +204,34 @@ export default function Login() {
         }
     };
 
+    const googleLogIn = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            // console.log(tokenResponse);
+            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: {
+                    Authorization: `Bearer ${tokenResponse.access_token}`,
+                },
+            });
+            const userInfo = await res.json();
+
+            // const decodedToken = jwtDecode(tokenResponse.access_token);
+            const { name, email, sub, picture } = userInfo;
+            const formattedUserName = name.replace(/\s+/g, '_');
+            // console.log("userInfo", formattedUserName, name, email, sub, picture);
+
+            dispatch(googleLogin({ uid: sub, userName: formattedUserName, fullName: name, email, photo: picture })).then((response) => {
+                if (response.payload.success) {
+                    navigate('/')
+                }
+
+                if (response?.payload?.user && response?.payload?.user?.role == "admin") {
+                    sessionStorage.setItem('hasRedirected', 'true');
+                    navigate("/admin")
+                }
+            });
+        },
+    });
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f] text-white px-4">
             <motion.div
@@ -357,6 +386,7 @@ export default function Login() {
                         </div>
 
                         <button
+                            onClick={() => { googleLogIn() }}
                             className="flex items-center justify-center gap-2 bg-[#111] text-[14px] text-white border border-gray-700 w-full py-3 rounded-md shadow hover:shadow-md transition"
                         >
                             <img

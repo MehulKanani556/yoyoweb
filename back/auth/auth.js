@@ -303,141 +303,65 @@ exports.changePassword = async (req, res) => {
 
 exports.userLogout = async (req, res) => {
   try {
-    const userlogout = await user.findByIdAndUpdate(req.params.id);
+    const logout = await user.findByIdAndUpdate(req.params.id);
   } catch (error) {
     console.log("errr logouttt", error);
   }
 
-  return res.status(200).json({
-    success: true,
-    message: "User logged Out",
-  });
+  return res.status(200)
+    .clearCookie("accessToken")
+    .clearCookie("refreshToken")
+    .json({
+      success: true,
+      message: "User logged Out",
+    });
 };
 
 exports.googleLogin = async (req, res) => {
   try {
-    const { code } = req.body;
+    let { uid, userName, fullName, email, photo } = req.body;
 
-    if (!code) {
-      return res.status(400).json({
-        status: 400,
-        message: "No authorization code provided",
-        success: false,
+    userName = encryptData(userName);
+    fullName = encryptData(fullName);
+    email = encryptData(email);
+
+
+    let checkUser = await user.findOne({ email });
+    if (!checkUser) {
+      checkUser = await user.create({
+        uid,
+        userName,
+        fullName,
+        email,
+        photo,
+        role: "user",
       });
     }
 
-    // Create OAuth client
-    const oauth2Client = new OAuth2Client(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI || 'postmessage' // 'postmessage' is important for client-side flow
-    );
+    const { accessToken, refreshToken } = await generateTokens(checkUser._id);
 
-    try {
-      // Exchange the authorization code for tokens
-      const { tokens } = await oauth2Client.getToken(code);
-      console.log("Google tokens received:", {
-        has_access_token: !!tokens.access_token,
-        has_refresh_token: !!tokens.refresh_token,
-        has_id_token: !!tokens.id_token,
-        expires_in: tokens.expires_in
-      });
-
-      // Extract tokens
-      const { access_token, refresh_token, id_token, expiry_date } = tokens;
-
-      if (!access_token) {
-        return res.status(400).json({
-          status: 400,
-          message: "Failed to obtain access token from Google",
-          success: false,
-        });
-      }
-
-      // Get user info from ID token
-      const ticket = await oauth2Client.verifyIdToken({
-        idToken: id_token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-
-      const payload = ticket.getPayload();
-      console.log("Google user info:", {
-        sub: payload.sub,
-        email: payload.email,
-        name: payload.name
-      });
-
-      // Find or create user
-      let checkUser = await user.findOne({ email: payload.email });
-      if (!checkUser) {
-        checkUser = await user.create({
-          uid: payload.sub,
-          name: payload.name,
-          email: payload.email,
-          photo: payload.picture,
-          googleAccessToken: access_token,
-          googleRefreshToken: refresh_token || null, // Store refresh token if available
-          googleTokenExpiry: new Date(expiry_date || (Date.now() + (tokens.expires_in * 1000)))
-        });
-      } else {
-        // Update user info with new tokens
-        checkUser.googleAccessToken = access_token;
-        if (refresh_token) {
-          checkUser.googleRefreshToken = refresh_token;
-        } else if (access_token) {
-          checkUser.googleAccessToken = access_token;
-        }
-        checkUser.googleTokenExpiry = new Date(expiry_date || (Date.now() + (tokens.expires_in * 1000)));
-        await checkUser.save();
-      }
-
-      // Check if the plan has expired
-      const currentDate = new Date();
-      if (checkUser.endDate && currentDate > checkUser.endDate) {
-        // Set planType to default if expired
-        checkUser.planType = 'Basic'; // or any default value you want
-        checkUser.endDate = null;
-        checkUser.startDate = null;
-        checkUser.Pricing = null;
-        await checkUser.save(); // Save the updated user
-      }
-
-      // Convert to plain object for response
-      checkUser = checkUser.toObject();
-
-      // Create JWT for your app
-      let token = jwt.sign(
-        { _id: checkUser._id },
-        process.env.SECRET_KEY,
-        { expiresIn: "1D" }
-      );
-
-      // Don't send sensitive information to client
-      delete checkUser.googleAccessToken;
-      delete checkUser.googleRefreshToken;
-
-      return res.status(200).json({
-        status: 200,
-        message: "User Login successfully...",
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 2 * 60 * 60 * 1000,
+        sameSite: "None",
+      })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 15 * 24 * 60 * 60 * 1000,
+        sameSite: "None",
+      })
+      .json({
+        message: "login successful",
         success: true,
         user: checkUser,
-        token: token,
+        token: accessToken,
+        refreshToken: refreshToken,
       });
-    } catch (tokenError) {
-      console.error("Token exchange error:", tokenError);
-      return res.status(401).json({
-        status: 401,
-        message: "Failed to authenticate with Google",
-        error: tokenError.message,
-        success: false,
-      });
-    }
   } catch (error) {
-    console.error("Google login error:", error);
-    return res.status(500).json({
-      status: 500,
-      message: error.message,
-      success: false,
-    });
+    throw new Error(error);
   }
 };

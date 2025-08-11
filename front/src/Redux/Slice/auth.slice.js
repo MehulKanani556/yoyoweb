@@ -154,6 +154,24 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const googleLogin = createAsyncThunk(
+  "auth/google-login",
+  async ({ uid, userName, fullName, email, photo }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await axios.post(`${BASE_URL}/google-login`, { uid, userName, fullName, email, photo }, { withCredentials: true });
+      localStorage.setItem("yoyoToken", response.data.token);
+      localStorage.setItem("yoyouserId", response.data.user._id);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      localStorage.setItem("role", response.data.user?.role || "user");
+      // enqueueSnackbar(response.data.message || "Google Login successful", { variant: "success" });
+      return response.data;
+    } catch (error) {
+      // Optionally handle errors here
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -268,6 +286,23 @@ const authSlice = createSlice({
       .addCase(logoutUser.rejected, (state, action) => {
         state.error = action.payload.message;
         state.message = action.payload?.message || "Logout Failed";
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        if (action.payload && action.payload.user) {
+          if (!action.payload.user.role) {
+            action.payload.user.role = "user";
+          }
+          state.user = action.payload.user;
+          state.isAuthenticated = true;
+          state.loading = false;
+          state.error = null;
+          state.message = action.payload?.message || "Google Login successful";
+        }
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.message = action.payload?.message || "Google Login Failed";
       });
   },
 });

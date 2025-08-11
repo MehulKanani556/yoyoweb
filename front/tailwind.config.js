@@ -42,6 +42,7 @@ module.exports = {
     },
   },
   plugins: [
+     
     // Add plugin for scrollbar hiding
     function ({ addUtilities }) {
       addUtilities({
