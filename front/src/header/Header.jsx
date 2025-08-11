@@ -8,7 +8,7 @@ import { getUserById } from '../Redux/Slice/user.slice';
 import { Modal } from '@mui/material';
 import { logoutUser } from '../Redux/Slice/auth.slice';
 import { AiOutlineClose } from 'react-icons/ai';
-
+import { MdLogout } from "react-icons/md";
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
@@ -132,20 +132,31 @@ const Header = () => {
                                     }}
                                 >
                                     <button
-                                        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white hover:text-[#0072ff] transition-colors"
+                                        className="w-full text-left px-4 py-2 flex gap-2 items-center hover:bg-[#181818] text-white hover:text-[#0072ff] transition-colors"
                                         onClick={handleProfileNavigation}
                                     >
-                                        Profile
+                                        <div>
+                                            <FaUser />
+                                        </div>
+                                        <div>
+                                            Profile
+                                        </div>
                                     </button>
                                     <button
-                                        className="w-full text-left px-4 py-2 hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500 transition-colors"
+                                        className="w-full text-left px-4 py-2 flex gap-1 items-center hover:bg-[#181818] text-white border-t border-gray-700 hover:text-red-500 transition-colors"
                                         // onClick={handleLogout}
                                         onClick={() => {
                                             setProfileDropdownOpen(false);
                                             setShowLogoutModal(true);
+                                            handleLogout()
                                         }}
                                     >
-                                        Logout
+                                        <div className='text-xl'>
+                                            <MdLogout />
+                                        </div>
+                                        <div>
+                                            Logout
+                                        </div>
                                     </button>
                                 </motion.div>
                             )}
