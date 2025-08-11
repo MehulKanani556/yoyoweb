@@ -33,6 +33,7 @@ export default function User() {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    console.log(currentItems);
 
     // Handle page change
     const handlePageChange = (pageNumber) => {
@@ -63,10 +64,9 @@ export default function User() {
                     <thead>
                         <tr className="text-brown font-bold">
                             {/* <td className="py-2 px-5 w-1/6">ID</td> */}
-                            <td className="py-2 px-5">First Name</td>
-                            <td className="py-2 px-5">Last Name</td>
+                            <td className="py-2 px-5">User Name</td>
                             <td className="py-2 px-5">Email</td>
-                            <td className="py-2 px-5">phoneNo</td>
+                            {/* <td className="py-2 px-5">phoneNo</td> */}
                             <td className="py-2 px-5">Created At</td>
                         </tr>
                     </thead>
@@ -75,37 +75,15 @@ export default function User() {
                             <tr key={user._id} className="border-t border-gray-950">
                                 {/* <td className="py-2 px-5">{user._id}</td> */}
                                 <td className="py-2 px-5 flex items-center">
-                                    <img
-                                        src={user.photo}
-                                        alt={decryptData(user.firstName)}
-                                        className="w-10 h-10 rounded-full mr-2 object-cover"
-                                    // onError={(e) => {
-                                    //     e.target.src = "https://via.placeholder.com/40x40?text=No+Image";
-                                    // }}
-                                    />
+                                    {decryptData(user.userName)}
+                                </td>
 
-                                    {decryptData(user.firstName)}
-                                </td>
-                                {/* <td className="py-2 px-5">
-                                    <span className="truncate block max-w-xs">
-                                        {user.firstName}
-                                    </span>
-                                </td> */}
-                                <td className="py-2 px-5">
-                                    <span className="truncate block max-w-xs">
-                                        {decryptData(user.lastName)}
-                                    </span>
-                                </td>
                                 <td className="py-2 px-5">
                                     <span className="truncate block max-w-xs">
                                         {decryptData(user.email)}
                                     </span>
                                 </td>
-                                <td className="py-2 px-5">
-                                    <span className="truncate block max-w-xs">
-                                        {decryptData(user.phoneNo) || 'N/A'}
-                                    </span>
-                                </td>
+
                                 <td className="py-2 px-5">
                                     {new Date(user.createdAt).toLocaleDateString()}
                                 </td>

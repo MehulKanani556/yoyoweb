@@ -6,6 +6,8 @@ import Home from "../pages/Home";
 import Header from "../header/Header";
 import Footer from "../footer/Footer";
 import Login from "../pages/Login";
+import TermsCondition from "../component/TermsOfService/TermsCOndition";
+import PrivacyPolacy from "../component/PrivacyPolacy/PrivacyPolacy";
 
 // const stripePromise = loadStripe("pk_test_51RlOu04MsbsH6KuURrRtTgj0lZCjFnmdn5A64CpHOHaPl8UwFGlX6jsYe9K9x4XUUSOIeUSisEM3aV5lriLPEw0300n0menKM3");
 
@@ -32,6 +34,8 @@ const UserRouts = () => {
         {/* <Route path='/home' element={<Home />}> </Route> */}
         <Route path='/' element={<Home />}> </Route>
         <Route path='/login' element={<Login />}> </Route>
+        <Route path="/termsCondition" element={<TermsCondition/>}></Route>
+        <Route path="/privacyPolicy" element={<PrivacyPolacy/>}></Route>
       </Routes>
       {!loginPage && <Footer />}
     </>

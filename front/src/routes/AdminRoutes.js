@@ -4,6 +4,9 @@ import AdminDashboard from "../Admin/AdminDashboard";
 import Layout from "../Admin/Layout";
 import Category from "../Admin/Category";
 import Game from "../Admin/Game";
+import TermsConditions from "../Admin/TermsConditions";
+import PrivacyPolicy from "../Admin/PrivacyPolicy";
+import User from "../Admin/User";
 
 
 const AdminRoutes = () => {
@@ -25,11 +28,11 @@ const AdminRoutes = () => {
         <Route path="/category" element={<Category />} />
         <Route path="/games" element={<Game />} />
         {/* <Route path="/episodes" element={<Episodes />} /> */}
-        {/* <Route path="/user" element={<User />} /> */}
+        <Route path="/user" element={<User />} />
         {/* <Route path="/actors" element={<Actor />} /> */}
         {/* <Route path="/premium" element={<Premium />} /> */}
-        {/* <Route path="/Terms-Conditions" element={<TermsConditions />} /> */}
-        {/* <Route path="/Privacy-Policy" element={<PrivacyPolicy />} /> */}
+        <Route path="/Terms-Conditions" element={<TermsConditions />} />
+        <Route path="/Privacy-Policy" element={<PrivacyPolicy />} />
         {/* <Route path="/Cookie-Policy" element={<CookiePolicy />} /> */}
         {/* <Route path="/faq" element={<Faq />} /> */}
         {/* <Route path="/transaction" element={<Transaction />} />/ */}
