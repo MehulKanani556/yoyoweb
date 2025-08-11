@@ -42,6 +42,8 @@ module.exports = {
     },
   },
   plugins: [
+    require('tailwindcss'),
+    require('autoprefixer'),
     // Add plugin for scrollbar hiding
     function ({ addUtilities }) {
       addUtilities({

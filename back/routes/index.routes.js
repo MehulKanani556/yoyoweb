@@ -135,6 +135,7 @@ indexRoutes.post("/generateNewTokens", generateNewToken);
 indexRoutes.post("/forgotPassword", forgotPassword);
 indexRoutes.post("/verifyOtp", verifyOtp);
 indexRoutes.post("/changePassword", changePassword);
+indexRoutes.post("/google-login", googleLogin);
 
 // user Routes
 
