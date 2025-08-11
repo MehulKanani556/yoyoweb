@@ -76,10 +76,10 @@ export default function HomePage() {
     const currentChar = characters[currentCharacter];
     const images = [
         { src: img1, alt: "Image 1" },
-        { src:img2, alt: "Image 2" },
+        { src: img2, alt: "Image 2" },
         { src: img3, alt: "Image 3" },
         // { src: img1, alt: "Image 4" },
-      ]
+    ]
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
             <div className="max-w-7xl mx-auto">
@@ -198,11 +198,11 @@ export default function HomePage() {
                     </div>
                 </div>
                 <CardCarousel
-        images={images}
-        autoplayDelay={2000}
-        showPagination={true}
-        showNavigation={true}
-      />
+                    images={images}
+                    autoplayDelay={2000}
+                    showPagination={true}
+                    showNavigation={true}
+                />
 
                 {/* Bottom Stats Bar */}
                 <div className="fixed bottom-0 left-0 right-0 bg-black bg-opacity-50 backdrop-blur-md p-4">
