@@ -95,6 +95,7 @@ export default function Products() {
     const options = [
         { value: "popular", label: "Most Popular" },
         { value: "price", label: "Price: Low to High" },
+        { value: "price_desc", label: "Price: High to Low" },
         { value: "newest", label: "Newest First" },
     ];
 
@@ -273,7 +274,7 @@ export default function Products() {
                 // duration: getDuration(),
                 // downloads: getDownloads(),
                 // availablePlatforms: getAvailablePlatforms(),
-                // tags: game.tags || [],
+                tags: game.tags || [],
                 price: getBestPrice(),
                 // discount: index % 3 === 0 ? (10 + (index % 3) * 10) : 0, // Mock discount
                 cover_image: game.cover_image?.url,
@@ -312,29 +313,38 @@ export default function Products() {
     });
     console.log(filteredGames);
 
+    // Helper to get a game's price for sorting based on selected platform
+    const getPriceForSorting = (game) => {
+        const gamePlatforms = game.platforms || {};
+        const selectedPlatformForGame = selectedPlatforms[game.id] || (gamePlatforms.windows ? 'windows' : null);
+
+        if (selectedPlatformForGame && gamePlatforms[selectedPlatformForGame]) {
+            const price = gamePlatforms[selectedPlatformForGame].price;
+            return typeof price === 'number' ? price : 0;
+        }
+
+        const prices = Object.values(gamePlatforms)
+            .map((p) => (typeof p?.price === 'number' ? p.price : 0))
+            .filter((n) => n > 0);
+        return prices.length ? Math.min(...prices) : 0;
+    };
+
     const sortedGames = [...filteredGames].sort((a, b) => {
-        // console.log("a", a, "b", b);
         switch (sortBy) {
             case 'popular':
-                return filteredGames;
+                return 0; // keep original order
             case 'price':
-                const priceA = a.price || 0; // Use the new price property
-                const priceB = b.price || 0; // Use the new price property
-                return priceA - priceB;
+                return getPriceForSorting(a) - getPriceForSorting(b);
+            case 'price_desc':
+                return getPriceForSorting(b) - getPriceForSorting(a);
             case 'newest':
-                return b.isNew - a.isNew;
+                return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
             default:
-                // return b.rating - a.rating; // Default to sorting by rating
-                return filteredGames; // Default to filteredGames
+                return 0;
         }
     });
 
-    const getDiscountedPrice = (price, discount) => {
-        if (price === 'Free' || discount === 0) return price;
-        const originalPrice = parseFloat(price.replace('₹', ''));
-        const discountedPrice = originalPrice * (1 - discount / 100);
-        return `$${discountedPrice.toFixed(2)}`;
-    };
+    // Note: If discount pricing is needed later, reintroduce a helper.
 
     return (
         <div className="relative min-h-screen">
@@ -686,8 +696,8 @@ export default function Products() {
                                                         </div>
                                                     ))}
                                                 </div>
-                                                <div className="mt-2 text-white">
-                                                    {selectedPlatform?.charAt(0)?.toUpperCase() + selectedPlatform.slice(1)} - ₹ {game.platforms[selectedPlatform]?.price} {/* Display price based on selected platform */}
+                                                <div className="mt-2 text-white flex flex-col gap-1">
+                                                {selectedPlatform?.charAt(0)?.toUpperCase() + selectedPlatform.slice(1)} - ₹ {game.platforms[selectedPlatform]?.price} {/* Display price based on selected platform */}
                                                 </div>
                                             </div>
                                             {/* Tags */}
