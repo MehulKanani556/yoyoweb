@@ -10,7 +10,7 @@ import { getAllUserNames } from '../Redux/Slice/user.slice';
 import google_login from '../Asset/images/google_login.svg';
 import { useGoogleLogin } from '@react-oauth/google';
 
-export default function Login() {
+export default function Login({setShowLoginModal}) {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const inputRefs = useRef([]);
@@ -102,7 +102,8 @@ export default function Login() {
                 const handleResponse = (response) => {
                     console.log(response);
                     if (response.payload.success) {
-                        navigate('/');
+                        // navigate('/');
+                        setShowLoginModal(false)
                     }
                 };
                 if (isLogin) {
@@ -221,11 +222,13 @@ export default function Login() {
 
             dispatch(googleLogin({ uid: sub, userName: formattedUserName, fullName: name, email, photo: picture })).then((response) => {
                 if (response.payload.success) {
-                    navigate('/')
+                    // navigate('/')
+                    setShowLoginModal(false)
                 }
 
                 if (response?.payload?.user && response?.payload?.user?.role == "admin") {
                     sessionStorage.setItem('hasRedirected', 'true');
+                    setShowLoginModal(false)
                     navigate("/admin")
                 }
             });
@@ -233,16 +236,16 @@ export default function Login() {
     });
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f] text-white px-4">
+      
             <motion.div
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7 }}
-                className="w-full max-w-md bg-[#1a1a1a] rounded-xl p-8 shadow-[0_0_30px_#00f2ff66]"
+                className="w-full max-w-md bg-primary-light/10 backdrop-blur-md rounded-xl text-white p-8 shadow-primary-light/40 shadow-[0_8px_32px_0]"
             >
                 {forgotPasswordStep == 0 && (
                     <>
-                        <h2 className="text-3xl font-bold text-center mb-6 neon-text">
+                        <h2 className="text-3xl font-bold text-center mb-6 ">
                             {isLogin ? 'Gamer Login' : 'Create Account'}
                         </h2>
 
@@ -259,7 +262,7 @@ export default function Login() {
                                             placeholder="Full Name"
                                             onChange={formik.handleChange}
                                             value={formik.values.fullName}
-                                            className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                            className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                         {formik.errors.fullName && formik.touched.fullName && (
                                             <div className="text-red-500 text-sm mt-1">
@@ -289,7 +292,7 @@ export default function Login() {
                                                 formik.handleBlur(e);
                                             }}
                                             value={formik.values.userName}
-                                            className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                            className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                         />
                                         {formik.touched.userName && (
                                             <>
@@ -318,7 +321,7 @@ export default function Login() {
                                     placeholder="Email"
                                     onChange={formik.handleChange}
                                     value={formik.values.email}
-                                    className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                    className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 {formik.errors.email && formik.touched.email && (
                                     <div className="text-red-500 text-sm mt-1">
@@ -338,7 +341,7 @@ export default function Login() {
                                         placeholder="Password"
                                         onChange={formik.handleChange}
                                         value={formik.values.password}
-                                        className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                        className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                     <div
                                         className="absolute right-3 top-3 cursor-pointer select-none text-white/60"
@@ -372,8 +375,8 @@ export default function Login() {
 
                             <motion.button
                                 type="submit"
-                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px #00f2ff' }}
-                                className="w-full bg-[#00f2ff] text-black font-bold py-2 rounded-md transition duration-300 hover:bg-[#00d4e6]"
+                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px var(--tw-color-primary)' }}
+                                className="w-full bg-primary text-black font-bold py-2 rounded-md transition duration-300 hover:bg-primary/80"
                             >
                                 {isLogin ? 'Login' : 'Sign Up'}
                             </motion.button>
@@ -387,7 +390,7 @@ export default function Login() {
 
                         <button
                             onClick={() => { googleLogIn() }}
-                            className="flex items-center justify-center gap-2 bg-[#111] text-[14px] text-white border border-gray-700 w-full py-3 rounded-md shadow hover:shadow-md transition"
+                            className="flex items-center justify-center gap-2 bg-primary-dark/20 text-[14px] text-white border border-gray-700 w-full py-3 rounded-md shadow hover:shadow-md transition"
                         >
                             <img
                                 src={google_login}
@@ -402,7 +405,7 @@ export default function Login() {
                             {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
                             <button
                                 onClick={() => setIsLogin(!isLogin)}
-                                className="text-[#00f2ff] font-medium hover:underline"
+                                className="text-primary font-medium hover:underline"
                             >
                                 {isLogin ? 'Sign Up' : 'Login'}
                             </button>
@@ -412,7 +415,7 @@ export default function Login() {
 
                 {forgotPasswordStep == 1 && (
                     <>
-                        <h2 className="text-3xl font-bold text-center mb-6 neon-text">
+                        <h2 className="text-3xl font-bold text-center mb-6">
                             Forget Password
                         </h2>
                         <form className="space-y-5" onSubmit={formik.handleSubmit}>
@@ -426,7 +429,7 @@ export default function Login() {
                                     placeholder="Email"
                                     onChange={formik.handleChange}
                                     value={formik.values.resetEmail}
-                                    className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                    className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 {formik.errors.resetEmail && formik.touched.resetEmail && (
                                     <div className="text-red-500 text-sm mt-1">
@@ -437,8 +440,8 @@ export default function Login() {
 
                             <motion.button
                                 type="submit"
-                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px #00f2ff' }}
-                                className="w-full bg-[#00f2ff] text-black font-bold py-2 rounded-md transition duration-300 hover:bg-[#00d4e6]"
+                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px var(--tw-color-primary)' }}
+                                className="w-full bg-primary text-black font-bold py-2 rounded-md transition duration-300 hover:bg-primary/80"
                             >
                                 Email Me
                             </motion.button>
@@ -448,7 +451,7 @@ export default function Login() {
 
                 {forgotPasswordStep == 2 && (
                     <>
-                        <h2 className="text-3xl font-bold text-center mb-6 neon-text">
+                        <h2 className="text-3xl font-bold text-center mb-6">
                             OTP Verification
                         </h2>
                         <p className='text-sm text-white text-center mb-4'>
@@ -465,7 +468,7 @@ export default function Login() {
                                         maxLength="1"
                                         ref={(ref) => (inputRefs.current[index] = ref)}
                                         key={index}
-                                        className="w-10 h-10 text-center bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                        className="w-10 h-10 text-center bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                         onChange={(e) => OtphandleChange(e, index)}
                                         onKeyDown={(e) => OtphandleKeyDown(e, index)}
                                         onPaste={OtphandlePaste}
@@ -482,8 +485,8 @@ export default function Login() {
 
                             <motion.button
                                 type="submit"
-                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px #00f2ff' }}
-                                className="w-full bg-[#00f2ff] text-black font-bold py-2 mt-5 rounded-md transition duration-300 hover:bg-[#00d4e6]"
+                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px var(--tw-color-primary)' }}
+                                className="w-full bg-primary text-black font-bold py-2 mt-5 rounded-md transition duration-300 hover:bg-primary/80"
                             >
                                 Verify
                             </motion.button>
@@ -493,7 +496,7 @@ export default function Login() {
 
                 {forgotPasswordStep == 3 && (
                     <>
-                        <h2 className="text-3xl font-bold text-center mb-6 neon-text">
+                        <h2 className="text-3xl font-bold text-center mb-6">
                             Reset Password
                         </h2>
                         <p className='text-sm text-white text-center mb-2'>
@@ -511,7 +514,7 @@ export default function Login() {
                                         placeholder="New Password"
                                         onChange={formik.handleChange}
                                         value={formik.values.newPassword}
-                                        className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                        className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                     <div
                                         className="absolute right-3 top-3 cursor-pointer select-none text-white/60"
@@ -544,7 +547,7 @@ export default function Login() {
                                         placeholder="Confirm Password"
                                         onChange={formik.handleChange}
                                         value={formik.values.confirmPassword}
-                                        className="w-full bg-[#111] text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00f2ff]"
+                                        className="w-full bg-primary-dark/20 text-[14px] text-white border border-gray-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                                     />
                                     <div
                                         className="absolute right-3 top-3 cursor-pointer select-none text-white/60"
@@ -568,8 +571,8 @@ export default function Login() {
 
                             <motion.button
                                 type="submit"
-                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px #00f2ff' }}
-                                className="w-full bg-[#00f2ff] text-black font-bold py-2 rounded-md transition duration-300 hover:bg-[#00d4e6]"
+                                whileHover={{ scale: 1.05, boxShadow: '0px 0px 12px var(--tw-color-primary)' }}
+                                className="w-full bg-primary text-black font-bold py-2 rounded-md transition duration-300 hover:bg-primary/80"
                             >
                                 Reset Password
                             </motion.button>
@@ -577,6 +580,5 @@ export default function Login() {
                     </>
                 )}
             </motion.div>
-        </div>
     )
 }
