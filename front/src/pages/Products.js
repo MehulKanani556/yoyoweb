@@ -1,9 +1,14 @@
-import React, { useState } from 'react'
-import { FaFire, FaSearch, FaTimes } from 'react-icons/fa';
-import { LuClock, LuDownload, LuEye, LuFilter, LuGamepad2, LuHeart, LuPlay, LuSearch, LuShare2, LuStar, LuTrendingUp, LuTrophy, LuUsers, LuZap } from 'react-icons/lu';
-import { VscArrowBoth } from "react-icons/vsc";
+import React, { useEffect, useState } from 'react'
+import { FaApple, FaTimes, FaWindows } from 'react-icons/fa';
+import { LuFilter, LuGamepad2, LuHeart, LuPlay, LuSearch, LuStar, LuTrendingUp, LuTrophy, LuUsers, LuZap } from 'react-icons/lu';
+import { FiShoppingCart } from "react-icons/fi";
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllActiveGames } from '../Redux/Slice/game.slice';
+import { getAllCategories } from '../Redux/Slice/category.slice';
+import { DiAndroid } from "react-icons/di";
 
 export default function Products() {
+    const dispatch = useDispatch();
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('popular');
@@ -11,11 +16,84 @@ export default function Products() {
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+    const [selectedPlatforms, setSelectedPlatforms] = useState({});
+    const [dots, setDots] = useState([]);
+    const ActiveGames = useSelector((state) => state.game.games);
+    const categoriesName = useSelector((state) => state.category.categories);
+
+    useEffect(() => {
+        dispatch(getAllActiveGames())
+        dispatch(getAllCategories())
+    }, [dispatch])
+
+
+    useEffect(() => {
+        const generateDots = () => {
+            const newDots = [];
+            const gridSize = 100;
+            const containerWidth = window.innerWidth;
+            const containerHeight = window.innerHeight;
+
+            // Get all grid line positions (vertical and horizontal)
+            const verticalLines = [];
+            const horizontalLines = [];
+
+            for (let x = gridSize; x <= containerWidth; x += gridSize) {
+                verticalLines.push(x);
+            }
+
+            for (let y = gridSize; y <= containerHeight; y += gridSize) {
+                horizontalLines.push(y);
+            }
+
+            // Create vertical dropping dots along grid lines only - ALL THIN SHORT
+            verticalLines.forEach((x, index) => {
+                if (Math.random() < 0.25) {
+                    newDots.push({
+                        id: `grid-drop-${index}`,
+                        x,
+                        startY: -20,
+                        endY: containerHeight + 20,
+                        delay: Math.random() * 4,
+                        duration: 2 + Math.random() * 2,
+                        widthClass: 'w-0.5',
+                        heightClass: 'h-5',
+                    });
+                }
+            });
+
+            // Add some horizontal dropping dots along horizontal grid lines - ALL THIN SHORT
+            horizontalLines.forEach((y, index) => {
+                if (Math.random() < 0.15) {
+                    const randomX = verticalLines[Math.floor(Math.random() * verticalLines.length)];
+                    newDots.push({
+                        id: `horizontal-drop-${index}`,
+                        x: randomX,
+                        startY: -20,
+                        endY: containerHeight + 20,
+                        delay: Math.random() * 6,
+                        duration: 1.5 + Math.random() * 2.5,
+                        widthClass: 'w-0.5',
+                        heightClass: 'h-4',
+                    });
+                }
+            });
+
+            setDots(newDots);
+        };
+
+        generateDots();
+
+        const handleResize = () => {
+            generateDots();
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const options = [
         { value: "popular", label: "Most Popular" },
-        { value: "rating", label: "Highest Rated" },
-        { value: "downloads", label: "Most Downloaded" },
         { value: "price", label: "Price: Low to High" },
         { value: "newest", label: "Newest First" },
     ];
@@ -25,147 +103,191 @@ export default function Products() {
         setIsOpen(false);
     };
 
-    const categories = [
-        { id: 'all', name: 'All Category', icon: LuGamepad2, count: 248, color: 'from-purple-500 to-pink-500' },
-        { id: 'featured', name: 'Featured', icon: FaFire, count: 12, color: 'from-orange-500 to-red-500' },
-        { id: 'trending', name: 'Trending', icon: LuTrendingUp, count: 24, color: 'from-green-500 to-blue-500' },
-        { id: 'action', name: 'Action', icon: LuZap, count: 68, color: 'from-red-500 to-orange-500' },
-        { id: 'adventure', name: 'Adventure', icon: LuTrophy, count: 45, color: 'from-blue-500 to-indigo-500' },
-        { id: 'puzzle', name: 'Puzzle', icon: LuStar, count: 39, color: 'from-purple-500 to-blue-500' },
-        { id: 'racing', name: 'Racing', icon: LuZap, count: 28, color: 'from-yellow-500 to-orange-500' },
-        { id: 'sports', name: 'Sports', icon: LuTrophy, count: 22, color: 'from-green-500 to-teal-500' }
-    ];
+    // Icon mapping for categories
+    const getIconForCategory = (categoryName) => {
+        const iconMap = {
+            'action': LuZap,
+            'adventure': LuTrophy,
+            'puzzle': LuStar,
+            'racing': LuZap,
+            'sports': LuTrophy,
+            'strategy': LuStar,
+            'rpg': LuGamepad2,
+            'simulation': LuUsers,
+            'arcade': LuPlay,
+            'fighting': LuZap,
+            'platform': LuGamepad2,
+            'shooter': LuZap
+        };
 
-    const games = [
-        {
-            id: 1,
-            title: "Cyberpunk Legends",
-            category: "action",
-            rating: 4.9,
-            players: "1-4 players",
-            duration: "60+ min",
-            downloads: "5.2M",
-            image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&h=600&fit=crop",
-            tags: ["Sci-Fi", "Multiplayer", "Open World"],
-            price: "$59.99",
-            discount: 25,
-            isNew: true,
-            featured: true,
-            description: "An epic cyberpunk adventure in a neon-lit dystopian future"
-        },
-        {
-            id: 2,
-            title: "Mystic Realms",
-            category: "adventure",
-            rating: 4.7,
-            players: "1 player",
-            duration: "80+ min",
-            downloads: "3.8M",
-            image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=800&h=600&fit=crop",
-            tags: ["Fantasy", "Story-rich", "RPG"],
-            price: "$49.99",
-            discount: 0,
-            isNew: false,
-            featured: true,
-            description: "Embark on a magical journey through enchanted kingdoms"
-        },
-        {
-            id: 3,
-            title: "Quantum Puzzles",
-            category: "puzzle",
-            rating: 4.8,
-            players: "1 player",
-            duration: "30 min",
-            downloads: "7.1M",
-            image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?w=800&h=600&fit=crop",
-            tags: ["Logic", "Brain-teaser", "Minimalist"],
-            price: "Free",
-            discount: 0,
-            isNew: false,
-            featured: false,
-            description: "Mind-bending puzzles that challenge your perception of reality"
-        },
-        {
-            id: 4,
-            title: "Empire Chronicles",
-            category: "strategy",
-            rating: 4.6,
-            players: "2-8 players",
-            duration: "120+ min",
-            downloads: "2.3M",
-            image: "https://images.unsplash.com/photo-1611996575749-79a3a250f79e?w=800&h=600&fit=crop",
-            tags: ["Strategy", "Civilization", "Multiplayer"],
-            price: "$39.99",
-            discount: 15,
-            isNew: true,
-            featured: false,
-            description: "Build and conquer civilizations across multiple eras"
-        },
-        {
-            id: 5,
-            title: "Velocity Racers",
-            category: "racing",
-            rating: 4.5,
-            players: "1-12 players",
-            duration: "20 min",
-            downloads: "4.7M",
-            image: "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800&h=600&fit=crop",
-            tags: ["Racing", "Arcade", "Fast-paced"],
-            price: "$29.99",
-            discount: 30,
-            isNew: false,
-            featured: true,
-            description: "High-octane racing with stunning visuals and realistic physics"
-        },
-        {
-            id: 6,
-            title: "Champions League Pro",
-            category: "sports",
-            rating: 4.4,
-            players: "2 players",
-            duration: "90 min",
-            downloads: "6.2M",
-            image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&h=600&fit=crop",
-            tags: ["Football", "Simulation", "Tournament"],
-            price: "$44.99",
-            discount: 20,
-            isNew: false,
-            featured: false,
-            description: "The most realistic football simulation experience"
-        },
-        {
-            id: 7,
-            title: "Shadow Ninjas",
-            category: "action",
-            rating: 4.7,
-            players: "1-2 players",
-            duration: "45 min",
-            downloads: "3.5M",
-            image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
-            tags: ["Stealth", "Action", "Japanese"],
-            price: "$34.99",
-            discount: 10,
-            isNew: true,
-            featured: false,
-            description: "Master the way of the ninja in feudal Japan"
-        },
-        {
-            id: 8,
-            title: "Space Odyssey",
-            category: "adventure",
-            rating: 4.8,
-            players: "1 player",
-            duration: "100+ min",
-            downloads: "2.9M",
-            image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=800&h=600&fit=crop",
-            tags: ["Space", "Exploration", "Sci-Fi"],
-            price: "$54.99",
-            discount: 0,
-            isNew: false,
-            featured: true,
-            description: "Explore the vast cosmos in this epic space adventure"
-        }
-    ];
+        const key = categoryName.toLowerCase();
+        return iconMap[key] || LuGamepad2;
+    };
+
+    // Color mapping for categories
+    const getColorForCategory = (categoryName) => {
+        const colorMap = {
+            'action': 'from-red-500 to-orange-500',
+            'adventure': 'from-blue-500 to-indigo-500',
+            'puzzle': 'from-purple-500 to-blue-500',
+            'racing': 'from-yellow-500 to-orange-500',
+            'sports': 'from-green-500 to-teal-500',
+            'strategy': 'from-indigo-500 to-purple-500',
+            'rpg': 'from-purple-500 to-pink-500',
+            'simulation': 'from-cyan-500 to-blue-500',
+            'arcade': 'from-pink-500 to-rose-500',
+            'fighting': 'from-red-600 to-orange-600',
+            'platform': 'from-green-400 to-blue-500',
+            'shooter': 'from-gray-500 to-gray-700'
+        };
+
+        const key = categoryName.toLowerCase();
+        return colorMap[key] || 'from-purple-500 to-pink-500';
+    };
+
+    // const categories = [
+    //     { id: 'all', name: 'All Category', icon: LuGamepad2, count: 248, color: 'from-purple-500 to-pink-500' },
+    //     // { id: 'featured', name: 'Featured', icon: FaFire, count: 12, color: 'from-orange-500 to-red-500' },
+    //     { id: 'trending', name: 'Trending', icon: LuTrendingUp, count: 24, color: 'from-green-500 to-blue-500' },
+    //     { id: 'action', name: 'Action', icon: LuZap, count: 68, color: 'from-red-500 to-orange-500' },
+    //     { id: 'adventure', name: 'Adventure', icon: LuTrophy, count: 45, color: 'from-blue-500 to-indigo-500' },
+    //     { id: 'puzzle', name: 'Puzzle', icon: LuStar, count: 39, color: 'from-purple-500 to-blue-500' },
+    //     { id: 'racing', name: 'Racing', icon: LuZap, count: 28, color: 'from-yellow-500 to-orange-500' },
+    //     { id: 'sports', name: 'Sports', icon: LuTrophy, count: 22, color: 'from-green-500 to-teal-500' }
+    // ];
+
+    // Convert dynamic categories to the format expected by the component
+    const getDynamicCategories = () => {
+        const baseCategories = [
+            {
+                id: 'all',
+                name: 'All Category',
+                icon: LuGamepad2,
+                count: ActiveGames?.length,
+                color: 'from-purple-500 to-pink-500'
+            },
+            {
+                id: 'trending',
+                name: 'Trending',
+                icon: LuTrendingUp,
+                count: ActiveGames?.filter(game => game.isNew)?.length,
+                color: 'from-green-500 to-blue-500'
+            }
+        ];
+
+        const dynamicCategories = categoriesName?.map(category => ({
+            id: category.categoryName.toLowerCase(),
+            name: category.categoryName,
+            icon: getIconForCategory(category.categoryName),
+            count: ActiveGames?.filter(game => game.category.categoryName?.toLowerCase() === category.categoryName.toLowerCase())?.length || 0,
+            color: getColorForCategory(category.categoryName),
+            _id: category._id
+        })) || [];
+
+        return [...baseCategories, ...dynamicCategories];
+    };
+    // Convert dynamic games to the format expected by the component
+    const getFormattedGames = () => {
+        return ActiveGames?.map((game, index) => {
+            // Get the best available platform price
+            // const getBestPrice = () => {
+            //     const platforms = game.platforms;
+            //     if (!platforms) return 'Free';
+
+            //     const prices = [];
+            //     if (platforms.windows?.available && platforms.windows?.price > 0) prices.push(platforms.windows.price);
+            //     if (platforms.ios?.available && platforms.ios?.price > 0) prices.push(platforms.ios.price);
+            //     if (platforms.android?.available && platforms.android?.price > 0) prices.push(platforms.android.price);
+
+            //     if (prices.length === 0) return 'Free';
+            //     return `$${Math.min(...prices).toFixed(2)}`;
+            // };
+
+            const getAvailablePlatforms = () => {
+                const platforms = game.platforms;
+                if (!platforms) return {};
+
+                const availablePlatforms = {};
+
+                // Check each platform and include only if available is true
+                if (platforms.windows?.available) {
+                    availablePlatforms.windows = platforms.windows;
+                }
+                if (platforms.ios?.available) {
+                    availablePlatforms.ios = platforms.ios;
+                }
+                if (platforms.android?.available) {
+                    availablePlatforms.android = platforms.android;
+                }
+
+                return availablePlatforms;
+            };
+
+            // Calculate total downloads (mock data since not in API)
+            // const getDownloads = () => {
+            //     const downloadValues = ['1.2M', '2.5M', '3.8M', '4.1M', '5.2M', '6.7M', '7.1M', '8.3M'];
+            //     return downloadValues[index % downloadValues.length];
+            // };
+
+            // // Generate rating (mock data since not in API)
+            // const getRating = () => {
+            //     const ratings = [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9];
+            //     return ratings[index % ratings.length];
+            // };
+
+            // // Get players info
+            // const getPlayers = () => {
+            //     const playerOptions = ['1 player', '1-2 players', '1-4 players', '2-8 players', '1-12 players'];
+            //     return playerOptions[index % playerOptions.length];
+            // };
+
+            // // Get duration
+            // const getDuration = () => {
+            //     const durations = ['20 min', '30 min', '45 min', '60+ min', '80+ min', '90 min', '100+ min', '120+ min'];
+            //     return durations[index % durations.length];
+            // };
+
+            const getBestPrice = () => {
+                const platforms = game.platforms;
+                if (!platforms) return 'Free';
+
+                const prices = [];
+                Object.keys(platforms).forEach(platform => {
+                    if (platforms[platform].available && platforms[platform].price > 0) {
+                        prices.push(platforms[platform].price);
+                    }
+                });
+                if (prices.length === 0) return 'Free';
+                return prices.length > 0 ? Math.min(...prices) : 'Free';
+            };
+
+            // Check if game is new (created in last 7 days)
+            const isNewGame = new Date(game.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+            return {
+                id: game._id,
+                title: game.title,
+                category: game.category?.categoryName?.toLowerCase() || 'action',
+                // rating: getRating(),
+                // players: getPlayers(),
+                // duration: getDuration(),
+                // downloads: getDownloads(),
+                // availablePlatforms: getAvailablePlatforms(),
+                // tags: game.tags || [],
+                price: getBestPrice(),
+                // discount: index % 3 === 0 ? (10 + (index % 3) * 10) : 0, // Mock discount
+                cover_image: game.cover_image?.url,
+                isNew: isNewGame,
+                description: game.description,
+                instructions: game.instructions,
+                platforms: getAvailablePlatforms(),
+                images: game.images
+            };
+        }) || [];
+    };
+
+    const categories = getDynamicCategories();
+    const games = getFormattedGames();
 
     const toggleFavorite = (gameId) => {
         setFavorites(prev => {
@@ -182,55 +304,103 @@ export default function Products() {
     const filteredGames = games.filter(game => {
         const matchesCategory = selectedCategory === 'all' ||
             game.category === selectedCategory ||
-            (selectedCategory === 'featured' && game.featured) ||
+            // (selectedCategory === 'featured' && game.featured) ||
             (selectedCategory === 'trending' && game.isNew);
         const matchesSearch = game.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             game.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
         return matchesCategory && matchesSearch;
     });
+    console.log(filteredGames);
 
     const sortedGames = [...filteredGames].sort((a, b) => {
+        // console.log("a", a, "b", b);
         switch (sortBy) {
-            case 'rating':
-                return b.rating - a.rating;
-            case 'downloads':
-                return parseFloat(b.downloads.replace(/[^\d.]/g, '')) - parseFloat(a.downloads.replace(/[^\d.]/g, ''));
+            case 'popular':
+                return filteredGames;
             case 'price':
-                const priceA = a.price === 'Free' ? 0 : parseFloat(a.price.replace('$', ''));
-                const priceB = b.price === 'Free' ? 0 : parseFloat(b.price.replace('$', ''));
+                const priceA = a.price || 0; // Use the new price property
+                const priceB = b.price || 0; // Use the new price property
                 return priceA - priceB;
             case 'newest':
                 return b.isNew - a.isNew;
             default:
-                return b.rating - a.rating;
+                // return b.rating - a.rating; // Default to sorting by rating
+                return filteredGames; // Default to filteredGames
         }
     });
 
     const getDiscountedPrice = (price, discount) => {
         if (price === 'Free' || discount === 0) return price;
-        const originalPrice = parseFloat(price.replace('$', ''));
+        const originalPrice = parseFloat(price.replace('₹', ''));
         const discountedPrice = originalPrice * (1 - discount / 100);
         return `$${discountedPrice.toFixed(2)}`;
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="relative min-h-screen">
             {/* Animated Background */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+            {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500 rounded-full opacity-10 animate-pulse"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500 rounded-full opacity-10 animate-pulse animation-delay-1000"></div>
                 <div className="absolute top-3/4 left-1/2 w-48 h-48 bg-blue-500 rounded-full opacity-10 animate-pulse animation-delay-2000"></div>
+            </div> */}
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
+                {/* Grid Pattern */}
+                <div
+                    className="absolute inset-0 opacity-20"
+                    style={{
+                        backgroundImage:
+                            'linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px)',
+                        backgroundSize: '100px 100px',
+                    }}
+                />
+
+                {/* Dropping Animated Dots */}
+                {dots.map((dot) => (
+                    <div
+                        key={dot.id}
+                        className={`absolute  ${dot.heightClass || 'h-8'} bg-yellow-500 rounded-full shadow-lg`}
+                        style={{
+                            left: `${dot.x}px`,
+                            top: `${dot.startY}px`,
+                            width: '2px',
+                            transform: 'translateX(-50%)',
+                            // boxShadow:
+                            //     '0 0 8px #fbbf24, 0 0 16px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3)',
+                            animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
+                        }}
+                    />
+                ))}
             </div>
+
+            <style>{`
+               @keyframes dropDown {
+                    0% {
+                        transform: translateY(-20px) translateX(-50%);
+                        opacity: 0;
+                    }
+                    10% {
+                        opacity: 1;
+                    }
+                    90% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: translateY(calc(100vh + 40px)) translateX(-50%);
+                        opacity: 0;
+                    }
+                }
+            `}</style>
 
             {/* Hero Section */}
             <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-800/50 to-pink-800/50"></div>
+                {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-800/50 to-pink-800/50"></div> */}
                 <div className="relative px-6 pt-20 pb-6 lg:py-20">
                     <div className="text-center">
-                        <h1 className="text-[25px] lg:text-[60px] font-bold mb-3 lg:mb-6 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+                        <h1 className="text-[25px] lg:text-[60px] font-bold mb-3 lg:mb-6 text-primary-light">
                             Game Universe
                         </h1>
-                        <p className="text-sm lg:text-lg text-white/60 max-w-3xl mx-auto">
+                        <p className="text-sm lg:text-lg text-primary-light/60 max-w-3xl mx-auto">
                             {/* mb-8 */}
                             Discover incredible gaming experiences from indie gems to AAA blockbusters.
                             Your next gaming obsession awaits.
@@ -434,73 +604,94 @@ export default function Products() {
                         </div>
 
                         <div className="grid grid-cols-1 md600:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-8 relative z-10">
-                            {sortedGames?.map((game, index) => (
-                                <div
-                                    key={game.id}
-                                    className="group relative bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
-                                    style={{ animationDelay: `${index * 0.1}s` }}
-                                >
-                                    {/* Image Container */}
-                                    <div className="relative h-48 overflow-hidden">
-                                        <img
-                                            src={game.image}
-                                            alt={game.title}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
-                                        {/* Badges */}
-                                        <div className="absolute top-4 left-4 flex gap-2">
-                                            {game.isNew && (
-                                                <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
-                                                    NEW
-                                                </span>
-                                            )}
-                                            {game.featured && (
+                            {sortedGames?.map((game, index) => {
+                                const selectedPlatform = selectedPlatforms[game.id] || 'windows';
+                                return (
+                                    <div
+                                        key={game.id}
+                                        className="group relative bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
+                                        style={{ animationDelay: `${index * 0.1}s` }}
+                                    >
+                                        {/* Image Container */}
+                                        <div className="relative h-48 overflow-hidden">
+                                            <img
+                                                src={game?.cover_image}
+                                                alt={game?.title}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                                            {/* Badges */}
+                                            <div className="absolute top-4 left-4 flex gap-2">
+                                                {game.isNew && (
+                                                    <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold animate-pulse">
+                                                        NEW
+                                                    </span>
+                                                )}
+                                                {/* {game.featured && (
                                                 <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold">
                                                     FEATURED
                                                 </span>
-                                            )}
-                                        </div>
+                                            )} */}
+                                            </div>
 
-                                        {/* Action Buttons */}
-                                        <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <button
-                                                onClick={() => toggleFavorite(game.id)}
-                                                className={`p-2 rounded-full backdrop-blur-md transition-all duration-300 ${favorites.has(game.id)
-                                                    ? 'bg-red-500 text-white scale-110'
-                                                    : 'bg-black/30 text-white hover:bg-red-500 hover:scale-110'
-                                                    }`}
-                                            >
-                                                <LuHeart className={`w-4 h-4 ${favorites.has(game.id) ? 'fill-current' : ''}`} />
-                                            </button>
-                                        </div>
+                                            {/* Action Buttons */}
+                                            <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                                <button
+                                                    onClick={() => toggleFavorite(game.id)}
+                                                    className={`p-2 rounded-full backdrop-blur-md transition-all duration-300 ${favorites.has(game.id)
+                                                        ? 'bg-red-500 text-white scale-110'
+                                                        : 'bg-black/30 text-white hover:bg-red-500 hover:scale-110'
+                                                        }`}
+                                                >
+                                                    <LuHeart className={`w-4 h-4 ${favorites.has(game.id) ? 'fill-current' : ''}`} />
+                                                </button>
+                                            </div>
 
-                                        {/* Play Button Overlay */}
-                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                            <button className="bg-white/90 text-gray-900 p-4 rounded-full hover:bg-white hover:scale-110 transition-all duration-300 shadow-2xl">
-                                                <LuPlay className="w-6 h-6 ml-1" />
-                                            </button>
-                                        </div>
+                                            {/* Play Button Overlay */}
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                <button className="bg-white/90 text-gray-900 p-4 rounded-full hover:bg-white hover:scale-110 transition-all duration-300 shadow-2xl">
+                                                    <LuPlay className="w-6 h-6 ml-1" />
+                                                </button>
+                                            </div>
 
-                                        {/* Rating */}
-                                        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                                            {/* Rating */}
+                                            {/* <div className="absolute bottom-4 left-4 flex items-center gap-2">
                                             <div className="flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full backdrop-blur-md">
                                                 <LuStar className="w-4 h-4 text-yellow-400 fill-current" />
                                                 <span className="text-white text-sm font-medium">{game.rating}</span>
                                             </div>
+                                        </div> */}
                                         </div>
-                                    </div>
 
-                                    {/* Content */}
-                                    <div className="p-6">
-                                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
-                                            {game.title}
-                                        </h3>
+                                        {/* Content */}
+                                        <div className="p-6">
+                                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                                                {game.title}
+                                            </h3>
 
-                                        <p className="text-gray-400 text-sm mb-4 line-clamp-2">{game.description}</p>
-
-                                        {/* Tags */}
-                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            <p className="text-gray-400 text-sm mb-4 line-clamp-3">{game.description}</p>
+                                            {/* Platforms */}
+                                            <div className="mt-4">
+                                                <h4 className="text-lg font-semibold text-white tracking-wider">Platforms :</h4>
+                                                <div className="text-white/40 text-base flex gap-4 mt-2">
+                                                    {Object.keys(game.platforms).map(platform => (
+                                                        <div
+                                                            key={platform}
+                                                            className={`flex items-center cursor-pointer`}
+                                                            onClick={() => setSelectedPlatforms(prev => ({ ...prev, [game.id]: platform }))}
+                                                        >
+                                                            {platform === 'windows' && <FaWindows title="Show Windows Price" className={`${selectedPlatform === platform ? 'text-blue-500' : ''}`} />}
+                                                            {platform === 'ios' && <FaApple title="Show Ios Price" className={`${selectedPlatform === platform ? 'text-white' : ''}`} />}
+                                                            {platform === 'android' && <DiAndroid title="Show Android Price" className={`${selectedPlatform === platform ? 'text-green-500' : ''}`} />}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="mt-2 text-white">
+                                                    {selectedPlatform?.charAt(0)?.toUpperCase() + selectedPlatform.slice(1)} - ₹ {game.platforms[selectedPlatform]?.price} {/* Display price based on selected platform */}
+                                                </div>
+                                            </div>
+                                            {/* Tags */}
+                                            {/* <div className="flex flex-wrap gap-2 mb-4">
                                             {game.tags.slice(0, 3).map(tag => (
                                                 <span
                                                     key={tag}
@@ -509,10 +700,10 @@ export default function Products() {
                                                     {tag}
                                                 </span>
                                             ))}
-                                        </div>
+                                        </div> */}
 
-                                        {/* Game Info */}
-                                        <div className="grid grid-cols-2 gap-4 text-sm text-white/70 mb-6">
+                                            {/* Game Info */}
+                                            {/* <div className="grid grid-cols-2 gap-4 text-sm text-white/70 mb-6">
                                             <div className="flex items-center gap-2">
                                                 <LuUsers className="w-4 h-4" />
                                                 <span>{game.players}</span>
@@ -529,39 +720,42 @@ export default function Products() {
                                                 <LuEye className="w-4 h-4" />
                                                 <span>HD Quality</span>
                                             </div>
-                                        </div>
+                                        </div> */}
 
-                                        {/* Price and CTA */}
-                                        <div className="flex items-center justify-between">
-                                            <div className="text-white">
-                                                {game.discount > 0 && game.price !== 'Free' ? (
-                                                    <div>
-                                                        <span className="text-2xl font-bold text-green-400">
-                                                            {getDiscountedPrice(game.price, game.discount)}
-                                                        </span>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-sm text-gray-400 line-through">{game.price}</span>
-                                                            <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
-                                                                -{game.discount}%
+                                            {/* Price and CTA */}
+                                            <div className="flex items-center justify-between">
+                                                {/* <div className="text-white">
+                                                    {game.discount > 0 && game.price !== 'Free' ? (
+                                                        <div>
+                                                            <span className="text-2xl font-bold text-green-400">
+                                                                {getDiscountedPrice(game.price, game.discount)}
                                                             </span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm text-gray-400 line-through">{game.price}</span>
+                                                                <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
+                                                                    -{game.discount}%
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ) : (
-                                                    <span className={`text-2xl font-bold ${game.price === 'Free' ? 'text-green-400' : 'text-white'
-                                                        }`}>
-                                                        {game.price}
-                                                    </span>
-                                                )}
-                                            </div>
+                                                    ) : (
+                                                        <span className={`text-2xl font-bold ${game.price === 'Free' ? 'text-green-400' : 'text-white'
+                                                            }`}>
+                                                            {game.price}
+                                                        </span>
+                                                    )}
+                                                </div> */}
 
-                                            <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2">
-                                                <LuPlay className="w-4 h-4" />
-                                                {game.price === 'Free' ? 'Play' : 'Buy'}
-                                            </button>
+                                                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2">
+                                                    {/* <LuPlay className="w-4 h-4" /> */}
+                                                    <FiShoppingCart className="w-4 h-4" />
+                                                    {/* {game.price === 'Free' ? 'Play' : 'Buy'} */}
+                                                    Add To Cart
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
 
                         {sortedGames.length === 0 && (

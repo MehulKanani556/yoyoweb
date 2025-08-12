@@ -44,7 +44,7 @@ exports.createGame = function (req, res) {
         } else {
           // Remove all uploaded cloud files and local files before error out
           for (const public_id of uploadedCloudFiles) {
-            try { await deleteFile(public_id); } catch {}
+            try { await deleteFile(public_id); } catch { }
           }
           if (fs.existsSync(coverFilePath)) {
             fs.unlinkSync(coverFilePath);
@@ -61,8 +61,8 @@ exports.createGame = function (req, res) {
           videoFilePath,
           "GameVideo"
         );
-       
-        
+
+
         if (!videoFiledata.message) {
           videoData = {
             url: videoFiledata.Location,
@@ -74,7 +74,7 @@ exports.createGame = function (req, res) {
           }
         } else {
           for (const public_id of uploadedCloudFiles) {
-            try { await deleteFile(public_id); } catch {}
+            try { await deleteFile(public_id); } catch { }
           }
           if (fs.existsSync(videoFilePath)) {
             fs.unlinkSync(videoFilePath);
@@ -130,7 +130,7 @@ exports.createGame = function (req, res) {
             }
           } else {
             for (const public_id of uploadedCloudFiles) {
-              try { await deleteFile(public_id); } catch {}
+              try { await deleteFile(public_id); } catch { }
             }
             if (fs.existsSync(platformFilePath)) {
               fs.unlinkSync(platformFilePath);
@@ -157,7 +157,7 @@ exports.createGame = function (req, res) {
             }
           } else {
             for (const public_id of uploadedCloudFiles) {
-              try { await deleteFile(public_id); } catch {}
+              try { await deleteFile(public_id); } catch { }
             }
             if (fs.existsSync(imgPath)) {
               fs.unlinkSync(imgPath);
@@ -167,8 +167,8 @@ exports.createGame = function (req, res) {
         }
       }
 
-     
-      
+
+
 
       const game = new Game({
         title,
@@ -183,12 +183,12 @@ exports.createGame = function (req, res) {
         tags: tags ? JSON.parse(tags) : [],
       });
 
-      console.log(game,platformsData);
+      console.log(game, platformsData);
 
       const savedGame = await game.save();
       if (!savedGame) {
         for (const public_id of uploadedCloudFiles) {
-          try { await deleteFile(public_id); } catch {}
+          try { await deleteFile(public_id); } catch { }
         }
         return ThrowError(res, 404, "Game not created");
       }
@@ -201,7 +201,7 @@ exports.createGame = function (req, res) {
       // Clean up all uploaded cloud files if error occurs
       if (typeof uploadedCloudFiles !== "undefined") {
         for (const public_id of uploadedCloudFiles) {
-          try { await deleteFile(public_id); } catch {}
+          try { await deleteFile(public_id); } catch { }
         }
       }
       // Clean up all local files if error occurs
@@ -211,11 +211,11 @@ exports.createGame = function (req, res) {
           if (Array.isArray(fileArr)) {
             fileArr.forEach((file) => {
               if (file.path && fs.existsSync(file.path)) {
-                try { fs.unlinkSync(file.path); } catch {}
+                try { fs.unlinkSync(file.path); } catch { }
               }
             });
           } else if (fileArr && fileArr.path && fs.existsSync(fileArr.path)) {
-            try { fs.unlinkSync(fileArr.path); } catch {}
+            try { fs.unlinkSync(fileArr.path); } catch { }
           }
         });
       }
@@ -235,11 +235,11 @@ exports.updateGame = function (req, res) {
           if (Array.isArray(fileArr)) {
             fileArr.forEach((file) => {
               if (file.path && fs.existsSync(file.path)) {
-                try { fs.unlinkSync(file.path); } catch {}
+                try { fs.unlinkSync(file.path); } catch { }
               }
             });
           } else if (fileArr && fileArr.path && fs.existsSync(fileArr.path)) {
-            try { fs.unlinkSync(fileArr.path); } catch {}
+            try { fs.unlinkSync(fileArr.path); } catch { }
           }
         });
       }
@@ -249,7 +249,7 @@ exports.updateGame = function (req, res) {
     const cleanupCloudFiles = async (publicIds) => {
       if (Array.isArray(publicIds)) {
         for (const public_id of publicIds) {
-          try { await deleteFile(public_id); } catch {}
+          try { await deleteFile(public_id); } catch { }
         }
       }
     };
@@ -272,7 +272,7 @@ exports.updateGame = function (req, res) {
       // Handle cover image update
       if (req.files && req.files.cover_image) {
         if (game.cover_image && game.cover_image.public_id) {
-          try { await deleteFile(game.cover_image.public_id); } catch {}
+          try { await deleteFile(game.cover_image.public_id); } catch { }
         }
 
         const coverFiledata = await fileupload(
@@ -298,7 +298,7 @@ exports.updateGame = function (req, res) {
       // Handle video update
       if (req.files && req.files.video) {
         if (game.video && game.video.public_id) {
-          try { await deleteFile(game.video.public_id); } catch {}
+          try { await deleteFile(game.video.public_id); } catch { }
         }
 
         const videoFiledata = await fileupload(
@@ -386,7 +386,7 @@ exports.updateGame = function (req, res) {
         }
       }
       console.log(game);
-      
+
 
       if (req.body.tags) {
         try {
@@ -412,7 +412,7 @@ exports.updateGame = function (req, res) {
           await cleanupCloudFiles(
             typeof uploadedCloudFiles !== "undefined" ? uploadedCloudFiles : []
           );
-        } catch {}
+        } catch { }
         cleanupLocalFiles();
       })();
       return ThrowError(res, 500, error.message);
@@ -441,6 +441,20 @@ exports.getAllGames = function (req, res) {
   (async function () {
     try {
       const games = await Game.find().populate("category");
+      if (!games || games.length === 0)
+        return ThrowError(res, 404, "No games found");
+      res.json(games);
+    } catch (error) {
+      return ThrowError(res, 500, error.message);
+    }
+  })();
+};
+
+// Get all games
+exports.getAllActiveGames = function (req, res) {
+  (async function () {
+    try {
+      const games = await Game.find({ isActive: true }).populate("category");
       if (!games || games.length === 0)
         return ThrowError(res, 404, "No games found");
       res.json(games);

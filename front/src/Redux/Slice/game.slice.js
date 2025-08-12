@@ -15,6 +15,18 @@ export const getAllGames = createAsyncThunk(
   }
 );
 
+export const getAllActiveGames = createAsyncThunk(
+  "game/getAllActiveGames",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/getAllActiveGames");
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 // CREATE GAME
 export const createGame = createAsyncThunk(
   "game/createGame",
@@ -89,6 +101,19 @@ const gameSlice = createSlice({
         state.games = action.payload;
       })
       .addCase(getAllGames.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // GET ALL ACTIVE
+      .addCase(getAllActiveGames.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllActiveGames.fulfilled, (state, action) => {
+        state.loading = false;
+        state.games = action.payload;
+      })
+      .addCase(getAllActiveGames.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
