@@ -1,3 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  body {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  body::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:hover,
@@ -6,7 +20,19 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: #fff;
   -webkit-transition: background-color 5000s ease-in-out 0s;
   transition: background-color 5000s ease-in-out 0s;
-  box-shadow: inset 0 0 20px 20px #111;
+}
+
+@layer utilities {
+  input:-webkit-autofill,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:hover,
+  input:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: #fff;
+    -webkit-transition: background-color 5000s ease-in-out 0s;
+    transition: background-color 5000s ease-in-out 0s;
+    @apply shadow-[inset_0_0_20px_20px] shadow-primary-dark/20;
+  }
 }
 
 
@@ -73,4 +99,146 @@ select option[selected] {
   visibility: visible;
   border: 1px solid;
   border-image: linear-gradient(to right, #00c6ff, #0072ff, #00c6ff) 1;
+}
+
+
+.loginModal .MuiBackdrop-root{
+  opacity: 1 !important;
+  backdrop-filter:  blur(3px);
+  background-color: transparent;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================== */
+
+@keyframes dropDown {
+  0% {
+      transform: translateY(0) translateX(-50%);
+      opacity: 0;
+  }
+  10% {
+      opacity: 1;
+  }
+  90% {
+      opacity: 1;
+  }
+  100% {
+      transform: translateY(100vh) translateX(-50%);
+      opacity: 0;
+  }
+}
+
+.game-bg {
+  background:
+    radial-gradient(800px 320px at 10% -10%, rgba(139, 92, 246, 0.25), transparent 70%),
+    radial-gradient(800px 320px at 90% -10%, rgba(244, 63, 94, 0.20), transparent 70%),
+    linear-gradient(180deg, #07080F 0%, #0a0f1f 40%, #000 100%);
+}
+.glow-purple {
+  background: radial-gradient(circle at center, rgb(66 32 6 / 0.7), transparent 90%);
+}
+.glow-pink {
+  background: radial-gradient(circle at center, rgb(5 46 22 / 0.7), transparent 90%);
+}
+.floating-elem {
+  will-change: transform;
+  transition: transform 180ms ease-out, filter 180ms ease-out;
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,0.45));
+}
+
+/* Marquee */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-25%); }
+}
+.animate-marquee-left {
+  animation: marquee-left 15s linear infinite;
+  will-change: transform;
+}
+
+/* Cards (unchanged) */
+.card-3d {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.card-3d:hover {
+  box-shadow:
+    0 25px 70px rgba(0,0,0,0.35),
+    0 0 0 3px rgba(255,255,255,0.15) inset,
+    0 0 40px rgba(99,102,241,0.25);
+  filter: saturate(1.15);
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.08);
+}
+
+
+/* @keyframes rotate-border {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-rotate-border {
+  position: relative;
+  border-radius: 20px;
+  background: conic-gradient(orange, red, orange);
+  animation: rotate-border 4s linear infinite;
+} */
+
+@keyframes border-spin {
+  to { transform: rotate(360deg); }
+}
+
+@layer components {
+  /* base wrapper — we keep layout classes in JSX and only define pseudo rules here */
+  .rotating-border {
+    position: relative;     /* container for pseudo elements */
+    /* overflow: visible; */
+    pointer-events: auto;
+  }
+
+  /* animated colorful ring behind the content */
+  .rotating-border::before {
+    content: "";
+    position: absolute;
+    top:50% ;              /* cover entire wrapper (including padding area) */  /* match wrapper roundness */
+    /* background: conic-gradient(from 0deg,
+      #ff7a00 0deg,
+      #ffb86b 90deg,
+      #ff4d00 180deg,
+      #ff7a00 360deg); */
+    background-color: #ff4d00;
+    width: 100%;
+    height: 200px;
+    scale: 1.5;
+    z-index: 0;     /* soften the ring */
+    transform-origin: center;
+    animation: border-spin 6s linear infinite;
+    pointer-events: none;
+    /* optional glow: */
+    box-shadow: 0 0 18px rgba(255, 122, 0, 0.45);
+  }
+
+  /* inner mask / overlay so center looks like an inner background (keeps content readable) */
+ 
+
+  /* make sure the content sits above the pseudo elements */
+  .rotating-border > .relative.z-10 {
+    position: relative;
+    z-index: 10;
+  }
 }

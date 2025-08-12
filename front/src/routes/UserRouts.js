@@ -21,24 +21,24 @@ import PrivacyPolacy from "../component/PrivacyPolacy/PrivacyPolacy";
 const UserRouts = () => {
   const location = useLocation();
   // const userId = localStorage.getItem("ottuserId");
-  const [loginPage, setLoginPage] = useState(false);
+  // const [loginPage, setLoginPage] = useState(false);
 
-  useEffect(() => {
-    setLoginPage(location.pathname.includes("/login"));
-  }, [location.pathname]);
+  // useEffect(() => {
+  //   setLoginPage(location.pathname.includes("/login"));
+  // }, [location.pathname]);
 
   return (
-    <>
-      {!loginPage && <Header />}
+    <div>
+      { <Header />}
       <Routes>
         {/* <Route path='/home' element={<Home />}> </Route> */}
         <Route path='/' element={<Home />}> </Route>
-        <Route path='/login' element={<Login />}> </Route>
+        {/* <Route path='/login' element={<Login />}> </Route> */}
         <Route path="/termsCondition" element={<TermsCondition />}></Route>
         <Route path="/privacyPolicy" element={<PrivacyPolacy />}></Route>
       </Routes>
-      {!loginPage && <Footer />}
-    </>
+      { <Footer />}
+    </div>
   );
 };
 
