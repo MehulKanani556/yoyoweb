@@ -11,6 +11,8 @@ import freeFire from '../Asset/images/free-fire-character-removebg-preview.png';
 import kumfoo from '../Asset/images/kum-foo-removebg-preview.png';
 import sonic from '../Asset/images/sonic-removebg-preview.png';
 import mario from '../Asset/images/mario-removebg-preview.png';
+import CommonButton from '../component/CommonButton';
+import InfiniteMarqueeCards from '../component/InfiniteMarqueeCards';
 
 const games = [
     { name: "Cyber Hunt", icon: <FaPlaystation size={50} /> },
@@ -157,15 +159,18 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div className="relative h-screen overflow-hidden">
+        <div className='bg-primary-dark'>
+        <div className="relative min-h-screen bg-primary-dark overflow-hidden">
             {/* Animated Background Layer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
+            <div className="pointer-events-none absolute -top-10 -left-40 w-[50%] h-[80vh] rounded-full glow-purple blur-3xl" />
+            <div className="pointer-events-none absolute -top-10 -right-40 w-[50%] h-[80vh] rounded-full glow-pink blur-3xl" />
+            <div className="absolute inset-0  overflow-hidden pointer-events-none z-0">
                 {/* Grid Pattern */}
                 <div
-                    className="absolute inset-0 opacity-20"
+                    className="absolute inset-0 opacity-10"
                     style={{
                         backgroundImage:
-                            'linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px)',
+                            'linear-gradient(rgba(255, 255, 255, 0.5) 2px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 2px, transparent 1px)',
                         backgroundSize: '100px 100px',
                     }}
                 />
@@ -178,6 +183,7 @@ export default function HomePage() {
                             <div className='block md:hidden sm:hidden xs:hidden lg:block absolute inset-y-0 left-1/2 transform -translate-x-1/2  h-full z-50'>
                                 <img src={require('../Asset/images/bg-1.b4a39a49.png')} alt="Decorative background" />
                             </div>
+                            <CommonButton/>
 
                             {/* Dropping Animated Dots */}
                             {dots.map((dot) => (
@@ -282,30 +288,6 @@ export default function HomePage() {
                             </div>
                         </div>
                     </div>
-
-                    {/* Keyframes for background animation */}
-                    <style>{`
-            @keyframes dropDown {
-                0% {
-                    transform: translateY(0) translateX(-50%);
-                    opacity: 0;
-                }
-                10% {
-                    opacity: 1;
-                }
-                90% {
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(100vh) translateX(-50%);
-                    opacity: 0;
-                }
-            }
-            @keyframes spinSlow {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-        `}</style>
                 </div>
 
                 <CardCarousel
@@ -316,5 +298,7 @@ export default function HomePage() {
                 />
             </div>
         </div>
+         <InfiniteMarqueeCards/>
+         </div>
     );
 }

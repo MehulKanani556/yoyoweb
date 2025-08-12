@@ -26,15 +26,15 @@ import Orders from "../profile/Orders";
 const UserRouts = () => {
   const location = useLocation();
   // const userId = localStorage.getItem("ottuserId");
-  const [loginPage, setLoginPage] = useState(false);
+  // const [loginPage, setLoginPage] = useState(false);
 
-  useEffect(() => {
-    setLoginPage(location.pathname.includes("/login"));
-  }, [location.pathname]);
+  // useEffect(() => {
+  //   setLoginPage(location.pathname.includes("/login"));
+  // }, [location.pathname]);
 
   return (
-    <>
-      {!loginPage && <Header />}
+    <div>
+      { <Header />}
       <Routes>
         {/* <Route path='/home' element={<Home />}> </Route> */}
         <Route path='/' element={<Home />}> </Route>
@@ -48,8 +48,8 @@ const UserRouts = () => {
           <Route path="orders" element={<Orders />} />
         </Route>
       </Routes>
-      {!loginPage && <Footer />}
-    </>
+      { <Footer />}
+    </div>
   );
 };
 
