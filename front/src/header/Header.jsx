@@ -381,3 +381,137 @@ const Header = () => {
 };
 
 export default Header;
+
+
+// ========================================= New Header Ref ================================================
+
+// import React, { useState } from 'react';
+// import { LuGamepad2, LuMenu, LuSearch, LuShoppingCart, LuUser, LuX, LuZap } from 'react-icons/lu';
+
+// export default function GamingHeader() {
+//     const [isMenuOpen, setIsMenuOpen] = useState(false);
+//     const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+//     const navItems = [
+//         { name: 'Games', href: '#games' },
+//         { name: 'Reviews', href: '#reviews' },
+//         { name: 'News', href: '#news' },
+//         { name: 'Esports', href: '#esports' },
+//         { name: 'Community', href: '#community' }
+//     ];
+
+//     return (
+//         <header className="relative bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-900 text-white shadow-2xl">
+//             <div className="absolute inset-0 overflow-hidden">
+//                 <div className="absolute -top-4 -left-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+//                 <div className="absolute -bottom-8 -right-4 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+//                 <div className="absolute top-8 left-1/2 w-72 h-72 bg-indigo-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+//             </div>
+
+//             <div className="relative z-10 px-4 sm:px-6 lg:px-8">
+//                 <div className="flex items-center justify-between h-20">
+//                     <div className="flex items-center space-x-3 group cursor-pointer">
+//                         <div className="relative">
+//                             <LuGamepad2 className="h-10 w-10 text-cyan-400 group-hover:text-cyan-300 transition-colors duration-300 transform group-hover:rotate-12" />
+//                             <LuZap className="absolute -top-1 -right-1 h-4 w-4 text-yellow-400 animate-bounce" />
+//                         </div>
+//                         <div>
+//                             <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+//                                 YoyoGame
+//                             </h1>
+//                             <p className="text-xs text-gray-300 -mt-1">Level Up Your Gaming</p>
+//                         </div>
+//                     </div>
+
+//                     <nav className="hidden md:block">
+//                         <div className="flex items-center space-x-8">
+//                             {navItems.map((item) => (
+//                                 <a
+//                                     key={item.name}
+//                                     href={item.href}
+//                                     className="relative px-3 py-2 text-sm font-medium text-gray-200 hover:text-white transition-all duration-300 group"
+//                                 >
+//                                     {item.name}
+//                                     <span className="absolute inset-x-0 -bottom-1 h-0.5 bg-gradient-to-r from-cyan-400 to-purple-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+//                                 </a>
+//                             ))}
+//                         </div>
+//                     </nav>
+
+//                     <div className="hidden md:flex items-center space-x-4">
+//                         <button
+//                             onClick={() => setIsSearchOpen(!isSearchOpen)}
+//                             className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-110"
+//                         >
+//                             <LuSearch className="h-5 w-5" />
+//                         </button>
+//                         <button className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-110">
+//                             <LuShoppingCart className="h-5 w-5" />
+//                             <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-xs rounded-full flex items-center justify-center text-white font-bold">
+//                                 3
+//                             </span>
+//                         </button>
+
+//                         <button className="p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-110">
+//                             <LuUser className="h-5 w-5" />
+//                         </button>
+
+//                         <button className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full font-semibold text-sm hover:from-cyan-400 hover:to-purple-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+//                             Play Now
+//                         </button>
+//                     </div>
+
+//                     <button
+//                         onClick={() => setIsMenuOpen(!isMenuOpen)}
+//                         className="md:hidden p-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all duration-300"
+//                     >
+//                         {isMenuOpen ? <LuX className="h-6 w-6" /> : <LuMenu className="h-6 w-6" />}
+//                     </button>
+//                 </div>
+
+//                 {isSearchOpen && (
+//                     <div className="pb-4 animate-in slide-in-from-top duration-300">
+//                         <div className="relative max-w-md mx-auto">
+//                             <input
+//                                 type="text"
+//                                 placeholder="Search games, reviews, news..."
+//                                 className="w-full px-4 py-2 pl-10 bg-white/20 backdrop-blur-sm rounded-full border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent"
+//                             />
+//                             <LuSearch className="absolute left-3 top-2.5 h-5 w-5 text-gray-300" />
+//                         </div>
+//                     </div>
+//                 )}
+//             </div>
+
+//             {isMenuOpen && (
+//                 <div className="md:hidden absolute top-full left-0 right-0 bg-gradient-to-b from-purple-900/95 to-indigo-900/95 backdrop-blur-lg border-t border-white/20 animate-in slide-in-from-top duration-300">
+//                     <div className="px-4 py-6 space-y-4">
+//                         {navItems.map((item) => (
+//                             <a
+//                                 key={item.name}
+//                                 href={item.href}
+//                                 className="block px-4 py-2 text-lg font-medium text-gray-200 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-300"
+//                             >
+//                                 {item.name}
+//                             </a>
+//                         ))}
+//                         <div className="flex items-center space-x-4 pt-4 border-t border-white/20">
+//                             <button className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300">
+//                                 <LuUser className="h-5 w-5 mx-auto" />
+//                             </button>
+//                             <button className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-300 relative">
+//                                 <LuShoppingCart className="h-5 w-5 mx-auto" />
+//                                 <span className="absolute -top-1 right-1/2 translate-x-2 h-4 w-4 bg-red-500 text-xs rounded-full flex items-center justify-center text-white font-bold">
+//                                     3
+//                                 </span>
+//                             </button>
+//                             <button className="flex-1 px-4 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-lg font-semibold hover:from-cyan-400 hover:to-purple-400 transition-all duration-300">
+//                                 Play Now
+//                             </button>
+//                         </div>
+//                     </div>
+//                 </div>
+//             )}
+//         </header>
+//     );
+// }

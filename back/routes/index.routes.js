@@ -73,7 +73,7 @@ const {
   getPaymentUser,
 } = require("../controller/payment.controller");
 const csrf = require("csurf");
-const { getAllGames, createGame, updateGame, deleteGame } = require("../controller/game.controller");
+const { getAllGames, createGame, updateGame, deleteGame, getAllActiveGames } = require("../controller/game.controller");
 
 const csrfProtection = csrf({
   cookie: {
@@ -174,6 +174,7 @@ indexRoutes.delete("/deleteCategory/:id", csrfProtection, deleteCategory);
 //Game 
 
 indexRoutes.get("/getAllGames", getAllGames);
+indexRoutes.get("/getAllActiveGames", getAllActiveGames);
 indexRoutes.post(
   "/createGame",
   upload.fields([

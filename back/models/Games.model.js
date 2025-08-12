@@ -20,9 +20,11 @@ const gameSchema = new mongoose.Schema(
       public_id: { type: String },
     },
     images: [
-       {url: { type: String },
-        public_id: { type: String }}
-     ],
+      {
+        url: { type: String },
+        public_id: { type: String }
+      }
+    ],
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "category",
@@ -74,11 +76,9 @@ const gameSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    tags: [
-      {
-        type: String,
-      },
-    ],
+    tags: [{
+      type: String,
+    }],
   },
   {
     timestamps: true,
