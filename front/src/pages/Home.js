@@ -164,7 +164,7 @@ export default function HomePage() {
             {/* Animated Background Layer */}
             <div className="pointer-events-none absolute -top-10 -left-40 w-[50%] h-[80vh] rounded-full glow-purple blur-3xl" />
             <div className="pointer-events-none absolute -top-10 -right-40 w-[50%] h-[80vh] rounded-full glow-pink blur-3xl" />
-            <div className="absolute inset-0  overflow-hidden pointer-events-none z-0">
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
                 {/* Grid Pattern */}
                 <div
                     className="absolute inset-0 opacity-10"
