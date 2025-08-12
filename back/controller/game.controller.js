@@ -429,7 +429,11 @@ exports.getGameById = function (req, res) {
       }
       const game = await Game.findById(req.params.id).populate("category");
       if (!game) return ThrowError(res, 404, "Game not found");
-      res.json(game);
+      return res.status(200).json({
+        message: "game by id fetched successfully",
+        data: game,
+        success: true
+      });
     } catch (error) {
       return ThrowError(res, 500, error.message);
     }

@@ -6,9 +6,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getAllActiveGames } from '../Redux/Slice/game.slice';
 import { getAllCategories } from '../Redux/Slice/category.slice';
 import { DiAndroid } from "react-icons/di";
+import { useNavigate } from 'react-router-dom';
 
 export default function Products() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('popular');
@@ -311,7 +313,6 @@ export default function Products() {
             game.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
         return matchesCategory && matchesSearch;
     });
-    console.log(filteredGames);
 
     // Helper to get a game's price for sorting based on selected platform
     const getPriceForSorting = (game) => {
@@ -619,8 +620,9 @@ export default function Products() {
                                 return (
                                     <div
                                         key={game.id}
-                                        className="group relative bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
+                                        className="group relative bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer"
                                         style={{ animationDelay: `${index * 0.1}s` }}
+                                        onClick={() => { navigate(`/gamedetails/${game.id}`) }}
                                     >
                                         {/* Image Container */}
                                         <div className="relative h-48 overflow-hidden">
@@ -637,11 +639,6 @@ export default function Products() {
                                                         NEW
                                                     </span>
                                                 )}
-                                                {/* {game.featured && (
-                                                <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                                                    FEATURED
-                                                </span>
-                                            )} */}
                                             </div>
 
                                             {/* Action Buttons */}
@@ -663,14 +660,6 @@ export default function Products() {
                                                     <LuPlay className="w-6 h-6 ml-1" />
                                                 </button>
                                             </div>
-
-                                            {/* Rating */}
-                                            {/* <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                                            <div className="flex items-center gap-1 bg-black/50 px-2 py-1 rounded-full backdrop-blur-md">
-                                                <LuStar className="w-4 h-4 text-yellow-400 fill-current" />
-                                                <span className="text-white text-sm font-medium">{game.rating}</span>
-                                            </div>
-                                        </div> */}
                                         </div>
 
                                         {/* Content */}
@@ -688,16 +677,17 @@ export default function Products() {
                                                         <div
                                                             key={platform}
                                                             className={`flex items-center cursor-pointer`}
-                                                            onClick={() => setSelectedPlatforms(prev => ({ ...prev, [game.id]: platform }))}
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                setSelectedPlatforms(prev => ({ ...prev, [game.id]: platform }));
+                                                            }}
                                                         >
                                                             {platform === 'windows' && <FaWindows title="Show Windows Price" className={`${selectedPlatform === platform ? 'text-blue-500' : ''}`} />}
                                                             {platform === 'ios' && <FaApple title="Show Ios Price" className={`${selectedPlatform === platform ? 'text-white' : ''}`} />}
                                                             {platform === 'android' && <DiAndroid title="Show Android Price" className={`${selectedPlatform === platform ? 'text-green-500' : ''}`} />}
                                                         </div>
                                                     ))}
-                                                </div>
-                                                <div className="mt-2 text-white flex flex-col gap-1">
-                                                {selectedPlatform?.charAt(0)?.toUpperCase() + selectedPlatform.slice(1)} - ₹ {game.platforms[selectedPlatform]?.price} {/* Display price based on selected platform */}
                                                 </div>
                                             </div>
                                             {/* Tags */}
@@ -712,53 +702,21 @@ export default function Products() {
                                             ))}
                                         </div> */}
 
-                                            {/* Game Info */}
-                                            {/* <div className="grid grid-cols-2 gap-4 text-sm text-white/70 mb-6">
-                                            <div className="flex items-center gap-2">
-                                                <LuUsers className="w-4 h-4" />
-                                                <span>{game.players}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <LuClock className="w-4 h-4" />
-                                                <span>{game.duration}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <LuDownload className="w-4 h-4" />
-                                                <span>{game.downloads}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <LuEye className="w-4 h-4" />
-                                                <span>HD Quality</span>
-                                            </div>
-                                        </div> */}
-
                                             {/* Price and CTA */}
                                             <div className="flex items-center justify-between">
-                                                {/* <div className="text-white">
-                                                    {game.discount > 0 && game.price !== 'Free' ? (
-                                                        <div>
-                                                            <span className="text-2xl font-bold text-green-400">
-                                                                {getDiscountedPrice(game.price, game.discount)}
-                                                            </span>
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-sm text-gray-400 line-through">{game.price}</span>
-                                                                <span className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
-                                                                    -{game.discount}%
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    ) : (
-                                                        <span className={`text-2xl font-bold ${game.price === 'Free' ? 'text-green-400' : 'text-white'
-                                                            }`}>
-                                                            {game.price}
-                                                        </span>
-                                                    )}
-                                                </div> */}
+                                                <div className="mt-2 text-white flex flex-col gap-1">
+                                                    <p className=''>Price - $ {game.platforms[selectedPlatform]?.price}</p>
+                                                    <p className=''>Size - {game.platforms[selectedPlatform]?.size}</p>
+                                                </div>
 
-                                                <button className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-xl font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2">
-                                                    {/* <LuPlay className="w-4 h-4" /> */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                    }}
+                                                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-md font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2"
+                                                >
                                                     <FiShoppingCart className="w-4 h-4" />
-                                                    {/* {game.price === 'Free' ? 'Play' : 'Buy'} */}
                                                     Add To Cart
                                                 </button>
                                             </div>

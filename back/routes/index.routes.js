@@ -73,7 +73,7 @@ const {
   getPaymentUser,
 } = require("../controller/payment.controller");
 const csrf = require("csurf");
-const { getAllGames, createGame, updateGame, deleteGame, getAllActiveGames } = require("../controller/game.controller");
+const { getAllGames, createGame, updateGame, deleteGame, getAllActiveGames, getGameById } = require("../controller/game.controller");
 
 const csrfProtection = csrf({
   cookie: {
@@ -200,6 +200,7 @@ indexRoutes.put(
   updateGame
 );
 indexRoutes.delete("/deleteGame/:id", deleteGame);
+indexRoutes.get("/getGameById/:id", getGameById);
 
 // contactUs
 

@@ -17,7 +17,7 @@ const Header = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const navItems = [
         { name: 'Home', path: '/' },
-        { name: 'Games', path: '/products' },
+        { name: 'Games', path: '/games' },
         { name: 'Store', path: '/store' },
         { name: 'Contact', path: '/contact' }
     ];

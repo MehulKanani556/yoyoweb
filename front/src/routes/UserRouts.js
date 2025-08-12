@@ -13,6 +13,7 @@ import Contact from "../pages/Contact";
 import Profile from "../profile/Profile";
 import DeleteAccount from "../profile/DeleteAccount";
 import Orders from "../profile/Orders";
+import GameDetails from "../pages/GameDetails";
 
 // const stripePromise = loadStripe("pk_test_51RlOu04MsbsH6KuURrRtTgj0lZCjFnmdn5A64CpHOHaPl8UwFGlX6jsYe9K9x4XUUSOIeUSisEM3aV5lriLPEw0300n0menKM3");
 
@@ -34,12 +35,13 @@ const UserRouts = () => {
 
   return (
     <div>
-      { <Header />}
+      {<Header />}
       <Routes>
         {/* <Route path='/home' element={<Home />}> </Route> */}
         <Route path='/' element={<Home />}> </Route>
         <Route path='/login' element={<Login />}> </Route>
-        <Route path='/products' element={<Products />}> </Route>
+        <Route path='/games' element={<Products />}> </Route>
+        <Route path='/gamedetails/:id' element={<GameDetails />}> </Route>
         <Route path='/contact' element={<Contact />}> </Route>
         <Route path="/termsCondition" element={<TermsCondition />}></Route>
         <Route path="/privacyPolicy" element={<PrivacyPolacy />}></Route>
@@ -48,7 +50,7 @@ const UserRouts = () => {
           <Route path="orders" element={<Orders />} />
         </Route>
       </Routes>
-      { <Footer />}
+      {<Footer />}
     </div>
   );
 };

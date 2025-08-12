@@ -73,10 +73,24 @@ export const deleteGame = createAsyncThunk(
   }
 );
 
+// get by Id
+export const getGameById = createAsyncThunk(
+  "game/getById",
+  async (id, { rejectWithValue }) => {    
+    try {
+      const res = await axiosInstance.get(`/getGameById/${id}`);
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const gameSlice = createSlice({
   name: "game",
   initialState: {
     games: [],
+    singleGame: null,
     loading: false,
     error: null,
     success: null,
@@ -160,6 +174,19 @@ const gameSlice = createSlice({
         state.games = state.games.filter((g) => g._id !== action.payload._id);
       })
       .addCase(deleteGame.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Get by ID
+      .addCase(getGameById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getGameById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.singleGame = action.payload.data || null;
+      })
+      .addCase(getGameById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
