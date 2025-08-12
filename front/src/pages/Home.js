@@ -159,7 +159,7 @@ export default function HomePage() {
     }, []);
 
     return (
-        <>
+        <div className='bg-primary-dark'>
         <div className="relative h-screen overflow-hidden">
             {/* Animated Background Layer */}
             <div className="pointer-events-none absolute -top-10 -left-40 w-[50%] h-[80vh] rounded-full glow-purple blur-3xl" />
@@ -312,6 +312,8 @@ export default function HomePage() {
             showPagination={true}
             showNavigation={true}
         />
-    </>
+
+        <InfiniteMarqueeCards />
+    </div >
     );
 }
