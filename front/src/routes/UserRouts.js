@@ -9,6 +9,7 @@ import Login from "../pages/Login";
 import TermsCondition from "../component/TermsOfService/TermsCOndition";
 import PrivacyPolacy from "../component/PrivacyPolacy/PrivacyPolacy";
 import Products from "../pages/Products";
+import Contact from "../pages/Contact";
 import Profile from "../profile/Profile";
 import DeleteAccount from "../profile/DeleteAccount";
 import Orders from "../profile/Orders";
@@ -39,6 +40,7 @@ const UserRouts = () => {
         <Route path='/' element={<Home />}> </Route>
         <Route path='/login' element={<Login />}> </Route>
         <Route path='/products' element={<Products />}> </Route>
+        <Route path='/contact' element={<Contact />}> </Route>
         <Route path="/termsCondition" element={<TermsCondition />}></Route>
         <Route path="/privacyPolicy" element={<PrivacyPolacy />}></Route>
         <Route path='/profile' element={<Profile />}>
