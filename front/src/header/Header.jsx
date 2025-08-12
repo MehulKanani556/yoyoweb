@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { decryptData } from '../Utils/encryption';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserById } from '../Redux/Slice/user.slice';
@@ -15,7 +15,12 @@ const Header = () => {
     const dispatch = useDispatch();
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const navItems = ['Home', 'Games', 'Store', 'Contact'];
+    const navItems = [
+        { name: 'Home', path: '/' },
+        { name: 'Games', path: '/products' },
+        { name: 'Store', path: '/store' },
+        { name: 'Contact', path: '/contact' }
+    ];
     const userId = localStorage.getItem('yoyouserId');
     const token = localStorage.getItem('yoyoToken');
     const currentUser = useSelector((state) => state.user.currUser);
@@ -75,15 +80,19 @@ const Header = () => {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex space-x-8">
                     {navItems.map((item) => (
-                        <motion.a
+                        <motion.div
                             key={item}
-                            href={`#${item.toLowerCase()}`}
                             whileHover={{ scale: 1.1 }}
                             className="relative text-white transition-all duration-300 hover:text-[#8A775A] group"
                         >
-                            {item}
-                            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-[#8A775A] transition-all duration-300 group-hover:w-full" />
-                        </motion.a>
+                            <Link
+                                to={`${item.path}`}
+                                className="block"
+                            >
+                                {item.name}
+                                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-[#8A775A] transition-all duration-300 group-hover:w-full" />
+                            </Link>
+                        </motion.div>
                     ))}
                 </nav>
 
@@ -365,14 +374,14 @@ const Header = () => {
                     </div>
 
                     {navItems.map((item) => (
-                        <a
+                        <Link
                             key={item}
-                            href={`#${item.toLowerCase()}`}
+                           to={item.path}
                             className="text-white text-lg hover:text-green-400"
                             onClick={() => setIsMenuOpen(false)}
                         >
-                            {item}
-                        </a>
+                            {item.name}
+                        </Link>
                     ))}
                 </motion.div>
             </div>
