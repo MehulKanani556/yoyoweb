@@ -1,27 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import { Autoplay, EffectCoverflow, Navigation, Pagination } from "swiper/modules";
+import { getAllGames } from "../Redux/Slice/game.slice";
+import { useDispatch, useSelector } from "react-redux";
 
-
-
-// import { SparklesIcon } from "lucide-react";
-import {
-  Autoplay,
-  EffectCoverflow,
-  Navigation,
-  Pagination,
-} from "swiper/modules";
-
-// If you don't have Badge, replace with a <span> styled with Tailwind
-// import { Badge } from "../badge"; // Adjust path if needed
-
-export const CardCarousel = ({
+const CardCarousel = ({
   images,
-  autoplayDelay = 1500,
+  // autoplayDelay = 1500,
   showPagination = true,
   showNavigation = true,
 }) => {
@@ -42,34 +32,54 @@ export const CardCarousel = ({
     .swiper-3d .swiper-slide-shadow-left {
       background-image: none;
     }
-    .swiper-3d .swiper-slide-shadow-right {
+    .swiper-3d .swiper-slide-shadow-right{
       background: none;
     }
   `;
+  const dispatch = useDispatch();
+  const { games } = useSelector((state) => state.game);
+
+  const displayImages = (Array.isArray(games) && games.length > 0)
+    ? games
+        .map((g) => ({
+          src: g?.cover_image?.url || (Array.isArray(g?.images) && g.images[0]?.url) || null,
+          alt: g?.title || "Game image",
+        }))
+        .filter((img) => Boolean(img.src))
+    : images;
+  useEffect(() => {
+    dispatch(getAllGames());
+  }, []);
 
   return (
-    <section className="w-full space-y-4">
+    <section className="w-full bg-black">
       <style>{css}</style>
-      <div className="mx-auto w-full max-w-4xl rounded-[24px] border border-black/5 p-2 shadow-sm md:rounded-t-[44px]">
+      <div className="mx-auto w-full max-w-5xl rounded-[24px] border border-black/5 p-2 shadow-sm md:rounded-t-[44px]">
         <div className="relative mx-auto flex w-full flex-col rounded-[24px] border border-black/5 bg-neutral-800/5 p-2 shadow-sm md:items-start md:gap-8 md:rounded-b-[20px] md:rounded-t-[40px] md:p-2">
           {/* <Badge
-            variant="outline"
+            variant="outline" 
             className="absolute left-4 top-6 rounded-[14px] border border-black/10 text-base md:left-6"
           >
-            <SparklesIcon className="fill-[#EEBDE0] stroke-1 text-neutral-800" />
-            {" "}Latest component
+            <SparklesIcon className="fill-[#EEBDE0] stroke-1 text-neutral-800" />{" "}
+            Latest component
           </Badge> */}
-          <div className="flex flex-col justify-center pb-2 pl-4 pt-14 md:items-center">
-            <h3 className="text-4xl font-bold tracking-tight opacity-85">Card Carousel</h3>
-            <p>Seamless Images carousel animation.</p>
-          </div>
+          {/* <div className="flex flex-col justify-center pb-2 pl-4 pt-14 md:items-center">
+            <div className="flex gap-2">
+              <div>
+                <h3 className="text-4xl opacity-85 font-bold tracking-tight">
+                  Card Carousel
+                </h3>
+                <p>Seamless Images carousel animation.</p>
+              </div>
+            </div>
+          </div> */}
 
           <div className="flex w-full items-center justify-center gap-4">
             <div className="w-full">
               <Swiper
                 spaceBetween={50}
                 autoplay={{
-                  delay: autoplayDelay,
+                  // delay: autoplayDelay,
                   disableOnInteraction: false,
                 }}
                 effect={"coverflow"}
@@ -86,18 +96,36 @@ export const CardCarousel = ({
                 pagination={showPagination}
                 navigation={
                   showNavigation
-                    ? { nextEl: ".swiper-button-next", prevEl: ".swiper-button-prev" }
+                    ? {
+                      nextEl: ".swiper-button-next",
+                      prevEl: ".swiper-button-prev",
+                    }
                     : undefined
                 }
-                modules={[EffectCoverflow, Autoplay, Pagination, Navigation]}
+                modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
               >
-                {images.map((image, index) => (
-                  <SwiperSlide key={index}>
+                {displayImages.map((image, index) => (
+                  <SwiperSlide key={`slide1-${index}`}>
                     <div className="size-full rounded-3xl">
                       <img
                         src={image.src}
                         alt={image.alt}
                         className="size-full rounded-xl"
+                        width={500}
+                        height={500}
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+                {displayImages.map((image, index) => (
+                  <SwiperSlide key={`slide2-${index}`}>
+                    <div className="size-full rounded-3xl">
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        className="size-full rounded-xl"
+                        width={200}
+                        height={200}
                       />
                     </div>
                   </SwiperSlide>
@@ -110,3 +138,5 @@ export const CardCarousel = ({
     </section>
   );
 };
+
+export default CardCarousel;
