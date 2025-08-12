@@ -5,6 +5,7 @@ export default function LastWinners({ tick = 0, onActiveChange }) {
     const listRef = useRef(null);
     const itemRefs = useRef([]);
     const isResettingRef = useRef(false);
+    const scrollAnimRef = useRef(null);
     const [currentIndex, setCurrentIndex] = useState(0);
     const intervalMs = 2000;
 
@@ -107,11 +108,42 @@ export default function LastWinners({ tick = 0, onActiveChange }) {
         const listHeight = listEl.clientHeight;
         const itemHeight = activeItem.offsetHeight;
         const targetTop = activeItem.offsetTop - (listHeight / 2 - itemHeight / 2);
-        const behavior = isResettingRef.current ? 'auto' : 'smooth';
-        listEl.scrollTo({ top: Math.max(0, targetTop), behavior });
-        if (isResettingRef.current) {
-            isResettingRef.current = false;
+        const clampedTarget = Math.max(0, targetTop);
+
+        // cancel any in-flight animation
+        if (scrollAnimRef.current) {
+            cancelAnimationFrame(scrollAnimRef.current);
+            scrollAnimRef.current = null;
         }
+
+        // On loop reset, jump instantly to avoid visible rewind
+        if (isResettingRef.current) {
+            listEl.scrollTop = clampedTarget;
+            isResettingRef.current = false;
+            return;
+        }
+
+        // Smooth, eased scrolling to the target position
+        const start = listEl.scrollTop;
+        const change = clampedTarget - start;
+        const duration = Math.min(800, Math.max(450, Math.abs(change))); // adapt duration a bit to distance
+        const startTime = performance.now();
+
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        const step = (now) => {
+            const elapsed = now - startTime;
+            const progress = Math.min(1, elapsed / duration);
+            const eased = easeOutCubic(progress);
+            listEl.scrollTop = start + change * eased;
+            if (progress < 1) {
+                scrollAnimRef.current = requestAnimationFrame(step);
+            } else {
+                scrollAnimRef.current = null;
+            }
+        };
+
+        scrollAnimRef.current = requestAnimationFrame(step);
     }, [currentIndex]);
 
     // notify parent about the active winner name
@@ -128,7 +160,7 @@ export default function LastWinners({ tick = 0, onActiveChange }) {
             ref={cardRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            className="relative rounded-2xl p-6 border border-gray-700 bg-black/40 shadow-xl overflow-hidden transition-transform duration-200"
+            className="relative rounded-2xl p-6 border border-gray-700 bg-black/40 shadow-xl overflow-hidden transition-transform duration-200 "
             style={{ transformStyle: 'preserve-3d', willChange: 'transform', '--x': '50%', '--y': '50%' }}
         >
             {/* subtle grid background */}
@@ -154,26 +186,40 @@ export default function LastWinners({ tick = 0, onActiveChange }) {
             </div>
 
             {/* List - auto scrolls and centers active item */}
-            <ul ref={listRef} className="relative divide-y divide-white/10 max-h-[240px] overflow-y-auto overscroll-contain pr-2 scrollbar-hide">
+            <ul
+                ref={listRef}
+                className="relative divide-y divide-white/10 max-h-[240px] overflow-y-auto overscroll-contain pr-2 nice-scroll snap-y scrollbar-hide"
+            >
                 {loopedWinners.map((w, idx) => (
                     <li
                         key={w._key}
                         ref={(el) => (itemRefs.current[idx] = el)}
                         className={
-                            `flex items-center justify-between py-4 transition-colors` +
-                            (idx === currentIndex ? ' bg-white/5' : '')
+                            `flex items-center justify-between py-4 p-2 transition-all duration-500 ease-out` +
+                            (idx === currentIndex
+                                ? ' bg-white/5 scale-[1.02] ring-1 ring-white/10 shadow-lg'
+                                : ' opacity-80')
                         }
                     >
                         <div className="flex items-center gap-4">
                             <img
                                 src={w.avatar}
                                 alt={w.name}
-                                className="h-12 w-12 rounded-full ring-2 ring-white/10 bg-gray-800"
+                                className={
+                                    `h-12 w-12 rounded-full ring-2 ring-white/10 bg-gray-800 transition-transform duration-500` +
+                                    (idx === currentIndex ? ' scale-110' : '')
+                                }
                                 loading="lazy"
                             />
-                            <p className="text-white font-semibold text-lg">{w.name}</p>
+                            <p className={
+                                `text-white font-semibold text-lg transition-colors duration-500` +
+                                (idx === currentIndex ? ' text-orange-200' : ' text-white/90')
+                            }>{w.name}</p>
                         </div>
-                        <p className="text-green-400 font-bold">+${w.amount}</p>
+                        <p className={
+                            `font-bold transition-colors duration-500` +
+                            (idx === currentIndex ? ' text-green-300' : ' text-green-400/80')
+                        }>+${w.amount}</p>
                     </li>
                 ))}
             </ul>
@@ -184,6 +230,15 @@ export default function LastWinners({ tick = 0, onActiveChange }) {
                     from { transform: scaleX(0); }
                     to { transform: scaleX(1); }
                 }
+
+                /* Nicer scrollbar for WebKit */
+                .nice-scroll::-webkit-scrollbar { width: 8px; }
+                .nice-scroll::-webkit-scrollbar-track { background: transparent; }
+                .nice-scroll::-webkit-scrollbar-thumb {
+                    background: rgba(255,255,255,0.14);
+                    border-radius: 9999px;
+                }
+                .nice-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.24); }
             `}</style>
         </div>
     );
