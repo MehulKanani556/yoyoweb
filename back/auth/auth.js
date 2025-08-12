@@ -273,9 +273,9 @@ exports.verifyOtp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     let { newPassword, email } = req.body;
-    const encryptEmail = encryptData(email);
+    // const encryptEmail = encryptData(email);
 
-    let userId = await user.findOne({ email: encryptEmail });
+    let userId = await user.findOne({ email });
 
     if (!userId) {
       return res.status(404).json({ status: 404, message: "User Not Found" });

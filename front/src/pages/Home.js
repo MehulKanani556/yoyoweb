@@ -192,7 +192,7 @@ export default function HomePage() {
             <div className="relative z-10">
                 <div className="max-w-7xl mx-auto">
                     {/* Main Container */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-screen items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gaap-8 h-screen items-center">
 
                         {/* Left Side - Game Name */}
                         <div className="flex flex-col items-center lg:items-start justify-center space-y-6">

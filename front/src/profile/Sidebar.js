@@ -2,22 +2,12 @@ import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { BiChevronLeft, BiChevronRight } from "react-icons/bi";
 
-// import Usericon from "../../Assets/Images/user-icon.png";
-// import Watchlisticon from "../../Assets/Images/watchlist.png";
-// import Subscriptionicon from "../../Assets/Images/subscription.png";
-// import LoggedDeviceicon from "../../Assets/Images/logged device.png";
-// import ChangePasswordicon from "../../Assets/Images/change password.png";
-// import DeleteAccounticon from "../../Assets/Images/delete account.png";
-// import LogOuticon from "../../Assets/Images/logout.png";
-// import TwoStepVerification from "../../Assets/Images/Two-step.png"
-// import ParentalControl from "../../Assets/Images/ParentalControl.png"
-// import WatchHistory from "../../Assets/Images/watchHistory.png"
 import { AiOutlineClose } from "react-icons/ai";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaHistory, FaKey, FaSignOutAlt, FaTrash, FaUser } from "react-icons/fa";
 import { LuEye, LuEyeClosed } from 'react-icons/lu';
 import { useDispatch, useSelector } from "react-redux";
 import { Formik } from "formik";
-// import { resetPassword } from "../../Redux/Slice/user.slice";
+import { resetPassword } from "../Redux/Slice/auth.slice";
 // import { logoutUser } from "../../Redux/Slice/auth.slice";
 // import { getDeviceId } from "../../Utils/getDeviceId";
 
@@ -25,7 +15,7 @@ import { Formik } from "formik";
 // Sidebar items
 const sidebarItems = [
   { id: "my-profile", label: "My Profile",
-    //  icon: Usericon, 
+    icon: <FaUser />,
      path: "" },
 //   {
 //     id: "watchlist",
@@ -34,10 +24,10 @@ const sidebarItems = [
 //     path: "watchlist",
 //   },
   {
-    id: "subscription",
+    id: "orders",
     label: "Order History",
-    // icon: Subscriptionicon,
-    path: "subscription",
+    icon: <FaHistory />,
+    path: "orders",
   },
 //   {
 //     id: "watchHistory",
@@ -61,7 +51,7 @@ const sidebarItems = [
   {
     id: "password",
     label: "Change Password",
-    // icon: ChangePasswordicon,
+    icon: <FaKey />,
     path: "password",
   },
 //   {
@@ -73,11 +63,11 @@ const sidebarItems = [
   {
     id: "delete",
     label: "Delete Account",
-    // icon: DeleteAccounticon,
+    icon: <FaTrash />,
     path: "delete",
   },
   { id: "logout", label: "Logout", 
-    // icon: LogOuticon, 
+    icon: <FaSignOutAlt />,
     path: "logout" },
 ];
 
@@ -119,27 +109,15 @@ export const Sidebar1 = ({ activeItem }) => {
     setShowChangePass(false);
   };
 
-//   const handleLogout = async () => {
-//     try {
-//       console.log(userId);
-
-//       if (userId) {
-//         const deviceId = await getDeviceId()
-//         const data = {
-//           userId: userId,
-//           deviceId: deviceId
-//         }
-//         console.log(data);
-
-//         await dispatch(logoutUser(data));
-//       }
-//       navigate("/")
-//       sessionStorage.removeItem("userId");
-//       sessionStorage.removeItem("token");
-//     } catch (error) {
-//       console.log(error)
-//     }
-//   }
+  const handleLogout = async () => {
+    try {
+     
+      navigate("/")
+      localStorage.clear();
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -157,7 +135,7 @@ export const Sidebar1 = ({ activeItem }) => {
               }`}
           >
             <div className="border-[2px] border-white/25 p-[8px] rounded mr-[12px] bg-black">
-              <img src={icon} alt={label} className="w-5 h-5 object-contain" />
+            <span>{icon}</span>
             </div>
             {label}
           </div>
@@ -196,13 +174,9 @@ export const Sidebar1 = ({ activeItem }) => {
                 Yes, Logout
               </button> */}
               <button type="submit" 
-            //   onClick={handleLogout} 
-              className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 border-none cursor-pointer transition-[background-position] duration-400 ease-in-out"
-                style={{
-                  background: 'linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)',
-                  backgroundSize: '200% 100%',
-                  backgroundPosition: 'left center',
-                }}
+              onClick={handleLogout} 
+              className="w-full text-white py-2 bg-primary rounded-[4px] text-[14px] font-medium sm:py-3 border-none cursor-pointer transition-[background-position] duration-400 ease-in-out"
+               
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = 'right center')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = 'left center')}>
                 Yes, Logout
@@ -243,11 +217,11 @@ export const Sidebar1 = ({ activeItem }) => {
               }}
               onSubmit={(values) => {
                 const { oldPassword, newPassword } = values;
-                // dispatch(resetPassword({ email: currentUser.email, oldPassword, newPassword })).then((response) => {
-                //   if (response.payload.success) {
-                //     setShowChangePass(false);
-                //   }
-                // });
+                dispatch(resetPassword({ email: currentUser.email, oldPassword, newPassword })).then((response) => {
+                  if (response.payload.success) {
+                    setShowChangePass(false);
+                  }
+                });
               }}
             >
               {({ handleChange, handleSubmit, values, errors, touched, setFieldValue }) => (
@@ -358,12 +332,8 @@ export const Sidebar1 = ({ activeItem }) => {
               >
                 Change Password
               </button> */}
-                    <button type="submit" className="text-[14px] w-48 py-2 rounded-[4px] font-medium sm:py-3 text-white border-none cursor-pointer transition-[background-position] duration-400 ease-in-out"
-                      style={{
-                        background: 'linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)',
-                        backgroundSize: '200% 100%',
-                        backgroundPosition: 'left center',
-                      }}
+                    <button type="submit" className="text-[14px] bg-primary w-48 py-2 rounded-[4px] font-medium sm:py-3 text-white border-none cursor-pointer transition-[background-position] duration-400 ease-in-out"
+                     
                       onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = 'right center')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = 'left center')}>
                       Change Password
@@ -608,11 +578,11 @@ export const Sidebar2 = ({ activeItem }) => {
               }}
               onSubmit={(values) => {
                 const { oldPassword, newPassword } = values;
-                // dispatch(resetPassword({ email: currentUser.email, oldPassword, newPassword })).then((response) => {
-                //   if (response.payload.success) {
-                //     setShowChangePass(false);
-                //   }
-                // });
+                dispatch(resetPassword({ email: currentUser.email, oldPassword, newPassword })).then((response) => {
+                  if (response.payload.success) {
+                    setShowChangePass(false);
+                  }
+                });
               }}
             >
               {({ handleChange, handleSubmit, values, errors, touched, setFieldValue }) => (

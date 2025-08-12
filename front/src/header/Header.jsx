@@ -18,10 +18,12 @@ const Header = () => {
     const navItems = ['Home', 'Games', 'Store', 'Contact'];
     const userId = localStorage.getItem('yoyouserId');
     const token = localStorage.getItem('yoyoToken');
-    const currentUser = useSelector((state) => state.auth.user);
+    const currentUser = useSelector((state) => state.user.currUser);
     const dropdownRef = useRef(null);
 
-
+    useEffect (()=>{
+        dispatch(getUserById(userId))
+      },[dispatch])
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

@@ -28,6 +28,8 @@ import { decryptData } from "../Utils/encryption";
 import { apply } from "slate";
 import EditProfile from "./EditProfile";
 import { getUserById } from "../Redux/Slice/user.slice";
+import DeleteAccount from "./DeleteAccount";
+import Orders from "./Orders";
 // import MyWatchHistory from "../MyAccount Components/MyWatchHistory";
 
 // Profile Section
@@ -90,7 +92,7 @@ const Profile = () => {
     "/profile": "my-profile",
     "/profile/edit-profile": "edit-profile",
     "/profile/watchlist": "watchlist",
-    "/profile/subscription": "subscription",
+    "/profile/orders": "orders",
     "/profile/device": "device",
     "/profile/password": "password",
     "/profile/twostep": "twostep",
@@ -112,8 +114,8 @@ const Profile = () => {
       {
         "my-profile": "My Profile",
         watchlist: "My Watchlist",
-        subscription: "My Subscription",
-        device: "Logged Device",
+        orders: "My Orders",
+        // device: "Logged Device",
         password: "Change Password",
         twostep: "Two Step Verification",
         parentalcontrol: "Parental Control",
@@ -169,11 +171,11 @@ const Profile = () => {
                 />
               }
             />
+            <Route path="delete" element={<DeleteAccount />} />
+            <Route path="orders" element={ <Orders />} />
             {/* <Route path="edit-profile" element={<EditProfile />} />
             <Route path="watchlist" element={<MyWatchlist />} />
             <Route path="subscription" element={<MySubscription />} />
-            <Route path="device" element={<LoggedDevice />} />
-            <Route path="delete" element={<DeleteAccount />} />
             <Route path="twostep" element={<TwoStepVerification />} />
             <Route path="parentalcontrol" element={<ParentalControl />} />
             <Route path="watchHistory" element={<MyWatchHistory />} /> */}
