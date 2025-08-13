@@ -18,7 +18,7 @@ const Header = () => {
     const navItems = [
         { name: 'Home', path: '/' },
         { name: 'Games', path: '/games' },
-        { name: 'Store', path: '/store' },
+        { name: 'About', path: '/about' },
         { name: 'Contact', path: '/contact' }
     ];
     const userId = localStorage.getItem('yoyouserId');
@@ -28,7 +28,7 @@ const Header = () => {
 
     useEffect (()=>{
         dispatch(getUserById(userId))
-      },[dispatch])
+      },[dispatch, userId])
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

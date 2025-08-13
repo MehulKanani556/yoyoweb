@@ -1,318 +1,363 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
-import { FaTrophy, FaUsers, FaGamepad, FaGlobe, FaRocket, FaShieldAlt, FaHeart, FaStar, FaQuoteLeft, FaBolt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaShieldAlt, FaBolt, FaHeadset, FaCreditCard, FaTags, FaGamepad, FaUsers, FaThumbsUp, FaKey } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import axiosInstance from '../Utils/axiosInstance';
 
 const fadeUp = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
 };
 
-function useCountUp(target, durationMs = 1200, format = (v) => v.toString()) {
-  const [value, setValue] = useState(0);
-  const startRef = useRef(null);
-  useEffect(() => {
-    let raf = 0;
-    const start = performance.now();
-    startRef.current = start;
-    const tick = (now) => {
-      const elapsed = now - startRef.current;
-      const p = Math.min(1, elapsed / durationMs);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setValue(Math.floor(eased * target));
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, durationMs]);
-  return format(value);
-}
-
-function ParallaxCard({ children }) {
-  const ref = useRef(null);
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const rX = useTransform(y, [-40, 40], [8, -8]);
-  const rY = useTransform(x, [-40, 40], [-8, 8]);
-  const s = useSpring(1, { stiffness: 200, damping: 15 });
-
-  const handleMove = (e) => {
-    const rect = ref.current?.getBoundingClientRect();
-    if (!rect) return;
-    const dx = e.clientX - (rect.left + rect.width / 2);
-    const dy = e.clientY - (rect.top + rect.height / 2);
-    x.set(Math.max(-40, Math.min(40, dx / 4)));
-    y.set(Math.max(-40, Math.min(40, dy / 4)));
-  };
-  const handleLeave = () => {
-    x.set(0); y.set(0); s.set(1);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      style={{ rotateX: rX, rotateY: rY, scale: s, transformStyle: 'preserve-3d' }}
-      className="relative bg-white/5 border border-white/10 rounded-2xl p-6 shadow-xl"
-    >
-      <div style={{ transform: 'translateZ(30px)' }}>{children}</div>
-      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition" />
-    </motion.div>
-  );
-}
-
 export default function About() {
-  useEffect(() => { document.title = 'About • YOYO'; }, []);
+  // useEffect(() => { document.title = 'About • YOYO'; }, []);
 
-  // Mouse parallax for hero background accents
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const t1x = useTransform(mx, [-1, 1], [-10, 10]);
-  const t1y = useTransform(my, [-1, 1], [8, -8]);
-  const t2x = useTransform(mx, [-1, 1], [8, -8]);
-  const t2y = useTransform(my, [-1, 1], [-6, 6]);
+  const [stats, setStats] = useState({ games: 0, users: 0, categories: 0, transactions: 0 });
+  const [startCount, setStartCount] = useState(false);
+  const statsRef = useRef(null);
 
-  const players = useCountUp(250000, 1400, (v) => `${v.toLocaleString()}+`);
-  const games = useCountUp(120, 1200, (v) => `${v}+`);
-  const countries = useCountUp(60, 1200, (v) => `${v}+`);
-  const awards = useCountUp(12, 1000, (v) => `${v}`);
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        setStartCount(true);
+        observer.disconnect();
+      }
+    }, { threshold: 0.2 });
+
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    (async function fetchCounts() {
+      try {
+        const [gamesRes, usersRes, categoriesRes, paymentsRes] = await Promise.all([
+          axiosInstance.get('/getAllActiveGames'),
+          axiosInstance.get('/allUsers'),
+          axiosInstance.get('/getAllCategories'),
+          axiosInstance.get('/getpayment'),
+        ]);
+
+        setStats({
+          games: Array.isArray(gamesRes.data) ? gamesRes.data.length : 0,
+          users: typeof usersRes.data?.totalUsers === 'number'
+            ? usersRes.data.totalUsers
+            : (Array.isArray(usersRes.data?.user) ? usersRes.data.user.length : 0),
+          categories: Array.isArray(categoriesRes.data) ? categoriesRes.data.length : 0,
+          transactions: Array.isArray(paymentsRes.data?.data) ? paymentsRes.data.data.length : 0,
+        });
+      } catch (err) {
+        // Silently ignore; keep defaults
+      }
+    })();
+  }, []);
+
+  function CountUp({ target = 0, start = false, duration = 1200 }) {
+    const [value, setValue] = useState(0);
+
+    useEffect(() => {
+      if (!start) return;
+      let rafId;
+      const startTime = performance.now();
+      const animate = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const current = Math.floor(progress * target);
+        setValue(current);
+        if (progress < 1) rafId = requestAnimationFrame(animate);
+      };
+      rafId = requestAnimationFrame(animate);
+      return () => cancelAnimationFrame(rafId);
+    }, [start, target, duration]);
+
+    return <>{value.toLocaleString()}</>;
+  }
+
+  // Directional hover utilities
+  function getDirection(event, element) {
+    const baseEl = event?.currentTarget || element;
+    if (!baseEl) return 'top';
+    const rect = baseEl.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    const x = (event.clientX - rect.left - w / 2) * (w > h ? h / w : 1);
+    const y = (event.clientY - rect.top - h / 2) * (h > w ? w / h : 1);
+    const d = Math.round((((Math.atan2(y, x) + Math.PI) / (Math.PI / 2)) + 2) % 4);
+    // 0: right, 1: bottom, 2: left, 3: top
+    if (d === 0) return 'right';
+    if (d === 1) return 'bottom';
+    if (d === 2) return 'left';
+    return 'top';
+  }
+
+  function mapDirToTransform(direction) {
+    switch (direction) {
+      case 'left':
+        return 'translate3d(-100%, 0, 0)';
+      case 'right':
+        return 'translate3d(100%, 0, 0)';
+      case 'top':
+        return 'translate3d(0, -100%, 0)';
+      case 'bottom':
+      default:
+        return 'translate3d(0, 100%, 0)';
+    }
+  }
+
+  function HoverCard({ className = '', children, roundedClass = 'rounded-2xl' }) {
+    const cardRef = useRef(null);
+    const isLeavingRef = useRef(false);
+    const enterRafRef = useRef(0);
+    const [overlayTransform, setOverlayTransform] = useState('translate3d(0, 0, 0)');
+    const [overlayOpacity, setOverlayOpacity] = useState(0);
+
+    const handleEnter = (e) => {
+      const dir = getDirection(e, cardRef.current);
+      isLeavingRef.current = false;
+      setOverlayOpacity(1);
+      setOverlayTransform(mapDirToTransform(dir));
+      if (enterRafRef.current) cancelAnimationFrame(enterRafRef.current);
+      enterRafRef.current = requestAnimationFrame(() => {
+        setOverlayTransform('translate3d(0, 0, 0)');
+        enterRafRef.current = 0;
+      });
+    };
+
+    const handleLeave = (e) => {
+      const dir = getDirection(e, cardRef.current);
+      isLeavingRef.current = true;
+      if (enterRafRef.current) {
+        cancelAnimationFrame(enterRafRef.current);
+        enterRafRef.current = 0;
+      }
+      setOverlayOpacity(0);
+      setOverlayTransform(mapDirToTransform(dir));
+    };
+
+    const handleTransitionEnd = () => {
+      if (isLeavingRef.current) {
+        setOverlayOpacity(0);
+        isLeavingRef.current = false;
+      }
+    };
+
+    useEffect(() => {
+      return () => {
+        if (enterRafRef.current) cancelAnimationFrame(enterRafRef.current);
+      };
+    }, []);
+
+    return (
+      <div
+        ref={cardRef}
+        onPointerEnter={handleEnter}
+        onPointerLeave={handleLeave}
+        className={`relative overflow-hidden ${roundedClass} ${className}`}
+      >
+        <div
+          className={`pointer-events-none absolute inset-0 ${roundedClass} bg-white/10 border border-transparent transition-all duration-300 ease-out`}
+          style={{ transform: overlayTransform, opacity: overlayOpacity, willChange: 'transform, opacity', zIndex: 1 }}
+          onTransitionEnd={handleTransitionEnd}
+        />
+        {children}
+      </div>
+    );
+  }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#0b0a0d] to-[#15131a] text-gray-200 overflow-hidden">
-      {/* Page-scoped keyframes and background visuals */}
-      <style>{`
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes floatSlow { 0%, 100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(10px, -14px, 0) scale(1.03); } }
-        @keyframes floatSlow2 { 0%, 100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-12px, 10px, 0) scale(1.04); } }
-        @keyframes glowPulse { 0%, 100% { opacity: .35; } 50% { opacity: .6; } }
-        .shine { background: linear-gradient(110deg, rgba(255,255,255,.06), rgba(255,255,255,0) 40%, rgba(255,255,255,.06)); background-size: 200% 100%; animation: shine 6s linear infinite; }
-        @keyframes shine { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
-      `}</style>
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        {/* Gradient mesh */}
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'radial-gradient(1200px 600px at -10% -10%, rgba(124, 58, 237, 0.28), transparent), radial-gradient(1000px 500px at 110% 10%, rgba(6, 182, 212, 0.22), transparent), radial-gradient(800px 500px at 50% 120%, rgba(236, 72, 153, 0.18), transparent)'
-        }} />
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-[0.06]"
-             style={{ backgroundImage: `linear-gradient(rgba(255,255,255,.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.6) 1px, transparent 1px)`, backgroundSize: '40px 40px' }} />
-        {/* Floating orbs */}
-        <div className="absolute w-72 h-72 bg-purple-600/25 blur-3xl rounded-full left-[-3rem] top-[-3rem]"
-             style={{ animation: 'floatSlow 8s ease-in-out infinite, glowPulse 6s ease-in-out infinite' }} />
-        <div className="absolute w-72 h-72 bg-cyan-500/25 blur-3xl rounded-full right-[-3rem] bottom-[-3rem]"
-             style={{ animation: 'floatSlow2 10s ease-in-out infinite, glowPulse 7s ease-in-out infinite' }} />
-      </div>
-
-      <div className="relative" onMouseMove={(e)=>{const {innerWidth,innerHeight}=window;mx.set((e.clientX/innerWidth)*2-1);my.set((e.clientY/innerHeight)*2-1);}}>
-        <div className="absolute inset-0 -z-10">
-          <motion.div style={{ x: t1x, y: t1y }} className="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-purple-600/25 blur-3xl" />
-          <motion.div style={{ x: t2x, y: t2y }} className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-cyan-600/20 blur-3xl" />
-        </div>
-        <div className="container mx-auto px-4 py-14 md:py-20">
+    <main className="min-h-screen bg-gradient-to-b from-[#0b0a0d] to-[#15131a] text-gray-200 pt-28 pb-16">
+      <div className="container mx-auto px-4">
+        <div className="max-w-[80%] mx-auto">
           {/* Hero */}
-          <motion.div
+          <motion.section
             variants={fadeUp}
             initial="initial"
             animate="animate"
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-5xl mx-auto"
+            transition={{ duration: 0.5 }}
+            className="text-center max-w-4xl mx-auto"
           >
-            <span className="inline-block px-3 py-1 rounded-full text-xs tracking-wider bg-white/10 text-white/90 mb-3">
-              Built by gamers, for gamers
-            </span>
-            <div className="relative inline-block">
-              <h1 className="text-3xl md:text-5xl font-extrabold text-white leading-tight relative">
-                We are <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">YOYO</span>,
-                crafting delightful gaming experiences for everyone
-              </h1>
-              <span className="pointer-events-none absolute -inset-x-6 -inset-y-2 rounded-xl bg-gradient-to-r from-purple-500/0 via-cyan-500/10 to-purple-500/0 blur-xl" />
-            </div>
-            <p className="text-gray-400 mt-4">Our mission is to make gaming more accessible, social, and rewarding — whether you're a casual player or a pro.</p>
-          </motion.div>
-        </div>
-      </div>
-
-        {/* Marquee */}
-        <motion.div
-          variants={fadeUp}
-          initial="initial"
-          animate="animate"
-          transition={{ duration: 0.6, delay: 0.06 }}
-          className="mt-10 md:mt-12"
-        >
-          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/5">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent" />
-            <div className="flex py-3 text-sm md:text-base" style={{ width: '200%' }}>
-              <div className="flex whitespace-nowrap" style={{ width: '50%', animation: 'marquee 18s linear infinite' }}>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaBolt className="text-yellow-300" /> Zero-paywall fun</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaStar className="text-purple-300" /> Community tournaments</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaGamepad className="text-cyan-300" /> Controller + touch ready</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaShieldAlt className="text-emerald-300" /> Fair-play anti-cheat</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaRocket className="text-pink-300" /> Weekly content drops</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaGlobe className="text-blue-300" /> Global servers</span>
-              </div>
-              <div className="flex whitespace-nowrap" style={{ width: '50%', animation: 'marquee 18s linear infinite' }}>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaBolt className="text-yellow-300" /> Zero-paywall fun</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaStar className="text-purple-300" /> Community tournaments</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaGamepad className="text-cyan-300" /> Controller + touch ready</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaShieldAlt className="text-emerald-300" /> Fair-play anti-cheat</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaRocket className="text-pink-300" /> Weekly content drops</span>
-                <span className="mx-6 inline-flex items-center gap-2 text-gray-300"><FaGlobe className="text-blue-300" /> Global servers</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Stats */}
-        <motion.div
-          variants={fadeUp}
-          initial="initial"
-          animate="animate"
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-10 md:mt-14"
-        >
-          {[
-            { icon: <FaUsers />, label: 'Players', value: players },
-            { icon: <FaGamepad />, label: 'Games', value: games },
-            { icon: <FaGlobe />, label: 'Countries', value: countries },
-            { icon: <FaTrophy />, label: 'Awards', value: awards },
-          ].map((s, idx) => (
-            <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-              <div className="text-2xl text-purple-300 flex items-center justify-center mb-2">{s.icon}</div>
-              <div className="text-2xl md:text-3xl font-extrabold text-white">{s.value}</div>
-              <div className="text-sm text-gray-400 mt-1">{s.label}</div>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Story + Values */}
-        <motion.div
-          variants={fadeUp}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10 mt-12 md:mt-16"
-        >
-          <div className="relative bg-[#1b1920]/90 border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/20 to-cyan-600/20 rounded-2xl blur -z-10" />
-            <h2 className="text-2xl md:text-3xl font-bold text-white">Our Story</h2>
-            <p className="text-gray-400 mt-3 leading-relaxed">
-              YOYO started as a small project between friends who loved building mods and mini-games. Today, we’re a global
-              team pushing the boundaries of casual and competitive gaming with creative mechanics, smooth performance, and
-              community-first features.
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white">About YOYO Game Store</h1>
+            <p className="text-gray-400 mt-4">
+              Your trusted digital marketplace for PC and mobile games. We help gamers discover great titles at the best
+              prices with secure checkout and instant delivery.
             </p>
-            <ul className="mt-4 space-y-2 text-gray-300 list-disc list-inside">
-              <li>Player-first design and fair play</li>
-              <li>Cross-platform experiences that just work</li>
-              <li>Community-driven updates and events</li>
-            </ul>
-          </div>
-
-          <div className="relative bg-[#1b1920]/90 border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-600/20 to-purple-600/20 rounded-2xl blur -z-10" />
-            <h2 className="text-2xl md:text-3xl font-bold text-white">What We Value</h2>
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { icon: <FaRocket />, title: 'Innovation', text: 'We experiment boldly and ship fast.' },
-                { icon: <FaShieldAlt />, title: 'Integrity', text: 'We protect player privacy and fight toxicity.' },
-                { icon: <FaHeart />, title: 'Community', text: 'We build with players, not just for them.' },
-                { icon: <FaGamepad />, title: 'Playfulness', text: 'Fun is our north star — in the product and team.' },
-              ].map((v, i) => (
-                <ParallaxCard key={i}>
-                  <div className="text-purple-300 text-xl mb-1">{v.icon}</div>
-                  <p className="text-white font-semibold">{v.title}</p>
-                  <p className="text-gray-400 text-sm">{v.text}</p>
-                </ParallaxCard>
-              ))}
+            <div className="mt-6">
+              <Link to="/games" className="inline-block px-5 py-3 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/10 transition duration-300 ease-out hover:-translate-y-0.5 hover:scale-105">
+                Browse Games
+              </Link>
             </div>
-          </div>
-        </motion.div>
+          </motion.section>
 
-        {/* Timeline */}
-        <motion.div
+        {/* Store Highlights */}
+        <motion.section
           variants={fadeUp}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 md:mt-16"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center">Milestones</h2>
-          <div className="max-w-4xl mx-auto mt-6">
-            <div className="relative border-l border-white/10 pl-6 space-y-6">
-              {[
-                { year: '2021', text: 'YOYO founded by a group of indie devs.' },
-                { year: '2022', text: 'Launched our first cross-platform title.' },
-                { year: '2023', text: 'Reached 100K players and introduced tournaments.' },
-                { year: '2024', text: 'Expanded to 60+ countries with localized events.' },
-              ].map((t, i) => (
-                <motion.div key={i} className="relative" whileHover={{ x: 2 }}>
-                  <span className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500" />
-                  <div className="text-sm text-purple-300 font-semibold">{t.year}</div>
-                  <div className="text-gray-300">{t.text}</div>
+          {[{
+            icon: <FaGamepad className="text-purple-300" />, title: 'Huge Catalog', text: 'From AAA to indies—new releases weekly.'
+          }, {
+            icon: <FaBolt className="text-yellow-300" />, title: 'Instant Delivery', text: 'Game keys delivered to your inbox in seconds.'
+          }, {
+            icon: <FaShieldAlt className="text-emerald-300" />, title: 'Secure Checkout', text: 'Encrypted payments and fraud protection.'
+          }, {
+            icon: <FaTags className="text-pink-300" />, title: 'Best Prices', text: 'Competitive deals and seasonal sales.'
+          }, {
+            icon: <FaHeadset className="text-cyan-300" />, title: '24/7 Support', text: 'Real people ready to help anytime.'
+          }, {
+            icon: <FaKey className="text-blue-300" />, title: 'Authentic Keys', text: 'Official keys sourced from trusted partners.'
+          }].map((item, i) => (
+            <motion.div key={i} variants={fadeUp} initial="initial" whileInView="animate" viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.05 }}>
+              <HoverCard className="group bg-white/5 border border-white/10 p-6 transition duration-300 ease-out hover:-translate-y-1 hover:shadow-lg">
+                <div className="text-2xl transition-transform duration-300 group-hover:scale-110">{item.icon}</div>
+                <h3 className="text-white font-semibold mt-3">{item.title}</h3>
+                <p className="text-gray-400 text-sm mt-1">{item.text}</p>
+              </HoverCard>
+            </motion.div>
+          ))}
+        </motion.section>
+
+        {/* How It Works */}
+        <motion.section
+          variants={fadeUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mt-12"
+        >
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">How It Works</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+              {[{ step: '1', title: 'Browse & Choose', text: 'Explore collections and find your next favorite game.' },
+                { step: '2', title: 'Checkout Securely', text: 'Pay with cards, wallets, or UPI—safe and fast.' },
+                { step: '3', title: 'Play Instantly', text: 'Receive your key instantly and start playing.' }].map((s) => (
+                <motion.div key={s.step} variants={fadeUp} initial="initial" whileInView="animate" viewport={{ once: true }} transition={{ duration: 0.45 }}>
+                  <HoverCard className="group border border-white/10 bg-black/20 p-5 transition duration-300 ease-out hover:-translate-y-1" roundedClass="rounded-xl">
+                    <div className="w-9 h-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-white font-bold transition-colors duration-300 group-hover:bg-white/20">
+                      {s.step}
+                    </div>
+                    <h3 className="text-white font-semibold mt-3">{s.title}</h3>
+                    <p className="text-gray-400 text-sm mt-1">{s.text}</p>
+                  </HoverCard>
                 </motion.div>
               ))}
             </div>
           </div>
-        </motion.div>
+        </motion.section>
 
-        {/* Team */}
-        <motion.div
+        {/* Store Stats */}
+        <motion.section
           variants={fadeUp}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.6, delay: 0.32 }}
-          className="mt-12 md:mt-16"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-12"
+          ref={statsRef}
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center">The Squad</h2>
-          <p className="text-gray-400 text-center mt-2">Small team, big energy.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
-            {[
-              { name: 'Alex Chen', role: 'Game Director' },
-              { name: 'Priya Singh', role: 'Lead Engineer' },
-              { name: 'Marco Rossi', role: 'Product Designer' },
-              { name: 'Sara Kim', role: 'Community Lead' },
-            ].map((m, i) => (
-              <motion.div key={i} whileHover={{ y: -3 }} className="bg-white/5 border border-white/10 rounded-2xl p-5">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 mx-auto" />
-                <div className="text-center mt-3">
-                  <p className="text-white font-semibold">{m.name}</p>
-                  <p className="text-gray-400 text-sm">{m.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+          {[{ label: 'Active Games', value: stats.games, icon: <FaGamepad /> },
+            { label: 'Registered Users', value: stats.users, icon: <FaUsers /> },
+            { label: 'Categories', value: stats.categories, icon: <FaTags /> },
+            { label: 'Number of Downloads', value: stats.transactions, icon: <FaCreditCard /> },
+          ].map((s, idx) => (
+            <motion.div key={idx} variants={fadeUp} initial="initial" whileInView="animate" viewport={{ once: true }} transition={{ duration: 0.45, delay: idx * 0.05 }}>
+              <HoverCard className="group bg-white/5 border border-white/10 p-5 text-center transition duration-300 ease-out hover:-translate-y-1">
+                <div className="text-purple-300 flex items-center justify-center text-xl transition-transform duration-300 group-hover:scale-110">{s.icon}</div>
+                <div className="text-2xl md:text-3xl font-extrabold text-white mt-1"><CountUp target={Number(s.value) || 0} start={startCount} /></div>
+                <div className="text-sm text-gray-400 mt-1">{s.label}</div>
+              </HoverCard>
+            </motion.div>
+          ))}
+        </motion.section>
 
-        {/* Testimonials */}
-        <motion.div
+        {/* Why Shop With Us */}
+        <motion.section
           variants={fadeUp}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.6, delay: 0.34 }}
-          className="mt-12 md:mt-16"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white text-center">What Players Say</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-6">
-            {[
-              'The tournaments are fire — smooth experience and great prizes!',
-              'Finally a platform that feels fair and fun. My go-to break.',
-              'Cross-platform actually works. Pick-up-and-play anywhere.',
-            ].map((q, i) => (
-              <ParallaxCard key={i}>
-                <FaQuoteLeft className="text-purple-300" />
-                <p className="text-gray-300 mt-3">{q}</p>
-              </ParallaxCard>
-            ))}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">Why Shop With YOYO</h2>
+            <ul className="mt-4 space-y-3 text-gray-300">
+              <li className="group flex items-start gap-2 transition duration-300 hover:text-white hover:translate-x-1"><FaThumbsUp className="mt-1 text-purple-300 transition-transform duration-300 group-hover:scale-110" /> Genuine products and publisher partnerships.</li>
+              <li className="group flex items-start gap-2 transition duration-300 hover:text-white hover:translate-x-1"><FaCreditCard className="mt-1 text-purple-300 transition-transform duration-300 group-hover:scale-110" /> Multiple payment options and EMI-friendly banks.</li>
+              <li className="group flex items-start gap-2 transition duration-300 hover:text-white hover:translate-x-1"><FaShieldAlt className="mt-1 text-purple-300 transition-transform duration-300 group-hover:scale-110" /> Buyer protection and transparent refund policy.</li>
+              <li className="group flex items-start gap-2 transition duration-300 hover:text-white hover:translate-x-1"><FaBolt className="mt-1 text-purple-300 transition-transform duration-300 group-hover:scale-110" /> Lightning-fast delivery and download instructions.</li>
+            </ul>
           </div>
-        </motion.div>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">Payment & Security</h2>
+            <p className="text-gray-300 mt-3">We use industry-standard encryption and partner with leading payment providers.</p>
+            <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm text-gray-300">
+              <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-center transition duration-300 ease-out hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5">Visa</div>
+              <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-center transition duration-300 ease-out hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5">Mastercard</div>
+              <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-center transition duration-300 ease-out hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5">PayPal</div>
+              <div className="rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-center transition duration-300 ease-out hover:bg-white/10 hover:border-white/20 hover:-translate-y-0.5">UPI/Wallets</div>
+            </div>
+          </div>
+        </motion.section>
 
-      
-    // </div>
+       
+
+        {/* FAQs */}
+        <motion.section
+          variants={fadeUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mt-12"
+        >
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-white">FAQs</h2>
+            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <p className="text-white font-semibold">How do I receive my game?</p>
+                <p className="text-gray-400 text-sm mt-1">You’ll get an official key instantly after payment, with step-by-step activation instructions.</p>
+              </div>
+              <div>
+                <p className="text-white font-semibold">What payment methods are supported?</p>
+                <p className="text-gray-400 text-sm mt-1">We accept major cards, PayPal, UPI, and popular wallets depending on your region.</p>
+              </div>
+              <div>
+                <p className="text-white font-semibold">Can I get a refund?</p>
+                <p className="text-gray-400 text-sm mt-1">If a key is invalid or not working, contact support and we’ll resolve or refund as per policy.</p>
+              </div>
+              <div>
+                <p className="text-white font-semibold">Who do I contact for help?</p>
+                <p className="text-gray-400 text-sm mt-1">Our team is available 24/7 at the support center. We typically respond within 30 minutes.</p>
+              </div>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* CTA */}
+        <motion.section
+          variants={fadeUp}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mt-12"
+        >
+          <div className="border border-white/10 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-2xl p-6 md:p-8 text-center">
+            <h3 className="text-xl md:text-2xl font-bold text-white">Ready to find your next game?</h3>
+            <p className="text-gray-400 mt-2">Explore new releases, top sellers, and exclusive deals.</p>
+            <Link to="/products" className="inline-block mt-5 px-6 py-3 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/10 transition duration-300 ease-out hover:-translate-y-0.5 hover:scale-105">
+              Shop Games
+            </Link>
+          </div>
+        </motion.section>
+        </div>
+      </div>
+    </main>
   );
 }
-
-

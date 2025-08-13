@@ -41,3 +41,5 @@ back/uploads/video
 # Ignore local environment files in front and back
 front/.env*
 back/.env*
+
+.claude

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 // import { Elements } from "@stripe/react-stripe-js";
 // import { loadStripe } from "@stripe/stripe-js";
 import Home from "../pages/Home";
@@ -10,6 +10,7 @@ import TermsCondition from "../component/TermsOfService/TermsCOndition";
 import PrivacyPolacy from "../component/PrivacyPolacy/PrivacyPolacy";
 import Products from "../pages/Products";
 import Contact from "../pages/Contact";
+import About from "../pages/About";
 import Profile from "../profile/Profile";
 import DeleteAccount from "../profile/DeleteAccount";
 import Orders from "../profile/Orders";
@@ -25,7 +26,6 @@ import GameDetails from "../pages/GameDetails";
 // );
 
 const UserRouts = () => {
-  const location = useLocation();
   // const userId = localStorage.getItem("ottuserId");
   // const [loginPage, setLoginPage] = useState(false);
 
@@ -43,6 +43,7 @@ const UserRouts = () => {
         <Route path='/games' element={<Products />}> </Route>
         <Route path='/gamedetails/:id' element={<GameDetails />}> </Route>
         <Route path='/contact' element={<Contact />}> </Route>
+        <Route path='/about' element={<About />}> </Route>
         <Route path="/termsCondition" element={<TermsCondition />}></Route>
         <Route path="/privacyPolicy" element={<PrivacyPolacy />}></Route>
         <Route path='/profile' element={<Profile />}>
