@@ -7,6 +7,11 @@ import { getAllActiveGames } from '../Redux/Slice/game.slice';
 import { getAllCategories } from '../Redux/Slice/category.slice';
 import { DiAndroid } from "react-icons/di";
 import { useNavigate } from 'react-router-dom';
+import BackgroundColor from '../component/BackgroundColor';
+import gr from '../Asset/images/gr.svg'
+import gr2 from '../Asset/images/gr2.svg'
+import gr3 from '../Asset/images/gr3.svg'
+import gr4 from '../Asset/images/gr4.svg'
 
 export default function Products() {
     const dispatch = useDispatch();
@@ -15,11 +20,11 @@ export default function Products() {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('popular');
     const [favorites, setFavorites] = useState(new Set([1, 3, 5]));
+    const [grid, setGrid] = useState(4);
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
     const [selectedPlatforms, setSelectedPlatforms] = useState({});
-    const [dots, setDots] = useState([]);
     const ActiveGames = useSelector((state) => state.game.games);
     const categoriesName = useSelector((state) => state.category.categories);
 
@@ -27,72 +32,6 @@ export default function Products() {
         dispatch(getAllActiveGames())
         dispatch(getAllCategories())
     }, [dispatch])
-
-
-    useEffect(() => {
-        const generateDots = () => {
-            const newDots = [];
-            const gridSize = 100;
-            const containerWidth = window.innerWidth;
-            const containerHeight = window.innerHeight;
-
-            // Get all grid line positions (vertical and horizontal)
-            const verticalLines = [];
-            const horizontalLines = [];
-
-            for (let x = gridSize; x <= containerWidth; x += gridSize) {
-                verticalLines.push(x);
-            }
-
-            for (let y = gridSize; y <= containerHeight; y += gridSize) {
-                horizontalLines.push(y);
-            }
-
-            // Create vertical dropping dots along grid lines only - ALL THIN SHORT
-            verticalLines.forEach((x, index) => {
-                if (Math.random() < 0.25) {
-                    newDots.push({
-                        id: `grid-drop-${index}`,
-                        x,
-                        startY: -20,
-                        endY: containerHeight + 20,
-                        delay: Math.random() * 4,
-                        duration: 2 + Math.random() * 2,
-                        widthClass: 'w-0.5',
-                        heightClass: 'h-5',
-                    });
-                }
-            });
-
-            // Add some horizontal dropping dots along horizontal grid lines - ALL THIN SHORT
-            horizontalLines.forEach((y, index) => {
-                if (Math.random() < 0.15) {
-                    const randomX = verticalLines[Math.floor(Math.random() * verticalLines.length)];
-                    newDots.push({
-                        id: `horizontal-drop-${index}`,
-                        x: randomX,
-                        startY: -20,
-                        endY: containerHeight + 20,
-                        delay: Math.random() * 6,
-                        duration: 1.5 + Math.random() * 2.5,
-                        widthClass: 'w-0.5',
-                        heightClass: 'h-4',
-                    });
-                }
-            });
-
-            setDots(newDots);
-        };
-
-        generateDots();
-
-        const handleResize = () => {
-            generateDots();
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     const options = [
         { value: "popular", label: "Most Popular" },
@@ -348,61 +287,7 @@ export default function Products() {
     // Note: If discount pricing is needed later, reintroduce a helper.
 
     return (
-        <div className="relative min-h-screen">
-            {/* Animated Background */}
-            {/* <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-purple-500 rounded-full opacity-10 animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500 rounded-full opacity-10 animate-pulse animation-delay-1000"></div>
-                <div className="absolute top-3/4 left-1/2 w-48 h-48 bg-blue-500 rounded-full opacity-10 animate-pulse animation-delay-2000"></div>
-            </div> */}
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
-                {/* Grid Pattern */}
-                <div
-                    className="absolute inset-0 opacity-20"
-                    style={{
-                        backgroundImage:
-                            'linear-gradient(rgba(255, 255, 255, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 1px, transparent 1px)',
-                        backgroundSize: '100px 100px',
-                    }}
-                />
-
-                {/* Dropping Animated Dots */}
-                {dots.map((dot) => (
-                    <div
-                        key={dot.id}
-                        className={`absolute  ${dot.heightClass || 'h-8'} bg-yellow-500 rounded-full shadow-lg`}
-                        style={{
-                            left: `${dot.x}px`,
-                            top: `${dot.startY}px`,
-                            width: '2px',
-                            transform: 'translateX(-50%)',
-                            // boxShadow:
-                            //     '0 0 8px #fbbf24, 0 0 16px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3)',
-                            animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
-                        }}
-                    />
-                ))}
-            </div>
-
-            <style>{`
-               @keyframes dropDown {
-                    0% {
-                        transform: translateY(-20px) translateX(-50%);
-                        opacity: 0;
-                    }
-                    10% {
-                        opacity: 1;
-                    }
-                    90% {
-                        opacity: 1;
-                    }
-                    100% {
-                        transform: translateY(calc(100vh + 40px)) translateX(-50%);
-                        opacity: 0;
-                    }
-                }
-            `}</style>
-
+        <BackgroundColor className="relative ">
             {/* Hero Section */}
             <div className="relative overflow-hidden">
                 {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-800/50 to-pink-800/50"></div> */}
@@ -497,7 +382,7 @@ export default function Products() {
                                         </div>
                                     )}
                                     <button
-                                        onClick={() => { setIsSearchOpen(!isSearchOpen) }}
+                                        onClick={() => { setIsSearchOpen(!isSearchOpen); setSearchTerm(''); }}
                                         className="inline-flex md:hidden items-center justify-end text-xl rounded-full text-white/60 hover:text-white focus:outline-none transition-all duration-300 outline-none"
                                     >
                                         {isSearchOpen ? <FaTimes /> : <LuSearch />}
@@ -505,13 +390,28 @@ export default function Products() {
                                 </div>
 
                                 {/* Sort and View Controls */}
-                                <div className="flex justify-start sm:justify-between flex-col sm:flex-row sm:items-center gap-4">
+                                <div className="flex justify-start sm:justify-between flex-col sm:flex-row sm:items-center gap-2">
                                     <button
-                                        onClick={() => { setIsSearchOpen(!isSearchOpen) }}
+                                        onClick={() => { setIsSearchOpen(!isSearchOpen); setSearchTerm(''); }}
                                         className="hidden md:inline-flex items-center justify-end text-xl rounded-full text-white/60 hover:text-white focus:outline-none transition-all duration-300 outline-none"
                                     >
                                         {isSearchOpen ? <FaTimes /> : <LuSearch />}
                                     </button>
+                                    <div className="flex gap-2 items-center">
+                                        <img
+                                            onClick={() => setGrid(4)}
+                                            src={gr4}
+                                            alt="grid"
+                                            className="w-5 h-5 object-contain cursor-pointer"
+                                        />
+                                        <img
+                                            onClick={() => setGrid(1)}
+                                            src={gr}
+                                            alt="grid"
+                                            className="w-5 h-5 object-contain cursor-pointer"
+                                        />
+                                    </div>
+
                                     <div className="flex items-center gap-2">
                                         <LuGamepad2 className="block sm:hidden text-white/60 w-5 h-5" />
                                         <div className="relative inline-block text-left md:hidden">
@@ -614,9 +514,9 @@ export default function Products() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md600:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-4 gap-8 relative z-10">
+                        <div className={`grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-${grid} gap-8 relative z-10`}>
                             {sortedGames?.map((game, index) => {
-                                const selectedPlatform = selectedPlatforms[game.id] || 'windows';
+                                const selectedPlatform = selectedPlatforms[game.id] || (game.platforms?.windows ? 'windows' : (game.platforms?.ios ? 'ios' : (game.platforms?.android ? 'android' : 'windows')));
                                 return (
                                     <div
                                         key={game.id}
@@ -736,6 +636,6 @@ export default function Products() {
                     </div>
                 </div>
             </div>
-        </div>
+        </BackgroundColor>
     )
 }
