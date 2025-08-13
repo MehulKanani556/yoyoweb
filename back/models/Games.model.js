@@ -30,9 +30,9 @@ const gameSchema = new mongoose.Schema(
       ref: "category",
       required: true,
     },
-    instructions: {
+    instructions: [{
       type: String,
-    },
+    }],
     // Add platform availability
     platforms: {
       windows: {

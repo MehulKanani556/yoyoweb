@@ -178,12 +178,12 @@ exports.createGame = function (req, res) {
         category,
         size,
         images: imagesData,
-        instructions,
+        instructions:instructions ? JSON.parse(instructions) : [],
         platforms: platformsData, // <-- platforms now includes price per platform
         tags: tags ? JSON.parse(tags) : [],
       });
 
-      console.log(game, platformsData);
+      // console.log(game, platformsData);
 
       const savedGame = await game.save();
       if (!savedGame) {
@@ -326,7 +326,6 @@ exports.updateGame = function (req, res) {
       game.description = req.body.description || game.description;
       game.category = req.body.category || game.category;
       game.size = req.body.size || game.size;
-      game.instructions = req.body.instructions || game.instructions;
       game.isActive =
         req.body.isActive !== undefined ? req.body.isActive : game.isActive;
 
@@ -391,6 +390,15 @@ exports.updateGame = function (req, res) {
       if (req.body.tags) {
         try {
           game.tags = JSON.parse(req.body.tags);
+        } catch {
+          cleanupLocalFiles();
+          await cleanupCloudFiles(uploadedCloudFiles);
+          return ThrowError(res, 400, "Tags must be valid JSON");
+        }
+      }
+      if (req.body.instructions) {
+        try {
+          game.instructions = JSON.parse(req.body.instructions);
         } catch {
           cleanupLocalFiles();
           await cleanupCloudFiles(uploadedCloudFiles);

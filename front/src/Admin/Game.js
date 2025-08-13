@@ -38,10 +38,11 @@ export default function Game() {
   const categories = useSelector((state) => state.category.categories);
   const games = useSelector((state) => state.game.games);
   const loading = useSelector((state) => state.game.loading);
+  const [instructionInput, setInstructionInput] = useState("");
 
   useEffect(() => {
     dispatch(getAllGames());
-    dispatch(getAllCategories())
+    dispatch(getAllCategories());
   }, []);
 
   // Validation schema
@@ -49,40 +50,130 @@ export default function Game() {
     title: Yup.string().required("Game title is required"),
     description: Yup.string().required("Description is required"),
     category: Yup.string().required("Category is required"),
-    cover_image: Yup.mixed()
-      .test(
-        "fileSize",
-        "File size is too large, must be 2MB or less",
-        (value) => {
-          if (!value) return true;
-          if (typeof value === "string") return true;
-          return value.size <= 2 * 1024 * 1024;
-        }
-      )
-      .test("fileFormat", "Unsupported Format", (value) => {
+    cover_image: Yup.mixed().test(
+      "fileFormat",
+      "Unsupported Format",
+      (value) => {
         if (!value) return true;
         if (typeof value === "string") return true;
-        return ["image/jpeg", "image/png", "image/gif"].includes(value.type);
-      }),
+        return [
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+          "image/jpg",
+          "image/bmp",
+          "image/svg+xml",
+          "image/tiff",
+          "image/x-icon",
+        ].includes(value.type);
+      }
+    ),
     video: Yup.mixed()
       .notRequired()
-      .test(
-        "fileSize",
-        "File size is too large, must be 20MB or less",
-        (value) => {
-          if (!value) return true;
-          if (typeof value === "string") return true;
-          return value.size <= 20 * 1024 * 1024;
-        }
-      )
       .test("fileFormat", "Unsupported Format", (value) => {
         if (!value) return true;
         if (typeof value === "string") return true;
-        return ["video/mp4", "video/webm", "video/ogg"].includes(value.type);
+        // Added more video formats for validation
+        return [
+          "video/mp4",
+          "video/webm",
+          "video/ogg",
+          "video/quicktime", // .mov
+          "video/x-msvideo", // .avi
+          "video/x-matroska", // .mkv
+          "video/mpeg", // .mpeg
+          "video/x-flv", // .flv
+          "video/3gpp", // .3gp
+          "video/3gpp2", // .3g2
+          "video/x-ms-wmv", // .wmv
+          "video/x-ms-asf", // .asf
+        ].includes(value.type);
       }),
-    instructions: Yup.string(),
+    instructions: Yup.array()
+      .ensure()
+      .compact((v) => !v || !v.trim())
+      .of(
+        Yup.string().trim().min(2, "Each feature must be at least 2 characters")
+      )
+      .min(0, "Add at least one key feature"),
     isActive: Yup.boolean(),
     tags: Yup.array().of(Yup.string()),
+    images: Yup.array().of(
+      Yup.mixed().test("fileFormat", "Unsupported Format", (value) => {
+        if (!value) return true;
+        if (typeof value === "string") return true;
+        // Accept common image types
+        return [
+          "image/jpeg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+          "image/jpg",
+          "image/bmp",
+          "image/svg+xml",
+          "image/tiff",
+          "image/x-icon",
+        ].includes(value.type);
+      })
+    ),
+    windows_file: Yup.mixed().nullable().test(
+      "windows-file-required",
+      "Windows file is required when Windows platform is available",
+      function (value) {
+        const { platforms } = this.parent;
+        const windows = platforms?.windows;
+        if (!windows?.available) return true;
+
+        const hasExisting = !!(
+          windows?.download_link && String(windows.download_link).trim()
+        );
+        const hasFile = !!value && value !== "";
+
+        return hasExisting || hasFile;
+      }
+    ),
+    ios_file: Yup.mixed().nullable().test(
+      "ios-file-required",
+      "iOS file is required when iOS platform is available",
+      function (value) {
+        const { platforms } = this.parent || {};
+        const ios = platforms?.ios;
+        if (!ios?.available) return true;
+        const hasExisting = !!(
+          ios?.download_link && String(ios.download_link).trim()
+        );
+        const hasFile = !!value && value !== "";
+        if (hasExisting || hasFile) {
+          return true;
+        }
+        // Mark the field as touched so error will show
+        if (
+          this.options &&
+          this.options.context &&
+          this.options.context.setFieldTouched
+        ) {
+          this.options.context.setFieldTouched("ios_file", true, false);
+        }
+        return this.createError({
+          path: "ios_file",
+          message: "iOS file is required when iOS platform is available",
+        });
+      }
+    ),
+    android_file: Yup.mixed().nullable().test(
+      "android-file-required",
+      "Android file is required when Android platform is available",
+      function (value) {
+        const android = this.parent?.platforms?.android;
+        if (!android?.available) return true;
+        const hasExisting = !!(
+          android?.download_link && String(android.download_link).trim()
+        );
+        const hasFile = !!value && value !== "";
+        return hasExisting || hasFile;
+      }
+    ),
     platforms: Yup.object().shape({
       windows: Yup.object().shape({
         available: Yup.boolean(),
@@ -126,7 +217,7 @@ export default function Game() {
       category: "",
       cover_image: null,
       video: null,
-      instructions: "",
+      instructions: [],
       isActive: true,
       tags: [],
       images: [],
@@ -135,6 +226,7 @@ export default function Game() {
           available: false,
           price: "",
           size: "",
+          download_link: "",
           system_requirements: {
             os: "",
             processor: "",
@@ -147,6 +239,7 @@ export default function Game() {
           available: false,
           price: "",
           size: "",
+          download_link: "",
           system_requirements: {
             ios_version: "",
             // device_compatibility: "",
@@ -156,6 +249,7 @@ export default function Game() {
           available: false,
           price: "",
           size: "",
+          download_link: "",
           system_requirements: {
             android_version: "",
             // device_compatibility: "",
@@ -166,13 +260,18 @@ export default function Game() {
       ios_file: null,
       android_file: null,
     },
+
     validationSchema,
     onSubmit: async (values) => {
+      console.log(values);
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.description);
       formData.append("category", values.category);
-      formData.append("instructions", values.instructions || "");
+      formData.append(
+        "instructions",
+        JSON.stringify(values.instructions) || ""
+      );
       formData.append("isActive", values.isActive ? "true" : "false");
       formData.append("tags", JSON.stringify(values.tags));
       if (values.cover_image && typeof values.cover_image !== "string") {
@@ -181,13 +280,14 @@ export default function Game() {
       if (values.video && typeof values.video !== "string") {
         formData.append("video", values.video);
       }
-      if (values.windows_file) {
+
+      if (values.windows_file && typeof values.windows_file !== "string") {
         formData.append("windows_file", values.windows_file);
       }
-      if (values.ios_file) {
+      if (values.ios_file && typeof values.ios_file !== "string") {
         formData.append("ios_file", values.ios_file);
       }
-      if (values.android_file) {
+      if (values.android_file && typeof values.ios_file !== "string") {
         formData.append("android_file", values.android_file);
       }
       if (values.images && Array.isArray(values.images)) {
@@ -211,24 +311,41 @@ export default function Game() {
     },
   });
 
+  // Key Features handlers
+  const addInstruction = () => {
+    const value = instructionInput.trim();
+    if (!value) return;
+    const updated = [...formik.values.instructions, value];
+    formik.setFieldValue("instructions", updated);
+    formik.setFieldTouched("instructions", true, true);
+    setInstructionInput("");
+  };
+
+  const removeInstruction = (index) => {
+    const updated = [...formik.values.instructions];
+    updated.splice(index, 1);
+    formik.setFieldValue("instructions", updated);
+    formik.setFieldTouched("instructions", true, true);
+  };
+
   // Search and pagination
   const filteredData = Array.isArray(games)
-  ? games.filter((data) => {
-      const search = searchValue.toLowerCase();
-      // Title match
-      const titleMatch = data?.title?.toLowerCase().includes(search);
-      // Category match (if category is an object with categoryName)
-      const categoryMatch =
-        typeof data?.category === "object"
-          ? data?.category?.categoryName?.toLowerCase().includes(search)
+    ? games.filter((data) => {
+        const search = searchValue.toLowerCase();
+        // Title match
+        const titleMatch = data?.title?.toLowerCase().includes(search);
+        // Category match (if category is an object with categoryName)
+        const categoryMatch =
+          typeof data?.category === "object"
+            ? data?.category?.categoryName?.toLowerCase().includes(search)
+            : false;
+        // Tags match (if tags is an array)
+        const tagsMatch = Array.isArray(data?.tags)
+          ? data.tags.some((tag) => tag?.toLowerCase().includes(search))
           : false;
-      // Tags match (if tags is an array)
-      const tagsMatch = Array.isArray(data?.tags)
-        ? data.tags.some((tag) => tag?.toLowerCase().includes(search))
-        : false;
-      return titleMatch || categoryMatch || tagsMatch;
-    })
-  : [];
+        return titleMatch || categoryMatch || tagsMatch;
+      })
+    : [];
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -248,17 +365,22 @@ export default function Game() {
         category: data.category?._id || "",
         cover_image: data.cover_image?.url || null,
         video: data.video?.url || null,
-        instructions: data.instructions || "",
+        instructions: data.instructions || [],
         isActive: data.isActive || true,
         tags: data.tags || [],
         images: Array.isArray(data.images)
           ? data.images.map((img) => (typeof img === "string" ? img : img.url))
           : [],
+        windows_file: data.platforms?.windows?.download_link,
+        ios_file: data.platforms?.ios?.download_link,
+        android_file: data.platforms?.android?.download_link,
         platforms: {
           windows: {
             available: data.platforms?.windows?.available || false,
             price: data.platforms?.windows?.price || "",
             size: data.platforms?.windows?.size || "",
+            download_link: data.platforms?.windows?.download_link || "",
+
             system_requirements: {
               os: data.platforms?.windows?.system_requirements?.os || "",
               processor:
@@ -275,6 +397,8 @@ export default function Game() {
             available: data.platforms?.ios?.available || false,
             price: data.platforms?.ios?.price || "",
             size: data.platforms?.ios?.size || "",
+            download_link: data.platforms?.ios?.download_link || "",
+
             system_requirements: {
               ios_version:
                 data.platforms?.ios?.system_requirements?.ios_version || "",
@@ -287,6 +411,8 @@ export default function Game() {
             available: data.platforms?.android?.available || false,
             price: data.platforms?.android?.price || "",
             size: data.platforms?.android?.size || "",
+            download_link: data.platforms?.android?.download_link || "",
+
             system_requirements: {
               android_version:
                 data.platforms?.android?.system_requirements?.android_version ||
@@ -297,9 +423,6 @@ export default function Game() {
             },
           },
         },
-        windows_file: data.platforms?.windows?.file || null,
-        ios_file: data.platforms?.ios?.file || null,
-        android_file: data.platforms?.android?.file || null,
       });
     }
   };
@@ -508,7 +631,7 @@ export default function Game() {
                 <input
                   type="text"
                   name="tags"
-                  placeholder="Comma separated tags"
+                  placeholder="Add tags with Comma separated "
                   value={formik.values.tags.join(",")}
                   onChange={(e) =>
                     formik.setFieldValue(
@@ -539,14 +662,56 @@ export default function Game() {
               )}
             </div>
             <div>
-              <label className="font-bold">Instructions</label>
-              <textarea
-                name="instructions"
-                placeholder="Game instructions"
-                value={formik.values.instructions}
-                onChange={formik.handleChange}
-                className="bg-white/5 rounded w-full p-2 mt-1 resize-none"
-              />
+              <label className="font-bold">Key Features</label>
+              <div className="mt-1 flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Add a feature and press Enter or click Add"
+                  value={instructionInput}
+                  onChange={(e) => setInstructionInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addInstruction();
+                    }
+                  }}
+                  className="bg-white/5 rounded w-full p-2"
+                />
+                <button
+                  type="button"
+                  onClick={addInstruction}
+                  className="bg-brown text-white px-4 rounded whitespace-nowrap"
+                >
+                  Add
+                </button>
+
+                {formik.touched.instructions && formik.errors.instructions && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {Array.isArray(formik.errors.instructions)
+                      ? formik.errors.instructions.find(Boolean)
+                      : formik.errors.instructions}
+                  </p>
+                )}
+              </div>
+              {formik.values.instructions.length > 0 && (
+                <ul className="list-decimal mt-3 space-y-1">
+                  {formik.values.instructions.map((item, idx) => (
+                    <li
+                      key={idx}
+                      className="flex items-center justify-between bg-white/5 rounded px-2 py-1"
+                    >
+                      <span className="truncate">{item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeInstruction(idx)}
+                        className="text-red-500 text-xs ml-2"
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             {/* Media Uploads */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -815,23 +980,23 @@ export default function Game() {
                   </label>
                   <div>
                     {formik.values.platforms.windows.available && (
-                      <div className="space-y-2 mt-2">
-                        <input
-                          type="number"
-                          placeholder="Price"
-                          value={formik.values.platforms.windows.price}
-                          onChange={(e) =>
-                            formik.setFieldValue("platforms", {
-                              ...formik.values.platforms,
-                              windows: {
-                                ...formik.values.platforms.windows,
-                                price: e.target.value,
-                              },
-                            })
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
+                    <div className="space-y-2 mt-2">
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={formik.values.platforms.windows.price}
+                        onChange={(e) =>
+                          formik.setFieldValue("platforms", {
+                            ...formik.values.platforms,
+                            windows: {
+                              ...formik.values.platforms.windows,
+                              price: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      {/* <input
                           type="text"
                           placeholder="Size"
                           value={formik.values.platforms.windows.size}
@@ -845,130 +1010,144 @@ export default function Game() {
                             })
                           }
                           className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          placeholder="OS Version"
-                          value={
-                            formik.values.platforms.windows.system_requirements
-                              .os
-                          }
-                          onChange={(e) =>
-                            formik.setFieldValue("platforms", {
-                              ...formik.values.platforms,
-                              windows: {
-                                ...formik.values.platforms.windows,
-                                system_requirements: {
-                                  ...formik.values.platforms.windows
-                                    .system_requirements,
-                                  os: e.target.value,
-                                },
+                        /> */}
+                      <input
+                        type="text"
+                        placeholder="OS Version (e.g. Windows 7)"
+                        value={
+                          formik.values.platforms.windows.system_requirements.os
+                        }
+                        onChange={(e) =>
+                          formik.setFieldValue("platforms", {
+                            ...formik.values.platforms,
+                            windows: {
+                              ...formik.values.platforms.windows,
+                              system_requirements: {
+                                ...formik.values.platforms.windows
+                                  .system_requirements,
+                                os: e.target.value,
                               },
-                            })
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Processor"
-                          value={
-                            formik.values.platforms.windows.system_requirements
-                              .processor
-                          }
-                          onChange={(e) =>
-                            formik.setFieldValue("platforms", {
-                              ...formik.values.platforms,
-                              windows: {
-                                ...formik.values.platforms.windows,
-                                system_requirements: {
-                                  ...formik.values.platforms.windows
-                                    .system_requirements,
-                                  processor: e.target.value,
-                                },
+                            },
+                          })
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Processor"
+                        value={
+                          formik.values.platforms.windows.system_requirements
+                            .processor
+                        }
+                        onChange={(e) =>
+                          formik.setFieldValue("platforms", {
+                            ...formik.values.platforms,
+                            windows: {
+                              ...formik.values.platforms.windows,
+                              system_requirements: {
+                                ...formik.values.platforms.windows
+                                  .system_requirements,
+                                processor: e.target.value,
                               },
-                            })
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Memory"
-                          value={
-                            formik.values.platforms.windows.system_requirements
-                              .memory
-                          }
-                          onChange={(e) =>
-                            formik.setFieldValue("platforms", {
-                              ...formik.values.platforms,
-                              windows: {
-                                ...formik.values.platforms.windows,
-                                system_requirements: {
-                                  ...formik.values.platforms.windows
-                                    .system_requirements,
-                                  memory: e.target.value,
-                                },
+                            },
+                          })
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Memory (e.g. 2 GB)"
+                        value={
+                          formik.values.platforms.windows.system_requirements
+                            .memory
+                        }
+                        onChange={(e) =>
+                          formik.setFieldValue("platforms", {
+                            ...formik.values.platforms,
+                            windows: {
+                              ...formik.values.platforms.windows,
+                              system_requirements: {
+                                ...formik.values.platforms.windows
+                                  .system_requirements,
+                                memory: e.target.value,
                               },
-                            })
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Graphics"
-                          value={
-                            formik.values.platforms.windows.system_requirements
-                              .graphics
-                          }
-                          onChange={(e) =>
-                            formik.setFieldValue("platforms", {
-                              ...formik.values.platforms,
-                              windows: {
-                                ...formik.values.platforms.windows,
-                                system_requirements: {
-                                  ...formik.values.platforms.windows
-                                    .system_requirements,
-                                  graphics: e.target.value,
-                                },
+                            },
+                          })
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Graphics"
+                        value={
+                          formik.values.platforms.windows.system_requirements
+                            .graphics
+                        }
+                        onChange={(e) =>
+                          formik.setFieldValue("platforms", {
+                            ...formik.values.platforms,
+                            windows: {
+                              ...formik.values.platforms.windows,
+                              system_requirements: {
+                                ...formik.values.platforms.windows
+                                  .system_requirements,
+                                graphics: e.target.value,
                               },
-                            })
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Storage"
-                          value={
-                            formik.values.platforms.windows.system_requirements
-                              .storage
-                          }
-                          onChange={(e) =>
-                            formik.setFieldValue("platforms", {
-                              ...formik.values.platforms,
-                              windows: {
-                                ...formik.values.platforms.windows,
-                                system_requirements: {
-                                  ...formik.values.platforms.windows
-                                    .system_requirements,
-                                  storage: e.target.value,
-                                },
+                            },
+                          })
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Storage (e.g. 100 MB/GB)"
+                        value={
+                          formik.values.platforms.windows.system_requirements
+                            .storage
+                        }
+                        onChange={(e) =>
+                          formik.setFieldValue("platforms", {
+                            ...formik.values.platforms,
+                            windows: {
+                              ...formik.values.platforms.windows,
+                              system_requirements: {
+                                ...formik.values.platforms.windows
+                                  .system_requirements,
+                                storage: e.target.value,
                               },
-                            })
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                        <input
-                          type="file"
-                          accept=".exe,.zip,.rar"
-                          onChange={(e) =>
-                            formik.setFieldValue(
-                              "windows_file",
-                              e.currentTarget.files[0]
-                            )
-                          }
-                          className="w-full p-2 rounded bg-white/5"
-                        />
-                      </div>
-                    )}
+                            },
+                          })
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      <input
+                        type="file"
+                        accept=".exe,.zip,.rar"
+                        onChange={(e) =>
+                          formik.setFieldValue(
+                            "windows_file",
+                            e.currentTarget.files[0]
+                          )
+                        }
+                        className="w-full p-2 rounded bg-white/5"
+                      />
+                      {formik.values.platforms.windows.download_link && (
+                        <p className="text-xs text-[#d1d1d1]">
+                          Current file:{" "}
+                          {formik.values.platforms.windows.download_link
+                            .split("?")[0]
+                            .split("/")
+                            .pop()}
+                        </p>
+                      )}
+                      {formik.touched.windows_file &&
+                        formik.errors.windows_file && (
+                          <p className="text-red-500 text-sm">
+                            {formik.errors.windows_file}
+                          </p>
+                        )}
+                    </div>
+                   )}
                   </div>
                 </div>
                 {/* iOS */}
@@ -1008,7 +1187,7 @@ export default function Game() {
                           }
                           className="w-full p-2 rounded bg-white/5"
                         />
-                        <input
+                        {/* <input
                           type="text"
                           placeholder="Size"
                           value={formik.values.platforms.ios.size}
@@ -1022,7 +1201,7 @@ export default function Game() {
                             })
                           }
                           className="w-full p-2 rounded bg-white/5"
-                        />
+                        /> */}
                         <input
                           type="text"
                           placeholder="iOS Version"
@@ -1078,6 +1257,20 @@ export default function Game() {
                           }
                           className="w-full p-2 rounded bg-white/5"
                         />
+                        {formik.values.platforms.ios.download_link && (
+                          <p className="text-xs text-[#d1d1d1]">
+                            Current file:{" "}
+                            {formik.values.platforms.ios.download_link
+                              .split("?")[0]
+                              .split("/")
+                              .pop()}
+                          </p>
+                        )}
+                        {formik.touched.ios_file && formik.errors.ios_file && (
+                          <p className="text-red-500 text-sm">
+                            {formik.errors.ios_file}
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1119,7 +1312,7 @@ export default function Game() {
                           }
                           className="w-full p-2 rounded bg-white/5"
                         />
-                        <input
+                        {/* <input
                           type="text"
                           placeholder="Size"
                           value={formik.values.platforms.android.size}
@@ -1133,7 +1326,7 @@ export default function Game() {
                             })
                           }
                           className="w-full p-2 rounded bg-white/5"
-                        />
+                        /> */}
                         <input
                           type="text"
                           placeholder="Android Version"
@@ -1189,6 +1382,21 @@ export default function Game() {
                           }
                           className="w-full p-2 rounded bg-white/5"
                         />
+                        {formik.values.platforms.android.download_link && (
+                          <p className="text-xs text-[#d1d1d1]">
+                            Current file:{" "}
+                            {formik.values.platforms.android.download_link
+                              .split("?")[0]
+                              .split("/")
+                              .pop()}
+                          </p>
+                        )}
+                        {formik.touched.android_file &&
+                          formik.errors.android_file && (
+                            <p className="text-red-500 text-sm">
+                              {formik.errors.android_file}
+                            </p>
+                          )}
                       </div>
                     )}
                   </div>
