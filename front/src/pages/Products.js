@@ -613,6 +613,22 @@ export default function Products() {
                                                     onClick={(e) => {
                                                         e.preventDefault();
                                                         e.stopPropagation();
+                                                        try {
+                                                            const key = 'yoyoCart';
+                                                            const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                                                            const itemId = game.id + ':' + selectedPlatform;
+                                                            const next = Array.isArray(existing) ? [...existing] : [];
+                                                            const idx = next.findIndex((it) => it?.id === itemId);
+                                                            if (idx >= 0) {
+                                                                next[idx] = { ...next[idx], qty: (next[idx]?.qty || 1) + 1 };
+                                                            } else {
+                                                                next.push({ id: itemId, gameId: game.id, platform: selectedPlatform, qty: 1 });
+                                                            }
+                                                            localStorage.setItem(key, JSON.stringify(next));
+                                                            window.dispatchEvent(new Event('cartUpdated'));
+                                                        } catch (err) {
+                                                            // ignore
+                                                        }
                                                     }}
                                                     className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-md font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2"
                                                 >
