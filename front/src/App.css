@@ -182,40 +182,20 @@ select option[selected] {
   transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.08);
 }
 
-
-/* @keyframes rotate-border {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-rotate-border {
-  position: relative;
-  border-radius: 20px;
-  background: conic-gradient(orange, red, orange);
-  animation: rotate-border 4s linear infinite;
-} */
-
 @keyframes border-spin {
-  to { transform: rotate(360deg); }
+  to { transform:rotate(360deg); }
+
 }
 
 @layer components {
-  /* base wrapper — we keep layout classes in JSX and only define pseudo rules here */
   .rotating-border {
-    position: relative;     /* container for pseudo elements */
-    /* overflow: visible; */
+    position: relative;
     pointer-events: auto;
   }
-
-  /* animated colorful ring behind the content */
   .rotating-border::before {
     content: "";
     position: absolute;
-    top:50% ;              /* cover entire wrapper (including padding area) */  /* match wrapper roundness */
+    top:50% ;    
     /* background: conic-gradient(from 0deg,
       #ff7a00 0deg,
       #ffb86b 90deg,
@@ -225,18 +205,14 @@ select option[selected] {
     width: 100%;
     height: 200px;
     scale: 1.5;
-    z-index: 0;     /* soften the ring */
-    transform-origin: center;
+    z-index: 0;   
+    transform: translateY(-50%) rotate(--border-spin); 
+    transform-box: "center";
     animation: border-spin 6s linear infinite;
     pointer-events: none;
-    /* optional glow: */
     box-shadow: 0 0 18px rgba(255, 122, 0, 0.45);
   }
-
-  /* inner mask / overlay so center looks like an inner background (keeps content readable) */
  
-
-  /* make sure the content sits above the pseudo elements */
   .rotating-border > .relative.z-10 {
     position: relative;
     z-index: 10;

@@ -91,7 +91,7 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
           onLeave3d(e);
         }}
         onMouseEnter={onMouseEnter}
-        className="card-3d relative flex-shrink-0 w-64 h-96 mx-5 rounded-xl overflow-hidden"
+        className="card-3d relative flex-shrink-0 w-[180px] h-[250px]  md:w-[230px] md:h-[350px] mx-5 rounded-xl overflow-hidden"
         style={{
           backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
           backgroundSize: "cover",
@@ -144,7 +144,7 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
           >
             {/* Header */}
             <div className="flex items-center  justify-between mb-5 w-full  px-4 sm:px-8 ">
-              <span className="inline-block rounded-md  px-4 py-1.5 shadow-lg">
+              <span className="inline-block rounded-md px-2  md:px-4 py-1.5 shadow-lg">
                 <span className="text-white font-extrabold text-3xl tracking-wide">
                   Categories
                 </span>
