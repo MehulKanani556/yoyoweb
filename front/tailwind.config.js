@@ -6,13 +6,20 @@ module.exports = {
       fontFamily: {
         sans: ['"Chakra Petch"', "sans-serif"], // this makes Chakra Petch the default "font-sans"
       },
-      neonGradient: {
-        '0%, 100%': { backgroundPosition: '0% 50%' },
-        '50%': { backgroundPosition: '100% 50%' },
+      keyframes: {
+        neonGradient: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+        'gradient-x': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
       },
       animation: {
         "spin-slow": "spin 4s linear infinite",
-        neon: 'neonGradient 1s ease infinite',
+        neon: 'neonGradient 4s ease infinite',
+        'gradient-x': 'gradient-x 6s linear infinite',
       },
       screens: {
         xs: "320px",
