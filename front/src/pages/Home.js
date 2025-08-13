@@ -177,6 +177,7 @@ export default function HomePage() {
 
                 <div className='block md:hidden sm:hidden xs:hidden lg:block absolute inset-y-0 left-1/2 transform -translate-x-1/2  h-full z-50'>
                     <img src={require('../Asset/images/bg-1.b4a39a49.png')} alt="Decorative background" />
+                    {/* <img src={require('../Asset/images/Rectangle 2.png')} alt="Decorative background" /> */}
                 </div>
 
                 {/* Dropping Animated Dots */}

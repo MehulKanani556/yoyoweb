@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaUser } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { decryptData } from '../Utils/encryption';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserById } from '../Redux/Slice/user.slice';
@@ -81,17 +81,22 @@ const Header = () => {
                 <nav className="hidden md:flex space-x-8">
                     {navItems.map((item) => (
                         <motion.div
-                            key={item}
+                            key={item.path}
                             whileHover={{ scale: 1.1 }}
                             className="relative text-white transition-all duration-300 hover:text-[#8A775A] group"
                         >
-                            <Link
-                                to={`${item.path}`}
-                                className="block"
+                            <NavLink
+                                to={item.path}
+                                end={item.path === '/'}
+                                className={({ isActive }) => `block ${isActive ? 'text-[#8A775A]' : ''}`}
                             >
-                                {item.name}
-                                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-[#8A775A] transition-all duration-300 group-hover:w-full" />
-                            </Link>
+                                {({ isActive }) => (
+                                    <>
+                                        {item.name}
+                                        <span className={`absolute left-0 -bottom-1 h-[2px] bg-[#8A775A] transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`} />
+                                    </>
+                                )}
+                            </NavLink>
                         </motion.div>
                     ))}
                 </nav>
@@ -374,14 +379,15 @@ const Header = () => {
                     </div>
 
                     {navItems.map((item) => (
-                        <Link
-                            key={item}
-                           to={item.path}
-                            className="text-white text-lg hover:text-green-400"
+                        <NavLink
+                            key={item.path}
+                            to={item.path}
+                            end={item.path === '/'}
+                            className={({ isActive }) => `text-white text-lg hover:text-green-400 ${isActive ? 'text-green-400' : ''}`}
                             onClick={() => setIsMenuOpen(false)}
                         >
                             {item.name}
-                        </Link>
+                        </NavLink>
                     ))}
                 </motion.div>
             </div>
