@@ -4,7 +4,9 @@ import { createcontactUs } from '../Redux/Slice/contactUs.slice';
 import { Link } from 'react-router-dom';
 import { enqueueSnackbar } from 'notistack';
 import { motion } from 'framer-motion';
-import { FaEnvelope, FaPhone, FaDiscord, FaTwitter, FaMapMarkerAlt, FaCheckCircle, FaUser, FaUserTie } from 'react-icons/fa';
+import { FaEnvelope, FaPhone, FaDiscord, FaMapMarkerAlt, FaCheckCircle, FaUser, FaUserTie } from 'react-icons/fa';
+import { FaSquareXTwitter } from "react-icons/fa6";
+import BackgroundColor from '../component/BackgroundColor';
 
 const initialFormState = {
   firstName: '',
@@ -64,11 +66,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#0f0d12] to-[#141216] text-gray-200 overflow-hidden pt-10">
-      {/* Decorative blobs */}
-      <div className="pointer-events-none absolute -top-20 -left-24 w-[420px] h-[420px] rounded-full bg-purple-700/30 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 w-[420px] h-[420px] rounded-full bg-indigo-700/30 blur-3xl" />
-
+    <BackgroundColor className="pt-10">
       <div className="container mx-auto px-4 py-12 md:py-16">
         {/* Hero */}
         <motion.div
@@ -98,29 +96,68 @@ export default function Contact() {
                 <div className="mt-1 text-purple-400"><FaEnvelope /></div>
                 <div>
                   <p className="text-sm text-gray-400">Email us</p>
-                  <p className="text-white">support@yoyogame.app</p>
+                  <p className="text-white">
+                    <Link
+                      to="mailto:info@yoyokhel.com"
+                      className="hover:text-purple-400 transition"
+                    >
+                      info@yoyokhel.com
+                    </Link>
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="mt-1 text-purple-400"><FaPhone /></div>
                 <div>
                   <p className="text-sm text-gray-400">Call us</p>
-                  <p className="text-white">+1 (555) 012-3456</p>
+                  <p className="text-white">
+                    <a
+                      href="tel:+15550123456"
+                      className=" hover:text-purple-400 transition"
+                    >
+                      +1 (555) 012-3456
+                    </a>
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="mt-1 text-purple-400"><FaMapMarkerAlt /></div>
                 <div>
                   <p className="text-sm text-gray-400">Location</p>
-                  <p className="text-white">Remote • Worldwide</p>
+                  <p className="text-white">
+                    <a
+                      href="https://maps.google.com/?q=Remote"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className=" hover:text-purple-400 transition"
+                    >
+                      Remote • Worldwide
+                    </a>
+                  </p>
                 </div>
               </div>
             </div>
             <div className="h-px bg-white/10 my-6" />
             <p className="text-sm text-gray-400 mb-3">Join our community</p>
             <div className="flex gap-3">
-              <a href="#" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition"><FaDiscord /></a>
-              <a href="#" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition"><FaTwitter /></a>
+              <Link
+                to="https://discord.gg"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition"
+                aria-label="Join us on Discord"
+              >
+                <FaDiscord />
+              </Link>
+              <Link
+                to="https://twitter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition"
+                aria-label="Follow us on Twitter"
+              >
+                <FaSquareXTwitter />
+              </Link>
             </div>
           </motion.div>
 
@@ -250,7 +287,7 @@ export default function Contact() {
           </motion.div>
         </div>
       </div>
-    </div>
+    </BackgroundColor>
   );
 }
 

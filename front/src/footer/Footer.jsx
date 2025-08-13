@@ -9,7 +9,7 @@ const Footer = () => {
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="bg-[#232124] text-gray-300 pt-10 pb-5"
+            className="relative z-20 bg-[#232124] text-gray-300 pt-10 pb-5"
         >
             <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                 {/* Logo and Tagline */}

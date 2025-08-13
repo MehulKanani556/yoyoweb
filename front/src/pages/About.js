@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaShieldAlt, FaBolt, FaHeadset, FaCreditCard, FaTags, FaGamepad, FaUsers, FaThumbsUp, FaKey } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import axiosInstance from '../Utils/axiosInstance';
+import BackgroundColor from '../component/BackgroundColor';
 
 const fadeUp = {
   initial: { opacity: 0, y: 24 },
@@ -166,7 +167,8 @@ export default function About() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#0b0a0d] to-[#15131a] text-gray-200 pt-28 pb-16">
+    <>
+      <BackgroundColor className="pt-28 pb-16">
       <div className="container mx-auto px-4">
         <div className="max-w-[80%] mx-auto">
           {/* Hero */}
@@ -351,13 +353,14 @@ export default function About() {
           <div className="border border-white/10 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 rounded-2xl p-6 md:p-8 text-center">
             <h3 className="text-xl md:text-2xl font-bold text-white">Ready to find your next game?</h3>
             <p className="text-gray-400 mt-2">Explore new releases, top sellers, and exclusive deals.</p>
-            <Link to="/products" className="inline-block mt-5 px-6 py-3 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/10 transition duration-300 ease-out hover:-translate-y-0.5 hover:scale-105">
+            <Link to="/games" className="inline-block mt-5 px-6 py-3 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/10 transition duration-300 ease-out hover:-translate-y-0.5 hover:scale-105">
               Shop Games
             </Link>
           </div>
         </motion.section>
         </div>
       </div>
-    </main>
+      </BackgroundColor>
+    </>
   );
 }
