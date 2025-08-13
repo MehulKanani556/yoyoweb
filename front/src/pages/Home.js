@@ -13,6 +13,9 @@ import sonic from '../Asset/images/sonic-removebg-preview.png';
 import mario from '../Asset/images/mario-removebg-preview.png';
 import CommonButton from '../component/CommonButton';
 import InfiniteMarqueeCards from '../component/InfiniteMarqueeCards';
+import Features from '../component/Features';
+import BackgroundColor from '../component/BackgroundColor';
+import SubscribeCTA from '../component/SubscribeCTA';
 
 const games = [
     { name: "Cyber Hunt", icon: <FaPlaystation size={50} /> },
@@ -159,132 +162,133 @@ export default function HomePage() {
     }, []);
 
     return (
-        <div className='bg-primary-dark'>
-        <div className="relative h-screen overflow-hidden">
-            {/* Animated Background Layer */}
-            <div className="pointer-events-none absolute -top-10 -left-40 w-[50%] h-[80vh] rounded-full glow-purple blur-3xl" />
-            <div className="pointer-events-none absolute -top-10 -right-40 w-[50%] h-[80vh] rounded-full glow-pink blur-3xl" />
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
-                {/* Grid Pattern */}
-                <div
-                    className="absolute inset-0 opacity-10"
-                    style={{
-                        backgroundImage:
-                            'linear-gradient(rgba(255, 255, 255, 0.5) 2px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 2px, transparent 1px)',
-                        backgroundSize: '100px 100px',
-                    }}
-                />
-
-                <div className='block md:hidden sm:hidden xs:hidden lg:block absolute inset-y-0 left-1/2 transform -translate-x-1/2  h-full z-50'>
-                    <img src={require('../Asset/images/bg-1.b4a39a49.png')} alt="Decorative background" />
-                    {/* <img src={require('../Asset/images/Rectangle 2.png')} alt="Decorative background" /> */}
-                </div>
-
-                {/* Dropping Animated Dots */}
-                {dots.map((dot) => (
+        <BackgroundColor className=''>
+            <div className="relative h-screen overflow-hidden">
+                {/* Animated Background Layer */}
+                <div className="pointer-events-none absolute -top-10 -left-40 w-[50%] h-[80vh] rounded-full glow-purple blur-3xl" />
+                <div className="pointer-events-none absolute -top-10 -right-40 w-[50%] h-[80vh] rounded-full glow-pink blur-3xl" />
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
+                    {/* Grid Pattern */}
                     <div
-                        key={dot.id}
-                        className={`absolute  ${dot.heightClass || 'h-8'} bg-yellow-500 rounded-full shadow-lg`}
+                        className="absolute inset-0 opacity-10"
                         style={{
-                            left: `${dot.x}px`,
-                            top: `${dot.startY}px`,
-                            width: '1px',
-                            transform: 'translateX(-100%)',
-                            // boxShadow:
-                            //     '0 0 8px #fbbf24, 0 0 16px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3)',
-                            animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
+                            backgroundImage:
+                                'linear-gradient(rgba(255, 255, 255, 0.5) 2px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.5) 2px, transparent 1px)',
+                            backgroundSize: '100px 100px',
                         }}
                     />
-                ))}
-            </div>
 
-            {/* Foreground Content */}
-            <div className="relative z-10">
-                <div className="max-w-[80%] mx-auto">
-                    {/* Main Container */}
-                    <div className="flex flex-col lg:flex-row gap-8 h-screen items-center lg:items-center lg:justify-between w-full">
+                    <div className='block md:hidden sm:hidden xs:hidden lg:block absolute inset-y-0 left-1/2 transform -translate-x-1/2  h-full z-50'>
+                        <img src={require('../Asset/images/bg-1.b4a39a49.png')} alt="Decorative background" />
+                    </div>
 
-                        {/* Left Side - Game Name */}
-                        <div className="order-2 lg:order-1 flex flex-col items-center lg:items-start justify-center space-y-6 p-6 w-full lg:w-1/3">
-                            <div className="text-center lg:text-left">
-                                <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 bg-clip-text text-transparent pb-4">
-                                    {activeWinnerName}
-                                </h1>
+                    {/* Dropping Animated Dots */}
+                    {dots.map((dot) => (
+                        <div
+                            key={dot.id}
+                            className={`absolute  ${dot.heightClass || 'h-8'} bg-yellow-500 rounded-full shadow-lg`}
+                            style={{
+                                left: `${dot.x}px`,
+                                top: `${dot.startY}px`,
+                                width: '1px',
+                                transform: 'translateX(-100%)',
+                                // boxShadow:
+                                //     '0 0 8px #fbbf24, 0 0 16px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3)',
+                                animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
+                            }}
+                        />
+                    ))}
+                </div>
+
+                {/* Foreground Content */}
+                <div className="relative z-10">
+                    <div className="max-w-[80%] mx-auto">
+                        {/* Main Container */}
+                        <div className="flex flex-col lg:flex-row gap-8 h-screen items-center lg:items-center lg:justify-between w-full">
+
+                            {/* Left Side - Game Name */}
+                            <div className="order-2 lg:order-1 flex flex-col items-center lg:items-start justify-center space-y-6 p-6 w-full lg:w-1/3">
+                                <div className="text-center lg:text-left">
+                                    <h1 className="text-6xl lg:text-7xl font-bold bg-gradient-to-r from-yellow-400 via-red-500 to-pink-500 bg-clip-text text-transparent pb-4">
+                                        {activeWinnerName}
+                                    </h1>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Center - Character Display */}
-                        <div className="order-1 h-[50%] lg:order-2 flex justify-center items-center lg:self-end lg:flex w-full lg:w-1/3 mt-[200px] lg:mt-0">
-                            <div className="relative w-full max-w-[280px] sm:max-w-[290px] md:max-w-[330px] lg:max-w-[480px] xl:max-w-[520px] aspect-square flex items-end justify-center">
-                                {/* Glowing/rotating background behind character only */}
+                            {/* Center - Character Display */}
+                            <div className="order-1 h-[50%] lg:order-2 flex justify-center items-center lg:self-end lg:flex w-full lg:w-1/3 mt-[200px] lg:mt-0">
+                                <div className="relative w-full max-w-[280px] sm:max-w-[290px] md:max-w-[330px] lg:max-w-[480px] xl:max-w-[520px] aspect-square flex items-end justify-center">
+                                    {/* Glowing/rotating background behind character only */}
 
 
-                                {/* Character with animated transitions on change */}
-                                <AnimatePresence mode="wait" initial={false}>
-                                    <motion.div
-                                        key={currentCharacter}
-                                        initial={{ opacity: 0, scale: 0.9, y: 20, filter: 'blur(6px)' }}
-                                        animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
-                                        exit={{ opacity: 0, scale: 1.05, y: -20, filter: 'blur(6px)' }}
-                                        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                                        className="relative z-10"
-                                    >
-                                        <div
-                                            aria-hidden
-                                            className="pointer-events-none absolute inset-0 flex items-center justify-center"
-                                        >
-                                            {/* Soft gradient blobs to create an hourglass-esque glow */}
-                                            <div
-                                                className="absolute w-[80%] h-[80%] rounded-full opacity-50 blur-2xl"
-                                                style={{
-                                                    background:
-                                                        'radial-gradient(circle at 50% 20%, rgba(251,191,36,0.35), transparent 60%), radial-gradient(circle at 50% 80%, rgba(236,72,153,0.25), transparent 60%)',
-                                                }}
-                                            />
-                                            {/* Rotating conic highlight ring */}
-                                            <div
-                                                className="absolute w-[88%] h-[88%] rounded-full"
-                                                style={{
-                                                    background:
-                                                        'conic-gradient(from 0deg, rgba(251,191,36,0.25), transparent 30%, rgba(251,191,36,0.25) 60%, transparent 85%, rgba(251,191,36,0.25) 100%)',
-                                                    boxShadow:
-                                                        '0 0 30px rgba(251,191,36,0.25), inset 0 0 50px rgba(251,191,36,0.15)',
-                                                    animation: 'spinSlow 24s linear infinite',
-                                                    filter: 'blur(1px)',
-                                                }}
-                                            />
-                                        </div>
+                                    {/* Character with animated transitions on change */}
+                                    <AnimatePresence mode="wait" initial={false}>
                                         <motion.div
-                                            animate={{ y: [0, -10, 0] }}
-                                            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                                            className="flex items-center justify-center"
+                                            key={currentCharacter}
+                                            initial={{ opacity: 0, scale: 0.9, y: 20, filter: 'blur(6px)' }}
+                                            animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+                                            exit={{ opacity: 0, scale: 1.05, y: -20, filter: 'blur(6px)' }}
+                                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                            className="relative z-10"
                                         >
-                                            {currentChar.image ? (
-                                                <img
-                                                    src={currentChar.image}
-                                                    alt={currentChar.name}
-                                                    className="w-full h-full object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.35)]"
+                                            <div
+                                                aria-hidden
+                                                className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                                            >
+                                                {/* Soft gradient blobs to create an hourglass-esque glow */}
+                                                <div
+                                                    className="absolute w-[80%] h-[80%] rounded-full opacity-50 blur-2xl"
+                                                    style={{
+                                                        background:
+                                                            'radial-gradient(circle at 50% 20%, rgba(251,191,36,0.35), transparent 60%), radial-gradient(circle at 50% 80%, rgba(236,72,153,0.25), transparent 60%)',
+                                                    }}
                                                 />
-                                            ) : (
-                                                <FaGamepad size={120} className={`animate-pulse ${currentChar.color}`} />
-                                            )}
+                                                {/* Rotating conic highlight ring */}
+                                                <div
+                                                    className="absolute w-[88%] h-[88%] rounded-full"
+                                                    style={{
+                                                        background:
+                                                            'conic-gradient(from 0deg, rgba(251,191,36,0.25), transparent 30%, rgba(251,191,36,0.25) 60%, transparent 85%, rgba(251,191,36,0.25) 100%)',
+                                                        boxShadow:
+                                                            '0 0 30px rgba(251,191,36,0.25), inset 0 0 50px rgba(251,191,36,0.15)',
+                                                        animation: 'spinSlow 24s linear infinite',
+                                                        filter: 'blur(1px)',
+                                                    }}
+                                                />
+                                            </div>
+                                            <motion.div
+                                                animate={{ y: [0, -10, 0] }}
+                                                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                                                className="flex items-center justify-center"
+                                            >
+                                                {currentChar.image ? (
+                                                    <img
+                                                        src={currentChar.image}
+                                                        alt={currentChar.name}
+                                                        className="w-full h-full object-contain drop-shadow-[0_10px_25px_rgba(0,0,0,0.35)]"
+                                                    />
+                                                ) : (
+                                                    <FaGamepad size={120} className={`animate-pulse ${currentChar.color}`} />
+                                                )}
+                                            </motion.div>
+
                                         </motion.div>
-
-                                    </motion.div>
-                                </AnimatePresence>
+                                    </AnimatePresence>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Right Side - Game Cards and Last Winners */}
-                        <div className="order-3 hidden lg:flex flex-col justify-center space-y-6 p-6 w-full lg:w-1/3">
-                            <LastWinners tick={tick} onActiveChange={setActiveWinnerName} />
+                            {/* Right Side - Game Cards and Last Winners */}
+                            <div className="order-3 hidden lg:flex flex-col justify-center space-y-6 p-6 w-full lg:w-1/3">
+                                <LastWinners tick={tick} onActiveChange={setActiveWinnerName} />
+                            </div>
+
+
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Keyframes for background animation */}
-            <style>{`
+                {/* Keyframes for background animation */}
+                <style>{`
             @keyframes dropDown {
                 0% {
                     transform: translateY(0) translateX(-50%);
@@ -306,15 +310,17 @@ export default function HomePage() {
                 to { transform: rotate(360deg); }
             }
         `}</style>
-        </div>
-        <CardCarousel
-            images={images}
-            autoplayDelay={1000}
-            showPagination={true}
-            showNavigation={true}
-        />
+            </div>
+            <InfiniteMarqueeCards />
+            <CardCarousel
+                images={images}
+                autoplayDelay={1000}
+                showPagination={true}
+                showNavigation={true}
+            />
 
-        <InfiniteMarqueeCards />
-    </div >
+            <Features />
+            <SubscribeCTA />
+        </BackgroundColor >
     );
 }

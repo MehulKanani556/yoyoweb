@@ -195,7 +195,7 @@ export default function LastWinners({ tick = 0, onActiveChange }) {
                         key={w._key}
                         ref={(el) => (itemRefs.current[idx] = el)}
                         className={
-                            `flex items-center justify-between py-4 transition-colors` + 
+                            `flex items-center justify-between py-4 transition-colors p-2` +
                             (idx === currentIndex ? ' bg-white/5' : '')
                         }
                     >
