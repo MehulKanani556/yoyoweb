@@ -12,11 +12,11 @@ const Footer = () => {
       className="relative z-20 bg-[#1A181C] text-gray-300 pt-12 pb-6"
     >
       {/* Top Gradient Border */}
-      <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500" />.
+      <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500" />
 
 
       <div className="w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%] mx-auto">
-        <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-10">
           {/* Logo & Tagline */}
           <div>
             <h2 className="text-3xl font-bold text-white mb-3">🎮 YOYO</h2>
@@ -66,7 +66,7 @@ const Footer = () => {
                       to={link.path}
                       end
                       className={({ isActive }) =>
-                        `transition hover:text-white hover:pl-1 duration-200 block ${isActive ? "text-purple-400" : "text-gray-400"
+                        `transition hover:text-white hover:pl-1 duration-200 ${isActive ? "text-purple-400" : "text-gray-400"
                         }`
                       }
                     >
@@ -115,7 +115,7 @@ const Footer = () => {
       </div>
       {/* Bottom Copyright */}
       <div className="border-t border-gray-700 mt-10 pt-4 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} YOYO Gaming. All rights reserved.
+        &copy; {new Date().getFullYear()} YOYO Gaming. All rights reserved.
       </div>
 
 

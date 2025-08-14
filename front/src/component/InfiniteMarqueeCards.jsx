@@ -49,14 +49,12 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
       const rot = y * 0.5; // rotate
 
       if (leftFloatRef.current) {
-        leftFloatRef.current.style.transform = `translate(${sway}px, ${
-          -rise * 10
-        }px) `;
+        leftFloatRef.current.style.transform = `translate(${sway}px, ${-rise * 10
+          }px) `;
       }
       if (rightFloatRef.current) {
-        rightFloatRef.current.style.transform = `translate(${sway}px, ${
-          rise * 10
-        }px) rotate(${rot * 0.7}deg)`;
+        rightFloatRef.current.style.transform = `translate(${sway}px, ${rise * 10
+          }px) rotate(${rot * 0.7}deg)`;
       }
     };
     onScroll();
@@ -106,7 +104,7 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
             },
           });
         }}
-        className="card-3d relative flex-shrink-0 w-[180px] h-[250px]  md:w-[230px] md:h-[350px] mx-5 rounded-xl overflow-hidden"
+        className="card-3d cursor-pointer relative flex-shrink-0 w-[180px] h-[250px]  md:w-[230px] md:h-[350px] mx-5 rounded-xl overflow-hidden"
         style={{
           backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
           backgroundSize: "cover",

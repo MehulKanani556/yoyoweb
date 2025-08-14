@@ -19,8 +19,8 @@ export const getAllcontactUs = createAsyncThunk(
     "contactUs/getAllcontactUs",
     async (_, { dispatch, rejectWithValue }) => {
         try {
-            const response = await axiosInstance.get(`/getAllContactUs`);
-            return response.data;
+            const response = await axiosInstance.get(`/getAllContactUs`);            
+            return response.data.data;
         } catch (error) {
             return handleErrors(error, dispatch, rejectWithValue);
         }

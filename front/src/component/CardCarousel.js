@@ -40,10 +40,10 @@ const CardCarousel = ({
 
     /* Distinct shapes for immediate prev/next slides */
     .swiper-slide-next {
-    transform:translate3d(0px, 0px, -282px)  rotateY(145deg) scale(1) !important;
+      transform:translate3d(0px, 0px, -282px)  rotateY(-40deg) scale(1) !important;
     }
     .swiper-slide-prev {
-     transform:translate3d(0px, 0px, -282px)  rotateY(40deg) scale(1) !important
+      transform:translate3d(0px, 0px, -282px)  rotateY(40deg) scale(1) !important
     }
     .swiper-slide-active img {
       opacity: 1;
@@ -101,14 +101,28 @@ const CardCarousel = ({
   const dispatch = useDispatch();
   const { games } = useSelector((state) => state.game);
 
-  const displayImages = (Array.isArray(games) && games.length > 0)
-    ? games
+  // Add isNewGame property to all games without filtering
+  const gamesWithNewFlag = games?.map((game) => {
+    // Check if game is new (created in last 7 days)
+    const isNewGame = new Date(game.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    return {
+      ...game, // Keep all original game data
+      isNewGame // Add the isNewGame property
+    };
+  }) || [];
+
+  // Create display images only from NEW games (created in last 7 days)
+  const displayImages = (Array.isArray(gamesWithNewFlag) && gamesWithNewFlag.length > 0)
+    ? gamesWithNewFlag
+      .filter((g) => g.isNewGame)
       .map((g) => ({
         src: g?.cover_image?.url || (Array.isArray(g?.images) && g.images[0]?.url) || null,
-        alt: g?.title || "Game image",
+        alt: g?.title || "Game image"
       }))
       .filter((img) => Boolean(img.src))
-    : images;
+    : [];
+
   useEffect(() => {
     dispatch(getAllGames());
   }, []);

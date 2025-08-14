@@ -232,8 +232,8 @@ export default function GameDetails() {
 
     // Check if a game is already in cart for a specific platform
     const isGameInCart = (gameId, platform) => {
-        return cartItems.some(item => 
-            String(item.game?._id || item.game) === String(gameId) && 
+        return cartItems.some(item =>
+            String(item.game?._id || item.game) === String(gameId) &&
             item.platform === platform
         );
     };
@@ -275,7 +275,7 @@ export default function GameDetails() {
                 <div className="absolute inset-0 backdrop-blur-md bg-gradient-to-r from-black/60 to-transparent z-10"></div>
             </div>
             {/* Content will scroll over the background image */}
-            <div className="max-w-7xl mx-auto px-6 py-8 relative z-20">
+            <div className="mx-auto w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%] py-8 relative z-20">
                 <div className="relative overflow-hidden mt-[50px] mb-5">
                     {/* backdrop-blur-lg bg-black/40 rounded-full */}
                     <TiArrowBack onClick={() => { navigate(-1) }} className='cursor-pointer absolute inset-0 z-30 text-white top-2 left-2 text-3xl 
@@ -289,25 +289,26 @@ export default function GameDetails() {
                     {/* Game Title Overlay */}
                     <div className="absolute inset-0 flex items-end">
                         <div className="p-8 text-white">
-                            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent [filter:drop-shadow(0_3px_2px_rgba(0,0,0,0.5))] tracking-wide">
+                            <h1 className="text-2xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent [filter:drop-shadow(0_3px_2px_rgba(0,0,0,0.5))] tracking-wide">
                                 {singleGame?.title}
                             </h1>
-                            <p className="text-sm w-[50%] text-gray-300 mb-4 line-clamp-3">{singleGame?.description}</p>
+                            <p className="text-sm w-full md:w-[50%] text-gray-300 mb-4 line-clamp-3">{singleGame?.description}</p>
                         </div>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 xl:gap-8">
                     {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-8">
+                    <div className="lg:col-span-2 space-y-4 md:space-y-8">
                         {/* Action Buttons */}
                         <div className="flex flex-wrap gap-4">
-                            <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <button className="bg-gradient-primary text-white px-6 md:px-8 py-3 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm md:text-base">
                                 <span>Buy Now</span>
                             </button>
 
                             <button
                                 onClick={() => setIsWishlisted(!isWishlisted)}
-                                className={`px-6 py-3 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 border ${isWishlisted
+                                className={`px-3 md:px-6 py-3 rounded-md text-sm md:text-base font-semibold flex items-center space-x-2 transition-all duration-300 border ${isWishlisted
                                     ? 'bg-red-600 hover:bg-red-700 text-white border-red-600'
                                     : 'bg-transparent hover:bg-black/50 text-white border-white/40'
                                     }`}
@@ -316,10 +317,43 @@ export default function GameDetails() {
                                 <span>{isWishlisted ? 'Wishlisted' : 'Add to Wishlist'}</span>
                             </button>
 
-                            <button className="bg-transparent hover:bg-black/50 text-white px-6 py-3 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 border border-white/40" onClick={() => { setShowShareModal(true); }}>
+                            <button className="bg-transparent hover:bg-black/50 text-white text-sm md:text-base px-3 md:px-6 py-3 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 border border-white/40" onClick={() => { setShowShareModal(true); }}>
                                 <FaShare className="w-5 h-5" />
                                 <span>Share</span>
                             </button>
+                        </div>
+
+                        <div className="bg-black/50 rounded-xl py-3 px-4 md:px-6 backdrop-blur-sm border border-white/40 block lg:hidden">
+                            <nav className="flex space-x-4 mb-2">
+                                {Object.keys(getAvailablePlatforms()).map((platform) => (
+                                    <button
+                                        key={platform}
+                                        onClick={() => setSelectedPlatform(platform)}
+                                        className={`p-2 border-b-2 font-medium text-2xl capitalize transition-all duration-300 ${selectedPlatform === platform
+                                            ? 'border-purple-500 text-purple-400'
+                                            : 'border-transparent text-white/50 hover:text-white'
+                                            }`}
+                                    >
+                                        {/* {platform} */}
+                                        {platform === 'windows' && <FaWindows title="Show Windows Price" className={`${selectedPlatform === platform ? 'text-blue-500' : ''}`} />}
+                                        {platform === 'ios' && <FaApple title="Show Ios Price" className={`${selectedPlatform === platform ? 'text-white' : ''}`} />}
+                                        {platform === 'android' && <DiAndroid title="Show Android Price" className={`${selectedPlatform === platform ? 'text-green-500' : ''}`} />}
+                                    </button>
+                                ))}
+                            </nav>
+
+                            {selectedPlatform && singleGame?.platforms?.[selectedPlatform] && (
+                                <div className="flex items-center justify-between">
+                                    <div className="text-sm md:text-base">
+                                        <p className="text-white">Price : $ {singleGame.platforms[selectedPlatform].price}</p>
+                                        <p className="text-white">Size : {singleGame.platforms[selectedPlatform].size}</p>
+                                    </div>
+                                    <button className="bg-gradient-primary text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs">
+                                        <FaShoppingCart className="w-4 h-4" />
+                                        <span>Add To Cart</span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Tabs */}
@@ -341,18 +375,18 @@ export default function GameDetails() {
                         </div>
 
                         {/* Tab Content */}
-                        <div className="bg-black/50 rounded-xl p-6 backdrop-blur-sm border border-white/40">
+                        <div className="bg-black/50 rounded-xl p-4 md:p-6 backdrop-blur-sm border border-white/40">
                             {selectedTab === 'overview' && (
-                                <div className="space-y-6">
+                                <div className="space-y-2 md:space-y-6">
                                     <div>
-                                        <h3 className="text-2xl font-bold text-white mb-4">About This Game</h3>
-                                        <p className="text-gray-300 leading-relaxed">
+                                        <h3 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-4">About This Game</h3>
+                                        <p className="text-gray-300 leading-relaxed text-sm md:text-base">
                                             {singleGame?.description}
                                         </p>
 
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-semibold text-white mb-2">Tags</h4>
+                                        <h4 className="text-base md:text-xl font-semibold text-white mb-1 md:mb-2">Tags</h4>
                                         <div className="flex flex-wrap gap-2 mb-4">
                                             {singleGame?.tags?.slice(0, 3).map(tag => (
                                                 <span
@@ -366,8 +400,8 @@ export default function GameDetails() {
                                     </div>
 
                                     <div>
-                                        <h4 className="text-xl font-semibold text-white mb-3">Key Features</h4>
-                                        <ul className="space-y-2 text-gray-300">
+                                        <h4 className="text-base md:text-xl font-semibold text-white mb-1 md:mb-3">Key Features</h4>
+                                        <ul className="space-y-2 text-gray-300 text-sm md:text-base">
                                             {singleGame?.instructions?.map((ins) => (
                                                 <li key={ins} className="flex items-start space-x-3">
                                                     <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
@@ -429,7 +463,7 @@ export default function GameDetails() {
                     {/* Sidebar */}
                     <div className="space-y-6">
                         {/* platforms Tabs and Tab Content */}
-                        <div className="bg-black/50 rounded-xl py-3 px-6 backdrop-blur-sm border border-white/40">
+                        <div className="bg-black/50 rounded-xl py-3 px-3 xl:px-6 backdrop-blur-sm border border-white/40 hidden lg:block">
                             <nav className="flex space-x-4 mb-2">
                                 {Object.keys(getAvailablePlatforms()).map((platform) => (
                                     <button
@@ -460,15 +494,15 @@ export default function GameDetails() {
                                             <span>Already in Cart</span>
                                         </button>
                                     ) : !userId ? (
-                                        <button 
-                                            onClick={() => navigate('/login')} 
-                                            className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs"
+                                        <button
+                                            onClick={() => navigate('/login')}
+                                            className="bg-gradient-primary text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs"
                                         >
                                             <FaShoppingCart className="w-4 h-4" />
                                             <span>Login to Add</span>
                                         </button>
                                     ) : (
-                                        <button onClick={() => dispatch(addToCartAction({ gameId: singleGame._id, platform: selectedPlatform, qty: 1 }))} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs">
+                                        <button onClick={() => dispatch(addToCartAction({ gameId: singleGame._id, platform: selectedPlatform, qty: 1 }))} className="bg-gradient-primary text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs">
                                             <FaShoppingCart className="w-4 h-4" />
                                             <span>Add To Cart</span>
                                         </button>
@@ -477,40 +511,15 @@ export default function GameDetails() {
                             )}
                         </div>
 
-                        {/* Game Info */}
-                        {/* <div className="bg-gray-800/50 rounded-xl p-6 border border-white/40">
-                            <h3 className="text-xl font-bold text-white mb-4">Game Details</h3>
-                            <div className="space-y-3 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">Developer:</span>
-                                    <span className="text-white">Neon Studios</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">Publisher:</span>
-                                    <span className="text-white">Future Games</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">Release Date:</span>
-                                    <span className="text-white">March 15, 2024</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">Languages:</span>
-                                    <span className="text-white">12 supported</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-400">Age Rating:</span>
-                                    <span className="text-white">M (Mature 17+)</span>
-                                </div>
-                            </div>
-                        </div> */}
+                        {/* Game Images */}
                         <div className="bg-black/50 rounded-xl p-3 backdrop-blur-sm border border-white/40">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 md600:grid-cols-4 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {singleGame?.images.map((image) => (
                                     <img
                                         key={image?._id}
                                         src={image?.url}
                                         alt={`Image of ${singleGame?.title}`}
-                                        className="rounded-lg w-[165px] h-[220px]" // Add any additional styling you need
+                                        className="rounded-lg w-[165px] h-[220px] mx-auto" // Add any additional styling you need
                                         onClick={() => openModal(image)} // Open modal on click
                                     />
                                 ))}

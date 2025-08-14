@@ -20,7 +20,7 @@ import { FaList } from "react-icons/fa6";
 import { BsFillBoxSeamFill } from "react-icons/bs";
 import { CgArrowsShrinkH } from "react-icons/cg";
 import { BsBoxFill } from "react-icons/bs";
-import { LuBoxes, LuCookie, LuEye, LuEyeClosed } from "react-icons/lu";
+import { LuBoxes, LuContact, LuCookie, LuEye, LuEyeClosed } from "react-icons/lu";
 import { RiFileTextLine } from "react-icons/ri";
 import { TbMessageStar, TbPremiumRights } from "react-icons/tb";
 import { BiSolidOffer } from "react-icons/bi";
@@ -131,6 +131,7 @@ function Layout({ children }) {
     { title: "Category", icon: <BiSolidCategory />, path: "/admin/category" },
     { title: "Games", icon: <IoGameControllerOutline />, path: "/admin/games" },
     { title: "User", icon: <FaUser />, path: "/admin/user" },
+    { title: "Contact", icon: <LuContact />, path: "/admin/contact" },
     {
       title: "Terms and Conditions",
       icon: <RiFileTextLine />,

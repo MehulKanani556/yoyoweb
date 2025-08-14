@@ -1,5 +1,5 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 // import { Elements } from "@stripe/react-stripe-js";
 // import { loadStripe } from "@stripe/stripe-js";
 import Home from "../pages/Home";
@@ -29,10 +29,11 @@ import Blog from "../component/Blog";
 
 const UserRouts = () => {
   // const userId = localStorage.getItem("ottuserId");
-  // const [loginPage, setLoginPage] = useState(false);
+  // const location = useLocation();
+  // const [detailsPage, setDetailsPage] = useState(false);
 
   // useEffect(() => {
-  //   setLoginPage(location.pathname.includes("/login"));
+  //   setDetailsPage(location.pathname.includes("/gamedetails"));
   // }, [location.pathname]);
 
   return (

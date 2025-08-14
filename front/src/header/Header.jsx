@@ -16,7 +16,7 @@ const Header = () => {
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [cartCount, setCartCount] = useState(0);
-		const [isScrolled, setIsScrolled] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const navItems = [
         { name: 'Home', path: '/' },
         { name: 'Games', path: '/games' },
@@ -84,13 +84,13 @@ const Header = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-		// Detect scroll to toggle background width
-		useEffect(() => {
-			const handleScroll = () => setIsScrolled(window.scrollY > 0);
-			handleScroll();
-			window.addEventListener('scroll', handleScroll, { passive: true });
-			return () => window.removeEventListener('scroll', handleScroll);
-		}, []);
+    // Detect scroll to toggle background width
+    useEffect(() => {
+        const handleScroll = () => setIsScrolled(window.scrollY > 0);
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleProfileNavigation = () => {
         setProfileDropdownOpen(false);
@@ -114,341 +114,341 @@ const Header = () => {
     return (
         <header className="fixed top-0 left-0 right-0 z-50 text-white bg-transparent ">
             {/* <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r z-50 from-purple-500 via-fuchsia-500 to-indigo-500" /> */}
-			<div className="relative">
-				<div className={`absolute inset-y-0 left-1/2 -translate-x-1/2  bg-white/5 border border-white/10 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-all duration-500 ease-in-out ${isScrolled ? 'w-screen' : 'w-[95%] sm:w-[92%] md:w-[90%] lg:w-[80%] rounded-2xl'}`}></div>
-				<div className={`mx-auto w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%] flex justify-between items-center py-2 px-3 md:px-4 relative z-10 `}>
-                {/* Logo */}
-                <motion.div
-                    onClick={() => { navigate('/') }}
-                    initial={{ opacity: 0, y: -30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-2xl sm:text-3xl font-bold tracking-widest cursor-pointer bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 bg-clip-text text-transparent"
-                >
-                    YOYO
-                </motion.div>
+            <div className="relative">
+                <div className={`absolute inset-y-0 left-1/2 -translate-x-1/2  bg-white/5 border border-white/10 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-all duration-500 ease-in-out ${isScrolled ? 'w-screen' : 'w-[95%] sm:w-[92%] md:w-[90%] lg:w-[80%] rounded-2xl'}`}></div>
+                <div className={`mx-auto w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%] flex justify-between items-center py-2 px-3 md:px-4 relative z-10 `}>
+                    {/* Logo */}
+                    <motion.div
+                        onClick={() => { navigate('/') }}
+                        initial={{ opacity: 0, y: -30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-2xl sm:text-3xl font-bold tracking-widest cursor-pointer bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 bg-clip-text text-transparent"
+                    >
+                        YOYO
+                    </motion.div>
 
-                {/* Desktop Navigation */}
-                <nav className="hidden md:flex space-x-2 lg:space-x-3">
-                    {navItems.map((item) => (
-                        <motion.div
-                            key={item.path}
-                            whileHover={{ scale: 1.05 }}
-                            className="relative text-gray-200 transition-all duration-300 hover:text-white group px-2 lg:px-3 py-2 rounded-lg hover:bg-white/5"
-                        >
-                            <NavLink
-                                to={item.path}
-                                end={item.path === '/'}
-                                className={({ isActive }) => `block ${isActive ? 'text-purple-400' : ''}`}
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex space-x-2 lg:space-x-3">
+                        {navItems.map((item) => (
+                            <motion.div
+                                key={item.path}
+                                whileHover={{ scale: 1.05 }}
+                                className="relative text-gray-200 transition-all duration-300 hover:text-white group px-2 lg:px-3 py-2 rounded-lg hover:bg-white/5"
                             >
-                                {({ isActive }) => (
-                                    <>
-                                        {item.name}
-                                        <span className={`absolute left-1/2 -bottom-2 h-1 w-1 rounded-full bg-purple-400 -translate-x-1/2 transition-all duration-300 ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`} />
-                                    </>
-                                )}
-                            </NavLink>
-                        </motion.div>
-                    ))}
-                </nav>
+                                <NavLink
+                                    to={item.path}
+                                    end={item.path === '/'}
+                                    className={({ isActive }) => `block ${isActive ? 'text-purple-400' : ''}`}
+                                >
+                                    {({ isActive }) => (
+                                        <>
+                                            {item.name}
+                                            <span className={`absolute left-1/2 -bottom-2 h-1 w-1 rounded-full bg-purple-400 -translate-x-1/2 transition-all duration-300 ${isActive ? 'scale-100 opacity-100' : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100'}`} />
+                                        </>
+                                    )}
+                                </NavLink>
+                            </motion.div>
+                        ))}
+                    </nav>
 
-                {/* Desktop Right Actions */}
-                <div className="hidden md:flex items-center gap-3">
-                    {userId && token && (
-                        <button onClick={() => navigate('/cart')} aria-label="Cart" className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white/40 flex items-center justify-center text-gray-200 hover:text-purple-400 transition-colors group hover:border-purple-400">
-                            <FaShoppingCart size={16} />
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-[10px] leading-4 rounded-full flex items-center justify-center text-white font-bold">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </button>
-                    )}
-                    {userId && token ? (
-                        <motion.div
-                            className="flex relative cursor-pointer text-gray-200 hover:text-purple-400 transition-all duration-300 items-center gap-1 group"
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                            onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                            ref={dropdownRef}
-                        >
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center">
-                                {currentUser?.photo && currentUser?.photo !== "null" ? (
-                                    <img
-                                        src={currentUser.photo}
-                                        alt="Profile"
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                ) : (
-                                    <span
-                                        className="text-base w-8 h-8 sm:w-9 sm:h-9 font-bold uppercase border-2 rounded-full flex justify-center items-center border-white/40 group-hover:border-purple-400"
-                                    >
-                                        {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
+                    {/* Desktop Right Actions */}
+                    <div className="hidden md:flex items-center gap-3">
+                        {userId && token && (
+                            <button onClick={() => navigate('/cart')} aria-label="Cart" className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white/40 flex items-center justify-center text-gray-200 hover:text-purple-400 transition-colors group hover:border-purple-400">
+                                <FaShoppingCart size={16} />
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-[10px] leading-4 rounded-full flex items-center justify-center text-white font-bold">
+                                        {cartCount}
                                     </span>
                                 )}
-                            </div>
-                            {currentUser && (
-                                <span
-                                    className="hidden md600:block font-medium capitalize transition-colors cursor-pointer max-w-[140px] truncate"
-                                >
-                                    {decryptData(currentUser?.userName)}
-                                </span>
-                            )}
-                            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
-
-                            {/* Profile dropdown with AnimatePresence for exit animations */}
-                            <AnimatePresence>
-                                {profileDropdownOpen && (
-                                    <motion.div
-                                        className="absolute top-[43px] right-0 mt-2 w-44 bg-[#18181b] rounded-xl shadow-lg z-50 border border-white/10"
-                                        initial={{ opacity: 0, x: 40, scale: 0.9 }}
-                                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                                        exit={{ opacity: 0, x: 40, scale: 0.9 }}
-                                        transition={{
-                                            duration: 0.2,
-                                            ease: "easeInOut"
-                                        }}
-                                    >
-                                        <button
-                                            className="w-full text-left px-4 py-2 flex gap-2 items-center hover:bg-white/5 text-gray-200 hover:text-purple-400 transition-colors"
-                                            onClick={()=>{handleProfileNavigation();setProfileDropdownOpen(false)}}
-                                        >
-                                            <div>
-                                                <FaUser />
-                                            </div>
-                                            <div>
-                                                Profile
-                                            </div>
-                                        </button>
-                                        <button
-                                            className="w-full text-left px-4 py-2 flex gap-1 items-center hover:bg-white/5 text-gray-200 border-t border-white/10 hover:text-red-500 transition-colors"
-                                            onClick={() => {
-                                                setProfileDropdownOpen(false);
-                                                setShowLogoutModal(true);
-
-                                            }}
-                                        >
-                                            <div className='text-xl'>
-                                                <MdLogout />
-                                            </div>
-                                            <div>
-                                                Logout
-                                            </div>
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-
-                            <Modal
-                                open={showLogoutModal}
-                                onClose={() => { setShowLogoutModal(false) }}
-                                aria-labelledby="modal-modal-title"
-                                aria-describedby="modal-modal-description"
-                                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                            </button>
+                        )}
+                        {userId && token ? (
+                            <motion.div
+                                className="flex relative cursor-pointer text-gray-200 hover:text-purple-400 transition-all duration-300 items-center gap-1 group"
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                                onClick={() => setProfileDropdownOpen((prev) => !prev)}
+                                ref={dropdownRef}
                             >
-                                <div className="bg-[#1e1e1e] rounded-[2px] p-[16px] sm:p-[24px] w-[90%] max-w-[400px] text-white shadow-lg">
-                                    <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                                        <h2 id="modal-modal-title" className="text-lg font-semibold">Log out</h2>
-                                        <button
-                                            onClick={() => setShowLogoutModal(false)}
-                                            className="text-white hover:text-red-500 transition duration-200"
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center">
+                                    {currentUser?.photo && currentUser?.photo !== "null" ? (
+                                        <img
+                                            src={currentUser.photo}
+                                            alt="Profile"
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <span
+                                            className="text-base w-8 h-8 sm:w-9 sm:h-9 font-bold uppercase border-2 rounded-full flex justify-center items-center border-white/40 group-hover:border-purple-400"
                                         >
-                                            <AiOutlineClose className="text-xl" />
-                                        </button>
-                                    </div>
-
-                                    <p id="modal-modal-description" className="text-sm text-white/70 text-center my-6">
-                                        Are you sure you want to logout?
-                                    </p>
-
-                                    <div className="flex justify-between gap-4 mt-4">
-                                        <button
-                                            onClick={() => setShowLogoutModal(false)}
-                                            className="w-full bg-white/10 hover:bg-white/20 text-white py-2 ease-in-out rounded-[4px] transition-all duration-300"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button type="submit" onClick={() => { setShowLogoutModal(false); handleLogout(); }} className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 bg-white/30 hover:bg-white/40 border-none cursor-pointer transition-all duration-400 ease-in-out"
-                                        >
-                                            Yes, Logout
-                                        </button>
-                                    </div>
+                                            {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
+                                        </span>
+                                    )}
                                 </div>
-                            </Modal>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            onClick={() => { navigate('/login') }}
-                            className="flex relative gap-1 items-center cursor-pointer text-gray-200 transition-all duration-300 hover:text-purple-400 group"
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white/40 flex items-center justify-center transition-colors group-hover:border-purple-400">
-                                <FaUser size={16} />
-                            </div>
-                            <span
-                                className="transition-colors cursor-pointer font-medium"
-                            >
-                                Sign in
-                            </span>
-                            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
-                        </motion.div>
-                    )}
-                </div>
-
-                {/* Mobile Actions: cart first, then profile/sign-in, then hamburger */}
-                <div className="md:hidden flex items-center gap-3">
-                    {userId && token && (
-                        <button onClick={() => navigate('/cart')} aria-label="Cart" className="relative w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center text-gray-200 hover:text-purple-400 transition-colors group hover:border-purple-400">
-                            <FaShoppingCart size={16} />
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-[10px] leading-4 rounded-full flex items-center justify-center text-white font-bold">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </button>
-                    )}
-                    {userId && token ? (
-                        <motion.div
-                            className="relative cursor-pointer flex text-gray-200 hover:text-purple-400 transition-all duration-300 items-center gap-1 group"
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                            onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                            ref={dropdownRef}
-                        >
-                            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center">
-                                {currentUser?.photo && currentUser?.photo !== "null" ? (
-                                    <img
-                                        src={currentUser.photo}
-                                        alt="Profile"
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                ) : (
+                                {currentUser && (
                                     <span
-                                        className="text-base w-8 h-8 sm:w-9 sm:h-9 font-bold uppercase border-2 rounded-full flex justify-center items-center border-white/40 group-hover:border-purple-400"
+                                        className="hidden md600:block font-medium capitalize transition-colors cursor-pointer max-w-[140px] truncate"
                                     >
-                                        {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
+                                        {decryptData(currentUser?.userName)}
                                     </span>
                                 )}
-                            </div>
-                            {currentUser && (
-                                <span
-                                    className="hidden md600:block font-medium capitalize transition-colors cursor-pointer max-w-[120px] truncate"
-                                >
-                                    {decryptData(currentUser?.userName)}
-                                </span>
-                            )}
-                            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
+                                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
 
-                            {/* Profile dropdown with AnimatePresence for exit animations */}
-                            <AnimatePresence>
-                                {profileDropdownOpen && (
-                                    <motion.div
-                                        className="absolute top-[43px] right-0 mt-2 w-44 bg-[#18181b] rounded-xl shadow-lg z-50 border border-white/10"
-                                        initial={{ opacity: 0, x: 40, scale: 0.9 }}
-                                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                                        exit={{ opacity: 0, x: 40, scale: 0.9 }}
-                                        transition={{
-                                            duration: 0.2,
-                                            ease: "easeInOut"
-                                        }}
-                                    >
-                                        <button
-                                            className="w-full text-left flex gap-2 items-center px-4 py-2 hover:bg-white/5 text-gray-200 hover:text-purple-400 transition-colors"
-                                           onClick={()=>{handleProfileNavigation();setProfileDropdownOpen(false)}}
-                                        >
-                                            <div>
-                                                <FaUser />
-                                            </div>
-                                            <div>
-                                                Profile
-                                            </div>
-                                        </button>
-                                        <button
-                                            className="w-full text-left flex gap-1 items-center px-4 py-2 hover:bg-white/5 text-gray-200 border-t border-white/10 hover:text-red-500 transition-colors"
-                                            onClick={() => {
-                                                setProfileDropdownOpen(false);
-                                                setShowLogoutModal(true);
+                                {/* Profile dropdown with AnimatePresence for exit animations */}
+                                <AnimatePresence>
+                                    {profileDropdownOpen && (
+                                        <motion.div
+                                            className="absolute top-[43px] right-0 mt-2 w-44 bg-[#18181b] rounded-xl shadow-lg z-50 border border-white/10"
+                                            initial={{ opacity: 0, x: 40, scale: 0.9 }}
+                                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                                            exit={{ opacity: 0, x: 40, scale: 0.9 }}
+                                            transition={{
+                                                duration: 0.2,
+                                                ease: "easeInOut"
                                             }}
                                         >
-                                            <div className='text-xl'>
-                                                <MdLogout />
-                                            </div>
-                                            <div>
-                                                Logout
-                                            </div>
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
+                                            <button
+                                                className="w-full text-left px-4 py-2 flex gap-2 items-center hover:bg-white/5 text-gray-200 hover:text-purple-400 transition-colors"
+                                                onClick={() => { handleProfileNavigation(); setProfileDropdownOpen(false) }}
+                                            >
+                                                <div>
+                                                    <FaUser />
+                                                </div>
+                                                <div>
+                                                    Profile
+                                                </div>
+                                            </button>
+                                            <button
+                                                className="w-full text-left px-4 py-2 flex gap-1 items-center hover:bg-white/5 text-gray-200 border-t border-white/10 hover:text-red-500 transition-colors"
+                                                onClick={() => {
+                                                    setProfileDropdownOpen(false);
+                                                    setShowLogoutModal(true);
 
-                            <Modal
-                                open={showLogoutModal}
-                                onClose={() => { setShowLogoutModal(false) }}
-                                aria-labelledby="modal-modal-title"
-                                aria-describedby="modal-modal-description"
-                                className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                                                }}
+                                            >
+                                                <div className='text-xl'>
+                                                    <MdLogout />
+                                                </div>
+                                                <div>
+                                                    Logout
+                                                </div>
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <Modal
+                                    open={showLogoutModal}
+                                    onClose={() => { setShowLogoutModal(false) }}
+                                    aria-labelledby="modal-modal-title"
+                                    aria-describedby="modal-modal-description"
+                                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                                >
+                                    <div className="bg-[#1e1e1e] rounded-[2px] p-[16px] sm:p-[24px] w-[90%] max-w-[400px] text-white shadow-lg">
+                                        <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                                            <h2 id="modal-modal-title" className="text-lg font-semibold">Log out</h2>
+                                            <button
+                                                onClick={() => setShowLogoutModal(false)}
+                                                className="text-white hover:text-red-500 transition duration-200"
+                                            >
+                                                <AiOutlineClose className="text-xl" />
+                                            </button>
+                                        </div>
+
+                                        <p id="modal-modal-description" className="text-sm text-white/70 text-center my-6">
+                                            Are you sure you want to logout?
+                                        </p>
+
+                                        <div className="flex justify-between gap-4 mt-4">
+                                            <button
+                                                onClick={() => setShowLogoutModal(false)}
+                                                className="w-full bg-white/10 hover:bg-white/20 text-white py-2 ease-in-out rounded-[4px] transition-all duration-300"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button type="submit" onClick={() => { setShowLogoutModal(false); handleLogout(); }} className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 bg-white/30 hover:bg-white/40 border-none cursor-pointer transition-all duration-400 ease-in-out"
+                                            >
+                                                Yes, Logout
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Modal>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                onClick={() => { navigate('/login') }}
+                                className="flex relative gap-1 items-center cursor-pointer text-gray-200 transition-all duration-300 hover:text-purple-400 group"
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
                             >
-                                <div className="bg-[#1e1e1e] rounded-[2px] p-[16px] sm:p-[24px] w-[90%] max-w-[400px] text-white shadow-lg">
-                                    <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                                        <h2 id="modal-modal-title" className="text-lg font-semibold">Log out</h2>
-                                        <button
-                                            onClick={() => setShowLogoutModal(false)}
-                                            className="text-white hover:text-red-500 transition duration-200"
-                                        >
-                                            <AiOutlineClose className="text-xl" />
-                                        </button>
-                                    </div>
-
-                                    <p id="modal-modal-description" className="text-sm text-white/70 text-center my-6">
-                                        Are you sure you want to logout?
-                                    </p>
-
-                                    <div className="flex justify-between gap-4 mt-4">
-                                        <button
-                                            onClick={() => setShowLogoutModal(false)}
-                                            className="w-full bg-white/10 hover:bg-white/20 text-white py-2 ease-in-out rounded-[4px] transition-all duration-300"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button type="submit" onClick={() => { setShowLogoutModal(false); handleLogout(); }} className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 bg-white/30 hover:bg-white/40 border-none cursor-pointer transition-all duration-400 ease-in-out"
-                                        >
-                                            Yes, Logout
-                                        </button>
-                                    </div>
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 border-white/40 flex items-center justify-center transition-colors group-hover:border-purple-400">
+                                    <FaUser size={16} />
                                 </div>
-                            </Modal>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            onClick={() => { navigate('/login') }}
-                            className="relative gap-1 flex items-center cursor-pointer text-gray-200 transition-all duration-300 hover:text-purple-400 group"
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <div className="w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center transition-colors group-hover:border-purple-400">
-                                <FaUser size={16} />
-                            </div>
-                            <span
-                                className="transition-colors cursor-pointer font-medium"
-                            >
-                                Sign in
-                            </span>
-                            <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
-                        </motion.div>
-                    )}
-                    <button onClick={() => setIsMenuOpen(true)} aria-label="Open menu">
-                        <FaBars size={24} className="text-white" />
-                    </button>
-                </div>
+                                <span
+                                    className="transition-colors cursor-pointer font-medium"
+                                >
+                                    Sign in
+                                </span>
+                                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
+                            </motion.div>
+                        )}
+                    </div>
 
-				{/* Offcanvas Menu moved outside container to avoid clipping */}
-				</div>
-			</div>
+                    {/* Mobile Actions: cart first, then profile/sign-in, then hamburger */}
+                    <div className="md:hidden flex items-center gap-3">
+                        {userId && token && (
+                            <button onClick={() => navigate('/cart')} aria-label="Cart" className="relative w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center text-gray-200 hover:text-purple-400 transition-colors group hover:border-purple-400">
+                                <FaShoppingCart size={16} />
+                                {cartCount > 0 && (
+                                    <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-500 text-[10px] leading-4 rounded-full flex items-center justify-center text-white font-bold">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </button>
+                        )}
+                        {userId && token ? (
+                            <motion.div
+                                className="relative cursor-pointer flex text-gray-200 hover:text-purple-400 transition-all duration-300 items-center gap-1 group"
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                                onClick={() => setProfileDropdownOpen((prev) => !prev)}
+                                ref={dropdownRef}
+                            >
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center">
+                                    {currentUser?.photo && currentUser?.photo !== "null" ? (
+                                        <img
+                                            src={currentUser.photo}
+                                            alt="Profile"
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <span
+                                            className="text-base w-8 h-8 sm:w-9 sm:h-9 font-bold uppercase border-2 rounded-full flex justify-center items-center border-white/40 group-hover:border-purple-400"
+                                        >
+                                            {decryptData(currentUser?.userName)?.split(" ").map(name => name[0]?.toUpperCase())?.join("") || ""}
+                                        </span>
+                                    )}
+                                </div>
+                                {currentUser && (
+                                    <span
+                                        className="hidden md600:block font-medium capitalize transition-colors cursor-pointer max-w-[120px] truncate"
+                                    >
+                                        {decryptData(currentUser?.userName)}
+                                    </span>
+                                )}
+                                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
+
+                                {/* Profile dropdown with AnimatePresence for exit animations */}
+                                <AnimatePresence>
+                                    {profileDropdownOpen && (
+                                        <motion.div
+                                            className="absolute top-[43px] right-0 mt-2 w-44 bg-[#18181b] rounded-xl shadow-lg z-50 border border-white/10"
+                                            initial={{ opacity: 0, x: 40, scale: 0.9 }}
+                                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                                            exit={{ opacity: 0, x: 40, scale: 0.9 }}
+                                            transition={{
+                                                duration: 0.2,
+                                                ease: "easeInOut"
+                                            }}
+                                        >
+                                            <button
+                                                className="w-full text-left flex gap-2 items-center px-4 py-2 hover:bg-white/5 text-gray-200 hover:text-purple-400 transition-colors"
+                                                onClick={() => { handleProfileNavigation(); setProfileDropdownOpen(false) }}
+                                            >
+                                                <div>
+                                                    <FaUser />
+                                                </div>
+                                                <div>
+                                                    Profile
+                                                </div>
+                                            </button>
+                                            <button
+                                                className="w-full text-left flex gap-1 items-center px-4 py-2 hover:bg-white/5 text-gray-200 border-t border-white/10 hover:text-red-500 transition-colors"
+                                                onClick={() => {
+                                                    setProfileDropdownOpen(false);
+                                                    setShowLogoutModal(true);
+                                                }}
+                                            >
+                                                <div className='text-xl'>
+                                                    <MdLogout />
+                                                </div>
+                                                <div>
+                                                    Logout
+                                                </div>
+                                            </button>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <Modal
+                                    open={showLogoutModal}
+                                    onClose={() => { setShowLogoutModal(false) }}
+                                    aria-labelledby="modal-modal-title"
+                                    aria-describedby="modal-modal-description"
+                                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                                >
+                                    <div className="bg-[#1e1e1e] rounded-[2px] p-[16px] sm:p-[24px] w-[90%] max-w-[400px] text-white shadow-lg">
+                                        <div className="flex justify-between items-center border-b border-white/10 pb-3">
+                                            <h2 id="modal-modal-title" className="text-lg font-semibold">Log out</h2>
+                                            <button
+                                                onClick={() => setShowLogoutModal(false)}
+                                                className="text-white hover:text-red-500 transition duration-200"
+                                            >
+                                                <AiOutlineClose className="text-xl" />
+                                            </button>
+                                        </div>
+
+                                        <p id="modal-modal-description" className="text-sm text-white/70 text-center my-6">
+                                            Are you sure you want to logout?
+                                        </p>
+
+                                        <div className="flex justify-between gap-4 mt-4">
+                                            <button
+                                                onClick={() => setShowLogoutModal(false)}
+                                                className="w-full bg-white/10 hover:bg-white/20 text-white py-2 ease-in-out rounded-[4px] transition-all duration-300"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button type="submit" onClick={() => { setShowLogoutModal(false); handleLogout(); }} className="w-full text-white py-2 rounded-[4px] text-[14px] font-medium sm:py-3 bg-white/30 hover:bg-white/40 border-none cursor-pointer transition-all duration-400 ease-in-out"
+                                            >
+                                                Yes, Logout
+                                            </button>
+                                        </div>
+                                    </div>
+                                </Modal>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                onClick={() => { navigate('/login') }}
+                                className="relative gap-1 flex items-center cursor-pointer text-gray-200 transition-all duration-300 hover:text-purple-400 group"
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <div className="w-8 h-8 rounded-full border-2 border-white/40 flex items-center justify-center transition-colors group-hover:border-purple-400">
+                                    <FaUser size={16} />
+                                </div>
+                                <span
+                                    className="transition-colors cursor-pointer font-medium"
+                                >
+                                    Sign in
+                                </span>
+                                <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-500 transition-all duration-300 group-hover:w-full" />
+                            </motion.div>
+                        )}
+                        <button onClick={() => setIsMenuOpen(true)} aria-label="Open menu">
+                            <FaBars size={24} className="text-white" />
+                        </button>
+                    </div>
+
+                    {/* Offcanvas Menu moved outside container to avoid clipping */}
+                </div>
+            </div>
             {/* Backdrop and Drawer rendered at header level to span full width */}
             <>
                 {isMenuOpen && (

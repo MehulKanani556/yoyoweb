@@ -1,27 +1,29 @@
 import React, { useEffect, useState } from 'react'
-import { FaApple, FaTimes, FaWindows } from 'react-icons/fa';
+import { FaApple, FaTimes, FaUser, FaWindows } from 'react-icons/fa';
 import { LuFilter, LuGamepad2, LuHeart, LuPlay, LuSearch, LuStar, LuTrendingUp, LuTrophy, LuUsers, LuZap } from 'react-icons/lu';
 import { FiShoppingCart } from "react-icons/fi";
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllActiveGames } from '../Redux/Slice/game.slice';
 import { getAllCategories } from '../Redux/Slice/category.slice';
 import { DiAndroid } from "react-icons/di";
-import { useNavigate } from 'react-router-dom';
 import { addToCart as addToCartAction, fetchCart } from '../Redux/Slice/cart.slice';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BackgroundColor from '../component/BackgroundColor';
 import gr from '../Asset/images/gr.svg'
 // import gr2 from '../Asset/images/gr2.svg'
-// import gr3 from '../Asset/images/gr3.svg'
-import gr4 from '../Asset/images/gr4.svg'
+import gr3 from '../Asset/images/gr3.svg'
+// import gr4 from '../Asset/images/gr4.svg'
+import HyperButton from '../component/HyperButton';
 
 export default function Products() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('popular');
     const [favorites, setFavorites] = useState(new Set([1, 3, 5]));
-    const [grid, setGrid] = useState(4);
+    const [grid, setGrid] = useState(3);
     const [isSearchOpen, setIsSearchOpen] = useState(false)
     const [isOpen, setIsOpen] = useState(false);
     const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
@@ -30,6 +32,10 @@ export default function Products() {
     const categoriesName = useSelector((state) => state.category.categories);
     const cartItems = useSelector((state) => state.cart?.items || []);
     const userId = localStorage.getItem('yoyouserId');
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
 
     useEffect(() => {
         dispatch(getAllActiveGames())
@@ -41,6 +47,22 @@ export default function Products() {
             dispatch(fetchCart());
         }
     }, [dispatch])
+
+    useEffect(() => {
+        const st = location.state;
+        if (!st) return;
+
+        if (st.id) {
+            setSelectedCategory(String(st.id).toLowerCase());
+        } else if (st._id && Array.isArray(categoriesName)) {
+            const cat = categoriesName.find(c => c._id === st._id);
+            if (cat?.categoryName) setSelectedCategory(cat.categoryName.toLowerCase());
+        } else if (st.name) {
+            setSelectedCategory(String(st.name).toLowerCase());
+        }
+
+        setSearchTerm('');
+    }, [location.state, categoriesName]);
 
     const options = [
         { value: "popular", label: "Most Popular" },
@@ -56,8 +78,8 @@ export default function Products() {
 
     // Check if a game is already in cart for a specific platform
     const isGameInCart = (gameId, platform) => {
-        return cartItems.some(item => 
-            String(item.game?._id || item.game) === String(gameId) && 
+        return cartItems.some(item =>
+            String(item.game?._id || item.game) === String(gameId) &&
             item.platform === platform
         );
     };
@@ -104,17 +126,6 @@ export default function Products() {
         return colorMap[key] || 'from-purple-500 to-pink-500';
     };
 
-    // const categories = [
-    //     { id: 'all', name: 'All Category', icon: LuGamepad2, count: 248, color: 'from-purple-500 to-pink-500' },
-    //     // { id: 'featured', name: 'Featured', icon: FaFire, count: 12, color: 'from-orange-500 to-red-500' },
-    //     { id: 'trending', name: 'Trending', icon: LuTrendingUp, count: 24, color: 'from-green-500 to-blue-500' },
-    //     { id: 'action', name: 'Action', icon: LuZap, count: 68, color: 'from-red-500 to-orange-500' },
-    //     { id: 'adventure', name: 'Adventure', icon: LuTrophy, count: 45, color: 'from-blue-500 to-indigo-500' },
-    //     { id: 'puzzle', name: 'Puzzle', icon: LuStar, count: 39, color: 'from-purple-500 to-blue-500' },
-    //     { id: 'racing', name: 'Racing', icon: LuZap, count: 28, color: 'from-yellow-500 to-orange-500' },
-    //     { id: 'sports', name: 'Sports', icon: LuTrophy, count: 22, color: 'from-green-500 to-teal-500' }
-    // ];
-
     // Convert dynamic categories to the format expected by the component
     const getDynamicCategories = () => {
         const baseCategories = [
@@ -145,23 +156,10 @@ export default function Products() {
 
         return [...baseCategories, ...dynamicCategories];
     };
+
     // Convert dynamic games to the format expected by the component
     const getFormattedGames = () => {
         return ActiveGames?.map((game, index) => {
-            // Get the best available platform price
-            // const getBestPrice = () => {
-            //     const platforms = game.platforms;
-            //     if (!platforms) return 'Free';
-
-            //     const prices = [];
-            //     if (platforms.windows?.available && platforms.windows?.price > 0) prices.push(platforms.windows.price);
-            //     if (platforms.ios?.available && platforms.ios?.price > 0) prices.push(platforms.ios.price);
-            //     if (platforms.android?.available && platforms.android?.price > 0) prices.push(platforms.android.price);
-
-            //     if (prices.length === 0) return 'Free';
-            //     return `$${Math.min(...prices).toFixed(2)}`;
-            // };
-
             const getAvailablePlatforms = () => {
                 const platforms = game.platforms;
                 if (!platforms) return {};
@@ -181,30 +179,6 @@ export default function Products() {
 
                 return availablePlatforms;
             };
-
-            // Calculate total downloads (mock data since not in API)
-            // const getDownloads = () => {
-            //     const downloadValues = ['1.2M', '2.5M', '3.8M', '4.1M', '5.2M', '6.7M', '7.1M', '8.3M'];
-            //     return downloadValues[index % downloadValues.length];
-            // };
-
-            // // Generate rating (mock data since not in API)
-            // const getRating = () => {
-            //     const ratings = [4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9];
-            //     return ratings[index % ratings.length];
-            // };
-
-            // // Get players info
-            // const getPlayers = () => {
-            //     const playerOptions = ['1 player', '1-2 players', '1-4 players', '2-8 players', '1-12 players'];
-            //     return playerOptions[index % playerOptions.length];
-            // };
-
-            // // Get duration
-            // const getDuration = () => {
-            //     const durations = ['20 min', '30 min', '45 min', '60+ min', '80+ min', '90 min', '100+ min', '120+ min'];
-            //     return durations[index % durations.length];
-            // };
 
             const getBestPrice = () => {
                 const platforms = game.platforms;
@@ -227,14 +201,8 @@ export default function Products() {
                 id: game._id,
                 title: game.title,
                 category: game.category?.categoryName?.toLowerCase() || 'action',
-                // rating: getRating(),
-                // players: getPlayers(),
-                // duration: getDuration(),
-                // downloads: getDownloads(),
-                // availablePlatforms: getAvailablePlatforms(),
                 tags: game.tags || [],
                 price: getBestPrice(),
-                // discount: index % 3 === 0 ? (10 + (index % 3) * 10) : 0, // Mock discount
                 cover_image: game.cover_image?.url,
                 isNew: isNewGame,
                 description: game.description,
@@ -304,44 +272,31 @@ export default function Products() {
     // Note: If discount pricing is needed later, reintroduce a helper.
 
     return (
-        <BackgroundColor className="relative ">
+        <BackgroundColor className="relative mx-auto w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%]">
             {/* Hero Section */}
             <div className="relative overflow-hidden">
                 {/* <div className="absolute inset-0 bg-gradient-to-r from-purple-800/50 to-pink-800/50"></div> */}
-                <div className="relative px-6 pt-20 pb-6 lg:py-20">
-                    <div className="text-center">
-                        <h1 className="text-[25px] lg:text-[60px] font-bold mb-3 lg:mb-6 text-primary-light">
-                            Game Universe
-                        </h1>
-                        <p className="text-sm lg:text-lg text-primary-light/60 max-w-3xl mx-auto">
-                            {/* mb-8 */}
-                            Discover incredible gaming experiences from indie gems to AAA blockbusters.
-                            Your next gaming obsession awaits.
-                        </p>
-                        {/* <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-300">
-                            <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur">
-                                <LuStar className="w-4 h-4 text-yellow-400" />
-                                <span>248 Premium Games</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur">
-                                <LuDownload className="w-4 h-4 text-green-400" />
-                                <span>50M+ Downloads</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur">
-                                <LuUsers className="w-4 h-4 text-blue-400" />
-                                <span>2M+ Players</span>
-                            </div>
-                        </div> */}
+                <div className="relative pt-20 pb-6 lg:py-16">
+                    <h1 className="text-[25px] lg:text-[60px] font-bold mb-3 text-center">
+                        <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Game Universe </span>
+                    </h1>
+                    <p className="text-sm lg:text-base text-primary-light/60 max-w-7xl mx-auto text-center mb-5">
+                        Welcome to All Games – your one-stop destination for every game we offer. Explore a huge variety of genres including action, adventure, racing, sports, puzzle, and more. Whether you want fast-paced battles, thrilling missions, or relaxing casual games, we’ve got something for everyone. Browse through our complete collection, discover new titles, and enjoy hours of fun right at your fingertips.
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-4 text-sm text-gray-300">
+                        <HyperButton label="Explore" icon={LuZap} size="sm" />
+                        <HyperButton label="Buy" icon={FiShoppingCart} size="sm" />
+                        <HyperButton label="Enjoy" icon={LuPlay} size="sm" />
                     </div>
                 </div>
             </div>
 
-            <div className="relative px-4 lg:px-8 xl:px-16 py-8">
+            <div className="relative pb-8">
                 <div className="grid grid-cols-4 gap-4 lg:gap-8">
                     {/* Categories Sidebar */}
                     <div className="col-span-1 hidden md:block">
-                        <div className="bg-white/5 backdrop-blur-xl rounded-lg lg:rounded-3xl p-3 xl:p-6 border border-white/10 sticky top-8">
-                            <h3 className="text-xl lg:text-2xl font-bold text-white mb-3 lg:mb-6 flex items-center gap-3">
+                        <div className="bg-white/5 backdrop-blur-xl rounded-xl xl:rounded-3xl p-3 xl:p-6 border border-white/10 sticky top-8">
+                            <h3 className="text-base lg:text-xl xl:text-2xl font-bold text-white mb-3 xl:mb-6 flex items-center gap-3">
                                 <LuGamepad2 className="hidden lg:block w-6 h-6 text-purple-400" />
                                 Categories
                             </h3>
@@ -352,17 +307,17 @@ export default function Products() {
                                         <button
                                             key={category.id}
                                             onClick={() => setSelectedCategory(category.id)}
-                                            className={`w-full group relative overflow-hidden rounded-lg lg:rounded-2xl transition-all duration-300 hover:scale-105 ${selectedCategory === category.id
+                                            className={`w-full group relative overflow-hidden rounded-xl xl:rounded-2xl transition-all duration-300 hover:scale-105 ${selectedCategory === category.id
                                                 ? 'bg-gradient-to-r ' + category.color + ' text-white shadow-2xl'
                                                 : 'bg-white/5 text-white/80 hover:bg-white/10 border border-white/10'
                                                 }`}
                                         >
-                                            <div className="flex items-center justify-between p-3 xl:p-4">
+                                            <div className="flex items-center justify-between p-2 xl:p-4">
                                                 <div className="flex items-center gap-3 text-sm">
                                                     <IconComponent className="w-5 h-5 hidden lg:block" />
                                                     <span className="font-medium">{category.name}</span>
                                                 </div>
-                                                <span className={`hidden lg:block text-sm px-2 py-1 rounded-full ${selectedCategory === category.id
+                                                <span className={`hidden lg:block text-xs px-2 py-1 rounded-full ${selectedCategory === category.id
                                                     ? 'bg-white/20'
                                                     : 'bg-white/10'
                                                     }`}>
@@ -404,6 +359,21 @@ export default function Products() {
                                     >
                                         {isSearchOpen ? <FaTimes /> : <LuSearch />}
                                     </button>
+
+                                    <div className="flex md:hidden gap-2 items-center">
+                                        <img
+                                            onClick={() => setGrid(3)}
+                                            src={gr3}
+                                            alt="grid"
+                                            className="w-5 h-5 object-contain cursor-pointer"
+                                        />
+                                        <img
+                                            onClick={() => setGrid(1)}
+                                            src={gr}
+                                            alt="grid"
+                                            className="w-5 h-5 object-contain cursor-pointer"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Sort and View Controls */}
@@ -414,10 +384,11 @@ export default function Products() {
                                     >
                                         {isSearchOpen ? <FaTimes /> : <LuSearch />}
                                     </button>
-                                    <div className="flex gap-2 items-center">
+
+                                    <div className="md:flex hidden gap-2 items-center">
                                         <img
-                                            onClick={() => setGrid(4)}
-                                            src={gr4}
+                                            onClick={() => setGrid(3)}
+                                            src={gr3}
                                             alt="grid"
                                             className="w-5 h-5 object-contain cursor-pointer"
                                         />
@@ -430,7 +401,7 @@ export default function Products() {
                                     </div>
 
                                     <div className="flex items-center gap-2">
-                                        <LuGamepad2 className="block sm:hidden text-white/60 w-5 h-5" />
+                                        {/* <LuGamepad2 className="block sm:hidden text-white/60 w-5 h-5" /> */}
                                         <div className="relative inline-block text-left md:hidden">
                                             {/* Dropdown Button */}
                                             <button
@@ -478,7 +449,7 @@ export default function Products() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <LuFilter className="text-white/60 w-5 h-5" />
+                                        {/* <LuFilter className="text-white/60 w-5 h-5" /> */}
                                         <div className="relative inline-block text-left">
                                             {/* Dropdown Button */}
                                             <button
@@ -519,30 +490,30 @@ export default function Products() {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between mb-4 lg:mb-8">
+                        <div className="flex items-center justify-between mb-4 xl:mb-8">
                             <div>
-                                <h2 className="text-lg lg:text-3xl font-bold text-white mb-1 lg:mb-2 tracking-wider">
+                                <h2 className="text-xl xl:text-3xl font-bold text-white mb-1 xl:mb-2 tracking-wider">
                                     {selectedCategory === 'all' ? 'All Games' :
                                         categories.find(c => c.id === selectedCategory)?.name || 'Games'}
                                 </h2>
-                                <p className="text-white/60 text-sm lg:text-base">
+                                <p className="text-white/60 text-sm xl:text-base">
                                     Showing {sortedGames?.length} games
                                 </p>
                             </div>
                         </div>
 
-                        <div className={`grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 3xl:grid-cols-${grid} gap-8 relative z-10`}>
+                        <div className={`grid ${grid === 1 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2 3xl:grid-cols-3'} gap-4 xl:gap-8 relative z-10`}>
                             {sortedGames?.map((game, index) => {
                                 const selectedPlatform = selectedPlatforms[game.id] || (game.platforms?.windows ? 'windows' : (game.platforms?.ios ? 'ios' : (game.platforms?.android ? 'android' : 'windows')));
                                 return (
                                     <div
                                         key={game.id}
-                                        className="group relative bg-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer"
+                                        className={`group relative bg-white/5 backdrop-blur-xl rounded-xl lg:rounded-3xl overflow-hidden border border-white/10 hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer ${grid === 1 ? 'md:flex' : ''}`}
                                         style={{ animationDelay: `${index * 0.1}s` }}
                                         onClick={() => { navigate(`/gamedetails/${game.id}`) }}
                                     >
                                         {/* Image Container */}
-                                        <div className="relative h-48 overflow-hidden">
+                                        <div className={`relative overflow-hidden ${grid === 1 ? 'w-full md:w-60 lg:w-64 md:h-full' : 'h-48'}`}>
                                             <img
                                                 src={game?.cover_image}
                                                 alt={game?.title}
@@ -580,12 +551,12 @@ export default function Products() {
                                         </div>
 
                                         {/* Content */}
-                                        <div className="p-6">
-                                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                                        <div className={`p-3 xl:p-6 ${grid === 1 ? 'md:flex-1' : ''}`}>
+                                            <h3 className="text-base lg:text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
                                                 {game.title}
                                             </h3>
 
-                                            <p className="text-gray-400 text-sm mb-4 line-clamp-3">{game.description}</p>
+                                            <p className="text-gray-400 text-xs lg:text-sm mb-4 line-clamp-3">{game.description}</p>
                                             {/* Platforms */}
                                             <div className="mt-4">
                                                 <h4 className="text-lg font-semibold text-white tracking-wider">Platforms :</h4>
@@ -620,62 +591,66 @@ export default function Products() {
                                         </div> */}
 
                                             {/* Price and CTA */}
-                                            <div className="flex items-center justify-between">
-                                                <div className="mt-2 text-white flex flex-col gap-1">
+                                            <div className="flex items-center md:items-start lg:items-center justify-between flex-row md:flex-col lg:flex-row">
+                                                <div className="mt-2 text-white flex flex-col gap-1 text-sm lg:text-base">
                                                     <p className=''>Price - $ {game.platforms[selectedPlatform]?.price}</p>
                                                     <p className=''>Size - {game.platforms[selectedPlatform]?.size}</p>
                                                 </div>
 
-                                                    {isGameInCart(game.id, selectedPlatform) ? (
-                                                    <button
-                                                        disabled
-                                                        className="bg-gray-500 text-white px-3 py-2 rounded-md font-medium flex items-center gap-2 cursor-not-allowed"
-                                                    >
-                                                        <FiShoppingCart className="w-4 h-4" />
-                                                        Already in Cart
-                                                    </button>
-                                                ) : !userId ? (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            navigate('/login');
-                                                        }}
-                                                        className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 rounded-md font-medium hover:from-orange-600 hover:to-red-600 transition-all hover:scale-105 flex items-center gap-2"
-                                                    >
-                                                        <FiShoppingCart className="w-4 h-4" />
-                                                        Login to Add
-                                                    </button>
-                                                ) : (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.preventDefault();
-                                                            e.stopPropagation();
-                                                            dispatch(addToCartAction({ gameId: game.id, platform: selectedPlatform, qty: 1 }));
-                                                        }}
-                                                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-md font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2"
-                                                    >
-                                                        <FiShoppingCart className="w-4 h-4" />
-                                                        Add To Cart
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
+                                                {
+                                                    isGameInCart(game.id, selectedPlatform) ? (
+                                                        <button
+                                                            disabled
+                                                            className="bg-gray-500 text-white px-1 py-2 lg:px-3 lg:py-2 text-sm rounded-md font-medium flex items-center gap-2 cursor-not-allowed mt-0 md:mt-2 lg:mt-0"
+                                                        >
+                                                            <FiShoppingCart className="w-4 h-4" />
+                                                            Already Added
+                                                        </button>
+                                                    ) : !userId ? (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                navigate('/login');
+                                                            }}
+                                                            className="bg-gradient-primary text-white p-2 lg:px-3 lg:py-2 text-sm rounded-md font-medium transition-all hover:scale-105 flex items-center gap-2 mt-0 md:mt-2 lg:mt-0"
+                                                        >
+                                                            <FaUser className="w-4 h-4" />
+                                                            Login to Add
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                e.stopPropagation();
+                                                                dispatch(addToCartAction({ gameId: game.id, platform: selectedPlatform, qty: 1 }));
+                                                            }}
+                                                            className="bg-gradient-primary text-white p-2 lg:px-3 lg:py-2 text-sm rounded-md font-medium transition-all hover:scale-105 flex items-center gap-2 mt-0 md:mt-2 lg:mt-0"
+                                                        >
+                                                            <FiShoppingCart className="w-4 h-4" />
+                                                            Add To Cart
+                                                        </button>
+                                                    )
+                                                }
+                                            </div >
+                                        </div >
+                                    </div >
                                 )
                             })}
-                        </div>
+                        </div >
 
-                        {sortedGames.length === 0 && (
-                            <div className="text-center py-20">
-                                <LuGamepad2 className="w-16 h-16 text-white/30 mx-auto mb-4" />
-                                <div className="text-white/60 text-2xl mb-4">No games found</div>
-                                <div className="text-white/40">Try adjusting your search or category filters</div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </BackgroundColor>
+                        {
+                            sortedGames.length === 0 && (
+                                <div className="text-center py-20">
+                                    <LuGamepad2 className="w-16 h-16 text-white/30 mx-auto mb-4" />
+                                    <div className="text-white/60 text-2xl mb-4">No games found</div>
+                                    <div className="text-white/40">Try adjusting your search or category filters</div>
+                                </div>
+                            )
+                        }
+                    </div >
+                </div >
+            </div >
+        </BackgroundColor >
     )
 }

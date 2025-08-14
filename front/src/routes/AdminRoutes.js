@@ -7,6 +7,7 @@ import Game from "../Admin/Game";
 import TermsConditions from "../Admin/TermsConditions";
 import PrivacyPolicy from "../Admin/PrivacyPolicy";
 import User from "../Admin/User";
+import Contact from "../Admin/Contact";
 
 
 const AdminRoutes = () => {
@@ -34,7 +35,7 @@ const AdminRoutes = () => {
         <Route path="/Terms-Conditions" element={<TermsConditions />} />
         <Route path="/Privacy-Policy" element={<PrivacyPolicy />} />
         {/* <Route path="/Cookie-Policy" element={<CookiePolicy />} /> */}
-        {/* <Route path="/faq" element={<Faq />} /> */}
+        <Route path="/contact" element={<Contact />} />
         {/* <Route path="/transaction" element={<Transaction />} />/ */}
         {/* <Route path="/profile" element={<AdminProfile />} /> */}
         {/* <Route path="/ads" element={<Ads />} /> */}

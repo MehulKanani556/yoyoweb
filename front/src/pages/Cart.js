@@ -14,6 +14,10 @@ export default function Cart() {
   const token = localStorage.getItem('yoyoToken');
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [])
+
+  useEffect(() => {
     if (!(userId && token)) {
       navigate('/login');
       return;
@@ -39,7 +43,7 @@ export default function Cart() {
             <div className="text-white/60 mb-6">Explore our collection and add some games to your cart.</div>
             <button
               onClick={() => navigate('/games')}
-              className="px-6 py-3 rounded-md bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium hover:from-purple-700 hover:to-pink-700 transition-all"
+              className="px-6 py-3 rounded-md bg-gradient-primary transition-all"
             >
               Continue Shopping
             </button>
