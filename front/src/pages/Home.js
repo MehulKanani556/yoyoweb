@@ -36,46 +36,38 @@ export default function HomePage() {
         {
             name: "Fire Warrior",
             image: pubg,
-            color: "text-red-500",
-            bgColor: "bg-red-100",
+            // color: "text-red-500",
+            // bgColor: "bg-red-100",
             description: "Master of flames"
         },
         {
             name: "Ice Mage",
             image: freeFire,
-            color: "text-blue-500",
-            bgColor: "bg-blue-100",
+            // color: "text-blue-500",
+            // bgColor: "bg-blue-100",
             description: "Frozen spells expert"
         },
         {
             name: "Nature Guardian",
             image: kumfoo,
-            color: "text-green-500",
-            bgColor: "bg-green-100",
+            // color: "text-green-500",
+            // bgColor: "bg-green-100",
             description: "Forest protector"
         },
         {
             name: "Lightning Knight",
             image: sonic,
-            color: "text-yellow-500",
-            bgColor: "bg-yellow-100",
+            // color: "text-yellow-500",
+            // bgColor: "bg-yellow-100",
             description: "Storm wielder"
         },
         {
             name: "Shadow Assassin",
             image: mario,
-            color: "text-purple-500",
-            bgColor: "bg-purple-100",
+            // color: "text-purple-500",
+            // bgColor: "bg-purple-100",
             description: "Darkness master"
         }
-    ];
-
-    // Game cards data
-    const gameCards = [
-        { id: 1, title: "Power Card", value: "150", type: "Attack" },
-        { id: 2, title: "Defense Shield", value: "120", type: "Defense" },
-        { id: 3, title: "Magic Potion", value: "80", type: "Health" },
-        { id: 4, title: "Speed Boost", value: "200", type: "Agility" }
     ];
 
     // Change character and advance synced tick every 2 seconds
@@ -164,10 +156,7 @@ export default function HomePage() {
     return (
         <BackgroundColor className=''>
             <div className="relative h-screen overflow-hidden">
-                {/* Animated Background Layer */}
-                <div className="pointer-events-none absolute -top-10 -left-40 w-[50%] h-[80vh] rounded-full glow-purple blur-3xl" />
-                <div className="pointer-events-none absolute -top-10 -right-40 w-[50%] h-[80vh] rounded-full glow-pink blur-3xl" />
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-950 via-black to-green-950 overflow-hidden pointer-events-none z-0">
+                <div className="absolute inset-0 bg-gradient-to-r overflow-hidden pointer-events-none z-0">
                     {/* Grid Pattern */}
                     <div
                         className="absolute inset-0 opacity-10"

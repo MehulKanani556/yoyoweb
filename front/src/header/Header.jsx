@@ -21,7 +21,8 @@ const Header = () => {
         { name: 'Home', path: '/' },
         { name: 'Games', path: '/games' },
         { name: 'About', path: '/about' },
-        { name: 'Contact', path: '/contact' }
+        { name: 'Contact', path: '/contact' },
+        { name: 'Blog', path: '/blog' },
     ];
     const userId = localStorage.getItem('yoyouserId');
     const token = localStorage.getItem('yoyoToken');

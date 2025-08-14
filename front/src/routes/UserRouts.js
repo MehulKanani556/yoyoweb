@@ -16,6 +16,7 @@ import DeleteAccount from "../profile/DeleteAccount";
 import Orders from "../profile/Orders";
 import GameDetails from "../pages/GameDetails";
 import Cart from "../pages/Cart";
+import Blog from "../component/Blog";
 
 // const stripePromise = loadStripe("pk_test_51RlOu04MsbsH6KuURrRtTgj0lZCjFnmdn5A64CpHOHaPl8UwFGlX6jsYe9K9x4XUUSOIeUSisEM3aV5lriLPEw0300n0menKM3");
 
@@ -46,6 +47,7 @@ const UserRouts = () => {
         <Route path='/contact' element={<Contact />}> </Route>
         <Route path='/cart' element={<Cart />}> </Route>
         <Route path='/about' element={<About />}> </Route>
+        <Route path='/blog' element={<Blog />}> </Route>
         <Route path="/termsCondition" element={<TermsCondition />}></Route>
         <Route path="/privacyPolicy" element={<PrivacyPolacy />}></Route>
         <Route path='/profile' element={<Profile />}>
