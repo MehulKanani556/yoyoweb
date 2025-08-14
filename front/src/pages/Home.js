@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { FaPlaystation, FaXbox, FaSteam, FaGamepad } from 'react-icons/fa';
 import CardCarousel from "../component/CardCarousel"
 import img1 from "../Asset/images/1.webp";
@@ -16,6 +16,8 @@ import InfiniteMarqueeCards from '../component/InfiniteMarqueeCards';
 import Features from '../component/Features';
 import BackgroundColor from '../component/BackgroundColor';
 import SubscribeCTA from '../component/SubscribeCTA';
+import consoleImg from '../Asset/images/game-console.png';
+import swordImg from '../Asset/images/sword.png';
 
 const games = [
     { name: "Cyber Hunt", icon: <FaPlaystation size={50} /> },
@@ -30,6 +32,21 @@ export default function HomePage() {
     const [tick, setTick] = useState(0);
     const [activeWinnerName, setActiveWinnerName] = useState('EPIC');
     const [dots, setDots] = useState([]);
+
+    // Scroll-linked floating elements around the categories section
+const floatSectionRef = useRef(null);
+const { scrollYProgress } = useScroll({ target: floatSectionRef, offset: ["start end", "end start"] });
+// By default, useTransform with [0, 1] as input and [0, N] as output will clamp the output value
+// so it never goes below 0 or above N, even if scrollYProgress goes outside [0, 1].
+// If you want the floating images to keep moving beyond those limits (for example, if scrollYProgress < 0 or > 1),
+// you can pass { clamp: false } as a third argument to useTransform.
+// This removes the clamping, so the output value can go below 0 or above N if the scroll progress is outside [0, 1].
+
+const leftY = useTransform(scrollYProgress, [0, 1], [0, 1000], { clamp: false });
+const rightY = useTransform(scrollYProgress, [0, 1], [0, 3000], { clamp: false });
+// Start slightly tilted, end straight
+const leftRotate = useTransform(scrollYProgress, [0, 1], [800, 0]);
+const rightRotate = useTransform(scrollYProgress, [0, 1], [800, 0]);
 
     // Array of different characters that will rotate
     const characters = [
@@ -287,32 +304,24 @@ export default function HomePage() {
                         </div>
                     </div>
                 </div>
-
-                {/* Keyframes for background animation */}
-                <style>{`
-            @keyframes dropDown {
-                0% {
-                    transform: translateY(0) translateX(-50%);
-                    opacity: 0;
-                }
-                10% {
-                    opacity: 1;
-                }
-                90% {
-                    opacity: 1;
-                }
-                100% {
-                    transform: translateY(100vh) translateX(-50%);
-                    opacity: 0;
-                }
-            }
-            @keyframes spinSlow {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
-        `}</style>
+            
             </div>
-            <InfiniteMarqueeCards />
+            <div ref={floatSectionRef} className="relative overflow-hidden">
+    <motion.img
+        src={consoleImg}
+        alt="console"
+        className="absolute -top-6 left-8 w-24 md:w-32 opacity-90 select-none pointer-events-none"
+        loading="lazy"
+        style={{ y: leftY, rotate: leftRotate }}
+    />
+    <motion.img
+        src={swordImg}
+        alt="sword"
+        className="absolute -top-6 right-8 w-24 md:w-32 opacity-90 select-none pointer-events-none"
+        loading="lazy"
+        style={{ y: rightY, rotate: rightRotate }}
+    />
+        <InfiniteMarqueeCards />
             <CardCarousel
                 images={images}
                 autoplayDelay={1000}
@@ -322,6 +331,7 @@ export default function HomePage() {
 
             <Features />
             <SubscribeCTA />
+    </div>
         </BackgroundColor >
     );
 }

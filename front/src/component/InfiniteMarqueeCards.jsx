@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { categories, loading } = useSelector(
     (s) => ({
       categories: s.category.categories,
@@ -49,10 +49,14 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
       const rot = y * 0.5; // rotate
 
       if (leftFloatRef.current) {
-        leftFloatRef.current.style.transform = `translate(${sway}px, ${-rise*10}px) `;
+        leftFloatRef.current.style.transform = `translate(${sway}px, ${
+          -rise * 10
+        }px) `;
       }
       if (rightFloatRef.current) {
-        rightFloatRef.current.style.transform = `translate(${sway}px, ${rise*10}px) rotate(${rot*0.7}deg)`;
+        rightFloatRef.current.style.transform = `translate(${sway}px, ${
+          rise * 10
+        }px) rotate(${rot * 0.7}deg)`;
       }
     };
     onScroll();
@@ -134,7 +138,7 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
       <div className="pointer-events-none absolute bottom-10 -right-40 w-[700px] h-[700px] rounded-full glow-pink blur-3xl" />
 
       {/* Floating “game elements” at the upper sides */}
-      <img
+      {/* <img
         ref={leftFloatRef}
         src={mario}
         alt="left element"
@@ -147,12 +151,10 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
         alt="right element"
         className="floating-elem absolute -top-0 right-2 w-36 md:w-44 opacity-90 select-none pointer-events-none"
         loading="lazy"
-      />
+      /> */}
       <div className="rounded-3xl p-[1px] w-[80%] mx-auto overflow-hidden shadow-[0px_0px_2px_0px] shadow-primary-light">
         <div className="rotating-border w-full bg-white rounded-3xl">
-          <div
-            className="relative z-10 py-5 w-full mx-auto rounded-3xl backdrop-blur-lg bg-black/95"
-          >
+          <div className="relative z-10 py-5 w-full mx-auto rounded-3xl backdrop-blur-lg bg-black/95">
             {/* Header */}
             <div className="flex items-center  justify-between mb-5 w-full  px-4 sm:px-8 ">
               <span className="inline-block rounded-md px-2  md:px-4 py-1.5 shadow-lg">
@@ -162,7 +164,9 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
               </span>
               <button
                 type="button"
-                onClick={()=>{navigate("/games")}}
+                onClick={() => {
+                  navigate("/games");
+                }}
                 className="px-5 py-2 rounded-xl  text-white font-semibold bg-gradient-primary transition-colors shadow-md"
               >
                 View More
