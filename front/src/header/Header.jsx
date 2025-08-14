@@ -16,6 +16,7 @@ const Header = () => {
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [cartCount, setCartCount] = useState(0);
+		const [isScrolled, setIsScrolled] = useState(false);
     const navItems = [
         { name: 'Home', path: '/' },
         { name: 'Games', path: '/games' },
@@ -96,6 +97,14 @@ const Header = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, []);
 
+		// Detect scroll to toggle background width
+		useEffect(() => {
+			const handleScroll = () => setIsScrolled(window.scrollY > 0);
+			handleScroll();
+			window.addEventListener('scroll', handleScroll, { passive: true });
+			return () => window.removeEventListener('scroll', handleScroll);
+		}, []);
+
     const handleProfileNavigation = () => {
         setProfileDropdownOpen(false);
         // Small delay to allow exit animation to complete
@@ -116,8 +125,10 @@ const Header = () => {
 
     return (
         <header className="fixed top-0 left-0 right-0 z-50 text-white bg-transparent ">
-            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r z-50 from-purple-500 via-fuchsia-500 to-indigo-500" />
-            <div className="mx-auto w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%] flex justify-between items-center py-2 px-3 md:px-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+            {/* <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r z-50 from-purple-500 via-fuchsia-500 to-indigo-500" /> */}
+			<div className="relative">
+				<div className={`absolute inset-y-0 left-1/2 -translate-x-1/2  bg-white/5 border border-white/10 backdrop-blur shadow-[0_10px_30px_rgba(0,0,0,0.25)] transition-all duration-500 ease-in-out ${isScrolled ? 'w-screen' : 'w-[95%] sm:w-[92%] md:w-[90%] lg:w-[80%] rounded-2xl'}`}></div>
+				<div className={`mx-auto w-[95%] sm:w-[92%] md:w-[90%] lg:max-w-[80%] flex justify-between items-center py-2 px-3 md:px-4 relative z-10 `}>
                 {/* Logo */}
                 <motion.div
                     onClick={() => { navigate('/') }}
@@ -446,8 +457,9 @@ const Header = () => {
                     </button>
                 </div>
 
-                {/* Offcanvas Menu moved outside container to avoid clipping */}
-            </div>
+				{/* Offcanvas Menu moved outside container to avoid clipping */}
+				</div>
+			</div>
             {/* Backdrop and Drawer rendered at header level to span full width */}
             <>
                 {isMenuOpen && (
