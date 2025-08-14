@@ -190,21 +190,23 @@ const rightRotate = useTransform(scrollYProgress, [0, 1], [800, 0]);
                     </div>
 
                     {/* Dropping Animated Dots */}
-                    {dots.map((dot) => (
-                        <div
-                            key={dot.id}
-                            className={`absolute  ${dot.heightClass || 'h-8'} bg-yellow-500 rounded-full shadow-lg`}
-                            style={{
-                                left: `${dot.x}px`,
-                                top: `${dot.startY}px`,
-                                width: '1px',
-                                transform: 'translateX(-100%)',
-                                // boxShadow:
-                                //     '0 0 8px #fbbf24, 0 0 16px rgba(251, 191, 36, 0.6), 0 0 24px rgba(251, 191, 36, 0.3)',
-                                animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
-                            }}
-                        />
-                    ))}
+                    {dots.map((dot) => {
+                        // Randomly choose between primary and secondary color for each dot
+                        const colorClass = Math.random() < 0.5 ? 'bg-primary' : 'bg-secondary';
+                        return (
+                            <div
+                                key={dot.id}
+                                className={`absolute ${dot.heightClass || 'h-8'} ${colorClass} rounded-full shadow-lg`}
+                                style={{
+                                    left: `${dot.x}px`,
+                                    top: `${dot.startY}px`,
+                                    width: '1px',
+                                    transform: 'translateX(-200%)',
+                                    animation: `dropDown ${dot.duration}s infinite ${dot.delay}s linear`,
+                                }}
+                            />
+                        );
+                    })}
                 </div>
 
                 {/* Foreground Content */}
