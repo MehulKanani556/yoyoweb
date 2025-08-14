@@ -3,7 +3,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";
 import "swiper/css/effect-coverflow";
-import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Autoplay, EffectCoverflow, Navigation, Pagination, Mousewheel, Keyboard } from "swiper/modules";
 import { getAllGames } from "../Redux/Slice/game.slice";
@@ -15,7 +14,9 @@ const CardCarousel = ({
   showPagination = true,
   showNavigation = true,
 }) => {
-  const css = `
+  const css =
+    `
+
     .swiper {
       width: 100%;
       padding-bottom: 50px;
@@ -36,21 +37,13 @@ const CardCarousel = ({
                   clip-path 600ms cubic-bezier(0.22, 1, 0.36, 1);
       will-change: transform, clip-path;
     }
+
     /* Distinct shapes for immediate prev/next slides */
-    .swiper-slide-prev img {
-      /* Left neighbor: slanted left edges */
-      -webkit-clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 94%);
-      clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 94%);
+    .swiper-slide-next {
+    transform:translate3d(0px, 0px, -282px)  rotateY(145deg) scale(1) !important;
     }
-    .swiper-slide-next img {
-      /* Right neighbor: slanted right edges */
-      -webkit-clip-path: polygon(0 0, 100% 6%, 100% 94%, 0 100%);
-      clip-path: polygon(0 0, 100% 6%, 100% 94%, 0 100%);
-    }
-    .swiper-slide-next img,
-    .swiper-slide-prev img {
-      opacity: 0.85;
-      transform: scale(0.96);
+    .swiper-slide-prev {
+     transform:translate3d(0px, 0px, -282px)  rotateY(40deg) scale(1) !important
     }
     .swiper-slide-active img {
       opacity: 1;
@@ -174,7 +167,7 @@ const CardCarousel = ({
                     }
                     : undefined
                 }
-                modules={[EffectCoverflow, Pagination, Navigation, Autoplay, Mousewheel, Keyboard]}
+                modules={[EffectCoverflow, Pagination, Autoplay, Navigation, Mousewheel, Keyboard]}
               >
                 {displayImages.map((image, index) => (
                   <SwiperSlide key={`slide1-${index}`}>

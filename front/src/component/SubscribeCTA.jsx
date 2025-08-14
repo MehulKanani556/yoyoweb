@@ -42,25 +42,13 @@ const SubscribeCTA = () => {
 
     return (
         <section className="relative overflow-hidden py-20 sm:py-24 text-white px-4 sm:px-6 lg:px-8 ">
-            {/* Ambient blobs + subtle grid to match site hero */}
-            {/* <div className="pointer-events-none absolute inset-0">
-                <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
-                <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-pink-500/20 blur-3xl" />
-                <div
-                    className="absolute inset-0 opacity-[0.06]"
-                    style={{
-                        backgroundImage:
-                            'linear-gradient(rgba(255,255,255,0.6) 2px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 2px, transparent 1px)',
-                        backgroundSize: '100px 100px',
-                    }}
-                />
-            </div> */}
-
             <div className="relative max-w-[80%] w-full mx-auto ">
                 {/* Neon gradient frame */}
                 <div className="rounded-2xl md:rounded-3xl p-[1px] bg-[length:200%_200%] animate-gradient-x ">
+                    {/* Background border shadow effect */}
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/30 to-cyan-600/30 rounded-2xl blur opacity-60" />
                     <div className="relative rounded-2xl md:rounded-3xl border border-white/10  backdrop-blur-md ">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center p-6 sm:p-10 ">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center p-6 sm:p-10 bg-[#1b1920]/90 rounded-[25px]">
                             {/* Left: copy */}
                             <div>
                                 <p className="inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-widest uppercase text-white/70">
