@@ -34,20 +34,20 @@ module.exports = {
       },
       colors: {
         primary: {
-          DEFAULT: "#7269FF",
+          DEFAULT: "#7e22ce",
           light: "#FFFFFF",
           dark: "#0f0f0f",
         },
         secondary: {
-          DEFAULT: "#10B981",
+          DEFAULT: "#4338ca",
           light: "#34D399",
           dark: "#0f0f0f",
         },
       },
       backgroundImage: {
         // "gradient-primary": "linear-gradient(to right, #00c6ff, #0072ff, #00c6ff)",
-        "gradient-primary": "linear-gradient(to right, #ff7e5f, #feb47b, #ff7e5f)",
-        "gradient-secondary": "linear-gradient(to right, #ff7e5f, #feb47b)",
+        "gradient-primary": "linear-gradient(90deg,rgba(120, 36, 206, 1) 10%, rgba(67, 56, 202, 1) 100%)",
+        "gradient-radial": "radial-gradient(circle,rgba(120, 36, 206, 1) 0%, rgba(67, 56, 202, 1) 100%)",
         "gradient-success": "linear-gradient(to right, #06b6d4, #10b981)",
         "gradient-dark": "linear-gradient(to right, #0f0f0f, #3f3f46)",
       }

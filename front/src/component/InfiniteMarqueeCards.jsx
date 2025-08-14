@@ -5,9 +5,11 @@ import { getAllCategories } from "../Redux/Slice/category.slice";
 // Floating elements (top-sides)
 import mario from "../Asset/images/game-console.png";
 import sonic from "../Asset/images/sword.png";
+import { useNavigate } from "react-router-dom";
 
 const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const { categories, loading } = useSelector(
     (s) => ({
       categories: s.category.categories,
@@ -91,6 +93,15 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
           onLeave3d(e);
         }}
         onMouseEnter={onMouseEnter}
+        onClick={() => {
+          navigate("/games", {
+            state: {
+              name: item?.categoryName,
+              _id: item?._id,
+              id: item?.categoryName.toLowerCase(),
+            },
+          });
+        }}
         className="card-3d relative flex-shrink-0 w-[180px] h-[250px]  md:w-[230px] md:h-[350px] mx-5 rounded-xl overflow-hidden"
         style={{
           backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
@@ -151,7 +162,8 @@ const InfiniteMarqueeCards = memo(function InfiniteMarqueeCards() {
               </span>
               <button
                 type="button"
-                className="px-5 py-2 rounded-full bg-orange-500 text-black font-semibold hover:bg-orange-400 transition-colors shadow-md"
+                onClick={()=>{navigate("/games")}}
+                className="px-5 py-2 rounded-xl  text-white font-semibold bg-gradient-primary transition-colors shadow-md"
               >
                 View More
               </button>
