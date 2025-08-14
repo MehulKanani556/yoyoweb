@@ -31,7 +31,17 @@ const userSchema = mongoose.Schema({
     },
     photo: {
         type: String,
-    }
+    },
+    // Shopping cart stored on user document
+    cart: [
+        {
+            game: { type: mongoose.Schema.Types.ObjectId, ref: 'game', required: true },
+            platform: { type: String, enum: ['windows', 'ios', 'android'], required: true },
+            qty: { type: Number, default: 1, min: 1 },
+            price: { type: Number, required: true },
+            addedAt: { type: Date, default: Date.now }
+        }
+    ]
 }, {
     timestamps: true,
     versionKey: false

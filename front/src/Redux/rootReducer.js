@@ -8,6 +8,7 @@ import policySlice from "./Slice/PrivacyPolicy.slice";
 import dashboardSlice from "./Slice/dashboard.slice";
 import paymentSlice from './Slice/Payment.slice';
 import gameReducer from './Slice/game.slice';
+import cartReducer from './Slice/cart.slice';
 
 
 export const rootReducer = combineReducers({
@@ -20,4 +21,5 @@ export const rootReducer = combineReducers({
   dashboard: dashboardSlice,
   payment: paymentSlice,
   game: gameReducer,
+  cart: cartReducer,
 });

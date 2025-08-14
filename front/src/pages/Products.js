@@ -7,10 +7,11 @@ import { getAllActiveGames } from '../Redux/Slice/game.slice';
 import { getAllCategories } from '../Redux/Slice/category.slice';
 import { DiAndroid } from "react-icons/di";
 import { useNavigate } from 'react-router-dom';
+import { addToCart as addToCartAction, fetchCart } from '../Redux/Slice/cart.slice';
 import BackgroundColor from '../component/BackgroundColor';
 import gr from '../Asset/images/gr.svg'
-import gr2 from '../Asset/images/gr2.svg'
-import gr3 from '../Asset/images/gr3.svg'
+// import gr2 from '../Asset/images/gr2.svg'
+// import gr3 from '../Asset/images/gr3.svg'
 import gr4 from '../Asset/images/gr4.svg'
 
 export default function Products() {
@@ -27,10 +28,18 @@ export default function Products() {
     const [selectedPlatforms, setSelectedPlatforms] = useState({});
     const ActiveGames = useSelector((state) => state.game.games);
     const categoriesName = useSelector((state) => state.category.categories);
+    const cartItems = useSelector((state) => state.cart?.items || []);
+    const userId = localStorage.getItem('yoyouserId');
 
     useEffect(() => {
         dispatch(getAllActiveGames())
         dispatch(getAllCategories())
+        // Fetch cart items to check what's already added
+        const userId = localStorage.getItem('yoyouserId');
+        const token = localStorage.getItem('yoyoToken');
+        if (userId && token) {
+            dispatch(fetchCart());
+        }
     }, [dispatch])
 
     const options = [
@@ -43,6 +52,14 @@ export default function Products() {
     const handleSelect = (value) => {
         setSortBy(value);
         setIsOpen(false);
+    };
+
+    // Check if a game is already in cart for a specific platform
+    const isGameInCart = (gameId, platform) => {
+        return cartItems.some(item => 
+            String(item.game?._id || item.game) === String(gameId) && 
+            item.platform === platform
+        );
     };
 
     // Icon mapping for categories
@@ -609,32 +626,39 @@ export default function Products() {
                                                     <p className=''>Size - {game.platforms[selectedPlatform]?.size}</p>
                                                 </div>
 
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        try {
-                                                            const key = 'yoyoCart';
-                                                            const existing = JSON.parse(localStorage.getItem(key) || '[]');
-                                                            const itemId = game.id + ':' + selectedPlatform;
-                                                            const next = Array.isArray(existing) ? [...existing] : [];
-                                                            const idx = next.findIndex((it) => it?.id === itemId);
-                                                            if (idx >= 0) {
-                                                                next[idx] = { ...next[idx], qty: (next[idx]?.qty || 1) + 1 };
-                                                            } else {
-                                                                next.push({ id: itemId, gameId: game.id, platform: selectedPlatform, qty: 1 });
-                                                            }
-                                                            localStorage.setItem(key, JSON.stringify(next));
-                                                            window.dispatchEvent(new Event('cartUpdated'));
-                                                        } catch (err) {
-                                                            // ignore
-                                                        }
-                                                    }}
-                                                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-md font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2"
-                                                >
-                                                    <FiShoppingCart className="w-4 h-4" />
-                                                    Add To Cart
-                                                </button>
+                                                    {isGameInCart(game.id, selectedPlatform) ? (
+                                                    <button
+                                                        disabled
+                                                        className="bg-gray-500 text-white px-3 py-2 rounded-md font-medium flex items-center gap-2 cursor-not-allowed"
+                                                    >
+                                                        <FiShoppingCart className="w-4 h-4" />
+                                                        Already in Cart
+                                                    </button>
+                                                ) : !userId ? (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            navigate('/login');
+                                                        }}
+                                                        className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-2 rounded-md font-medium hover:from-orange-600 hover:to-red-600 transition-all hover:scale-105 flex items-center gap-2"
+                                                    >
+                                                        <FiShoppingCart className="w-4 h-4" />
+                                                        Login to Add
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            dispatch(addToCartAction({ gameId: game.id, platform: selectedPlatform, qty: 1 }));
+                                                        }}
+                                                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-md font-medium hover:from-purple-600 hover:to-pink-600 transition-all hover:scale-105 flex items-center gap-2"
+                                                    >
+                                                        <FiShoppingCart className="w-4 h-4" />
+                                                        Add To Cart
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

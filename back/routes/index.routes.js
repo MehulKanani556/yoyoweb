@@ -74,6 +74,7 @@ const {
 } = require("../controller/payment.controller");
 const csrf = require("csurf");
 const { getAllGames, createGame, updateGame, deleteGame, getAllActiveGames, getGameById } = require("../controller/game.controller");
+const { addToCart, updateCartItem, removeFromCart, clearCart, getCart } = require("../controller/cart.controller");
 
 const csrfProtection = csrf({
   cookie: {
@@ -255,5 +256,12 @@ indexRoutes.delete("/deletesubscribe/:id", csrfProtection, deleteSubscribe);
 indexRoutes.post("/create-payment", csrfProtection, auth, createPayment);
 indexRoutes.get("/getpayment", getallPayment);
 indexRoutes.get("/getPaymentUser", auth, getPaymentUser);
+
+// cart
+indexRoutes.get("/cart", auth, getCart);
+indexRoutes.post("/cart/add", auth, addToCart);
+indexRoutes.put("/cart/update", auth, updateCartItem);
+indexRoutes.post("/cart/remove", auth, removeFromCart);
+indexRoutes.post("/cart/clear", auth, clearCart);
 
 module.exports = indexRoutes;

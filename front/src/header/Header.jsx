@@ -47,30 +47,16 @@ const Header = () => {
         };
     }, [profileDropdownOpen]);
 
-    // Cart count sync from localStorage
+    // Cart count: fetch from backend and listen to updates from Redux store
+    const cartItems = useSelector((state) => state.cart?.items || []);
     useEffect(() => {
-        const getCount = () => {
-            if (!(userId && token)) {
-                setCartCount(0);
-                return;
-            }
-            try {
-                const items = JSON.parse(localStorage.getItem('yoyoCart') || '[]');
-                setCartCount(Array.isArray(items) ? items.reduce((sum, item) => sum + (item?.qty || 1), 0) : 0);
-            } catch (e) {
-                setCartCount(0);
-            }
-        };
-
-        getCount();
-        const onCartUpdated = () => getCount();
-        window.addEventListener('cartUpdated', onCartUpdated);
-        window.addEventListener('storage', onCartUpdated);
-        return () => {
-            window.removeEventListener('cartUpdated', onCartUpdated);
-            window.removeEventListener('storage', onCartUpdated);
-        };
-    }, [userId, token]);
+        if (!(userId && token)) {
+            setCartCount(0);
+            return;
+        }
+        const count = Array.isArray(cartItems) ? cartItems.reduce((sum, it) => sum + (it?.qty || 1), 0) : 0;
+        setCartCount(count);
+    }, [userId, token, cartItems]);
 
     // Prevent background scroll when the mobile menu is open
     useEffect(() => {
@@ -110,6 +96,7 @@ const Header = () => {
         // Small delay to allow exit animation to complete
         setTimeout(() => {
             navigate("/profile");
+            setProfileDropdownOpen(false);
         }, 200);
     };
 
@@ -224,7 +211,7 @@ const Header = () => {
                                     >
                                         <button
                                             className="w-full text-left px-4 py-2 flex gap-2 items-center hover:bg-white/5 text-gray-200 hover:text-purple-400 transition-colors"
-                                            onClick={handleProfileNavigation}
+                                            onClick={()=>{handleProfileNavigation();setProfileDropdownOpen(false)}}
                                         >
                                             <div>
                                                 <FaUser />
@@ -238,6 +225,7 @@ const Header = () => {
                                             onClick={() => {
                                                 setProfileDropdownOpen(false);
                                                 setShowLogoutModal(true);
+
                                             }}
                                         >
                                             <div className='text-xl'>
@@ -369,7 +357,7 @@ const Header = () => {
                                     >
                                         <button
                                             className="w-full text-left flex gap-2 items-center px-4 py-2 hover:bg-white/5 text-gray-200 hover:text-purple-400 transition-colors"
-                                            onClick={handleProfileNavigation}
+                                           onClick={()=>{handleProfileNavigation();setProfileDropdownOpen(false)}}
                                         >
                                             <div>
                                                 <FaUser />

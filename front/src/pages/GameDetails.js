@@ -4,6 +4,7 @@ import { FaApple, FaChevronDown, FaCopy, FaFacebook, FaHeart, FaLinkedin, FaShar
 import { TiArrowBack } from "react-icons/ti";
 import { useDispatch, useSelector } from 'react-redux';
 import { getGameById } from '../Redux/Slice/game.slice';
+import { addToCart as addToCartAction, fetchCart } from '../Redux/Slice/cart.slice';
 import { DiAndroid } from 'react-icons/di';
 import { FaXTwitter } from 'react-icons/fa6';
 
@@ -192,9 +193,11 @@ export default function GameDetails() {
     const [openPlatform, setOpenPlatform] = useState(null);
     const singleGame = useSelector((state) => state.game.singleGame);
     const loading = useSelector((state) => state.game.loading);
+    const cartItems = useSelector((state) => state.cart?.items || []);
     console.log("singleGame", singleGame);
     const [showShareModal, setShowShareModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
+    const userId = localStorage.getItem('yoyouserId');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openModal = (image) => {
@@ -227,9 +230,23 @@ export default function GameDetails() {
         return availablePlatforms;
     };
 
+    // Check if a game is already in cart for a specific platform
+    const isGameInCart = (gameId, platform) => {
+        return cartItems.some(item => 
+            String(item.game?._id || item.game) === String(gameId) && 
+            item.platform === platform
+        );
+    };
+
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [])
+        // Fetch cart items to check what's already added
+        const userId = localStorage.getItem('yoyouserId');
+        const token = localStorage.getItem('yoyoToken');
+        if (userId && token) {
+            dispatch(fetchCart());
+        }
+    }, [dispatch])
 
     useEffect(() => {
         const availablePlatforms = getAvailablePlatforms();
@@ -437,10 +454,25 @@ export default function GameDetails() {
                                         <p className="text-white">Price : $ {singleGame.platforms[selectedPlatform].price}</p>
                                         <p className="text-white">Size : {singleGame.platforms[selectedPlatform].size}</p>
                                     </div>
-                                    <button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs">
-                                        <FaShoppingCart className="w-4 h-4" />
-                                        <span>Add To Cart</span>
-                                    </button>
+                                    {isGameInCart(singleGame._id, selectedPlatform) ? (
+                                        <button disabled className="bg-gray-500 text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 text-xs cursor-not-allowed">
+                                            <FaShoppingCart className="w-4 h-4" />
+                                            <span>Already in Cart</span>
+                                        </button>
+                                    ) : !userId ? (
+                                        <button 
+                                            onClick={() => navigate('/login')} 
+                                            className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs"
+                                        >
+                                            <FaShoppingCart className="w-4 h-4" />
+                                            <span>Login to Add</span>
+                                        </button>
+                                    ) : (
+                                        <button onClick={() => dispatch(addToCartAction({ gameId: singleGame._id, platform: selectedPlatform, qty: 1 }))} className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-2 h-10 rounded-md font-semibold flex items-center space-x-2 transition-all duration-300 transform hover:scale-105 shadow-lg text-xs">
+                                            <FaShoppingCart className="w-4 h-4" />
+                                            <span>Add To Cart</span>
+                                        </button>
+                                    )}
                                 </div>
                             )}
                         </div>
